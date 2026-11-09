@@ -1,0 +1,15 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import OrdersTable from '../../components/admin/OrdersTable';
+import { db } from '../../db';
+import { orders } from '../../db/schema';
+import { ensureDb } from '../../lib/models';
+import { desc } from 'drizzle-orm';
+
+ensureDb();
+const rows = db.select().from(orders).orderBy(desc(orders.id)).all();
+---
+
+<AdminLayout title="Заказы">
+  <OrdersTable client:load orders={rows} />
+</AdminLayout>

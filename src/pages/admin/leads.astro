@@ -1,0 +1,16 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db } from '../../db';
+import { leads } from '../../db/schema';
+import { ensureDb } from '../../lib/models';
+import { desc } from 'drizzle-orm';
+import LeadsTable from '../../components/admin/LeadsTable';
+
+ensureDb();
+const rows = db.select().from(leads).orderBy(desc(leads.id)).all();
+---
+
+<AdminLayout title="Лиды">
+  <p style="color:#8a8580; margin-top:0;">Заявки без завершённой брони. Здесь видно, где отваливаются.</p>
+  <LeadsTable client:load leads={rows} />
+</AdminLayout>

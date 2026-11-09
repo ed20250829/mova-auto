@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+---
+
+<BaseLayout
+  title="Для автосалонов — Мова"
+  description="Договор, закрывающие документы, фикс-цена за машину. Русификация для салонов в Минске."
+>
+  <SiteHeader />
+  <main id="main" class="section">
+    <div class="container" style="max-width:820px; display:grid; gap:1rem;">
+      <p class="kicker">Автосалоны</p>
+      <h1 class="display" style="font-size:clamp(2rem,5vw,3rem); margin:0;">Русский язык без репутационного шума</h1>
+      <p class="muted">
+        Работаем как подрядчик по настройке ПО мультимедиа. Договор. Закрывающие. Фикс за машину. Без вывески «мы тут рядом с вами».
+      </p>
+      <ul class="muted">
+        <li>Юридическая формулировка услуги под IT-коды</li>
+        <li>Отчётность по VIN / заявкам</li>
+        <li>Предсказуемый SLA по слотам</li>
+      </ul>
+      <a class="btn" href="/#booking">Запросить условия для салона</a>
+      <p class="muted" style="font-size:0.9rem;">В комментарии: название салона и контакт ЛПР.</p>
+    </div>
+  </main>
+  <SiteFooter />
+</BaseLayout>

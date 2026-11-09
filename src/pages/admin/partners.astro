@@ -1,0 +1,23 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import PartnersPanel from '../../components/admin/PartnersPanel';
+import { db } from '../../db';
+import { partners, orders } from '../../db/schema';
+import { ensureDb } from '../../lib/models';
+
+ensureDb();
+const rows = db.select().from(partners).all();
+const allOrders = db.select().from(orders).all();
+const month = new Date().toISOString().slice(0, 7);
+const enriched = rows.map((p) => {
+  const linked = allOrders.filter((o) => o.partnerId === p.id && o.createdAt.startsWith(month));
+  const due = linked
+    .filter((o) => o.status !== 'cancelled')
+    .reduce((s, o) => s + (p.wholesalePrice ?? o.price), 0);
+  return { ...p, monthOrders: linked.length, amountDue: due };
+});
+---
+
+<AdminLayout title="Партнёры">
+  <PartnersPanel client:load partners={enriched} />
+</AdminLayout>

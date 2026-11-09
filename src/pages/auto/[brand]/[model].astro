@@ -1,0 +1,184 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFooter from '../../../components/SiteFooter.astro';
+import Calculator from '../../../components/client/Calculator';
+import BookingForm from '../../../components/client/BookingForm';
+import { getAllModels, getModelBySlug } from '../../../lib/models';
+import { complexityLabel, formatByn, formatMinutes } from '../../../lib/format';
+
+const { brand, model } = Astro.params;
+const item = getModelBySlug(brand!, model!);
+if (!item) {
+  return Astro.redirect('/');
+}
+
+const all = getAllModels();
+const calcModels = all.map((m) => ({
+  id: m.id,
+  brand: m.brand,
+  brandSlug: m.brandSlug,
+  model: m.model,
+  modelSlug: m.modelSlug,
+  priceBase: m.priceBase,
+  timeMinutes: m.timeMinutes,
+  complexity: m.complexity,
+  requiresOtaSubscription: m.requiresOtaSubscription,
+  notes: m.notes,
+}));
+
+const title = `${item.brand} ${item.model} — русификация в Минске | Мова`;
+const description = `Русификация ${item.brand} ${item.model}: ${formatByn(item.priceBase)}, ~${formatMinutes(item.timeMinutes)}. Фикс-цена. Запись онлайн.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: `Русификация ${item.brand} ${item.model}`,
+  provider: {
+    '@type': 'LocalBusiness',
+    name: 'Мова',
+    address: { '@type': 'PostalAddress', addressLocality: 'Минск', addressCountry: 'BY' },
+  },
+  areaServed: 'Минск',
+  offers: {
+    '@type': 'Offer',
+    price: item.priceBase,
+    priceCurrency: 'BYN',
+  },
+};
+---
+
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <SiteHeader />
+  <main id="main" class="section">
+    <div class="container model-page">
+      <nav class="crumbs muted" aria-label="Хлебные крошки">
+        <a href="/">Мова</a> / <a href="/#calculator">{item.brand}</a> / <span>{item.model}</span>
+      </nav>
+      <div class="grid">
+        <article>
+          <p class="kicker">{item.screenType}</p>
+          <h1 class="display">{item.brand} {item.model}</h1>
+          <p class="muted">
+            {item.yearFrom}{item.yearTo ? `–${item.yearTo}` : '+'}
+            {item.generation ? ` · ${item.generation}` : ''}
+            · {complexityLabel(item.complexity)}
+          </p>
+          <p class="price display">{formatByn(item.priceBase)}</p>
+          <p class="muted">Время: ~{formatMinutes(item.timeMinutes)} · базовая русификация меню</p>
+
+          <div class="block layers">
+            <h2>Что по слоям</h2>
+            <ul>
+              <li><strong>Становится русским:</strong> меню и настройки системы — где позволяет платформа.</li>
+              <li><strong>Часто остаётся китайским:</strong> штатный голосовой ассистент OEM.</li>
+              <li><strong>Приложения:</strong> Яндекс (Алиса, Карты, Музыка…) ставим и настраиваем, где технически возможно — отдельно от базы.</li>
+              <li><strong>OTA-страховка:</strong> защита от сброса языка после обновления — отдельная опция{item.requiresOtaSubscription ? ', для этой модели рекомендуем' : ''}.</li>
+            </ul>
+          </div>
+
+          {item.knownIssues.length > 0 && (
+            <div class="block">
+              <h2>Известные нюансы</h2>
+              <ul>
+                {item.knownIssues.map((i) => <li>{i}</li>)}
+              </ul>
+            </div>
+          )}
+
+          {item.notes && (
+            <div class="block">
+              <h2>Важно до записи</h2>
+              <p class="muted">{item.notes}</p>
+            </div>
+          )}
+
+          {item.requiresOtaSubscription && (
+            <p class="chip" style="margin-top:1rem;">Рекомендуем OTA-страховку</p>
+          )}
+
+          <div class="cta-row">
+            <a class="btn" href="#booking">Записаться на {item.model}</a>
+            <a class="btn btn-ghost" href="/#calculator">Сравнить в калькуляторе</a>
+          </div>
+        </article>
+        <aside class="model-calc">
+          <Calculator
+            client:visible
+            models={calcModels}
+            initialBrand={item.brand}
+            initialModelId={item.id}
+            syncRoute
+          />
+        </aside>
+      </div>
+
+      <div class="booking-block" id="booking">
+        <BookingForm client:visible models={calcModels} preselectId={item.id} />
+      </div>
+    </div>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .crumbs {
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+  }
+  .crumbs a {
+    color: var(--text-muted);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+  h1.display {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    margin: 0.3rem 0;
+  }
+  .price {
+    color: var(--text);
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    margin: 1rem 0 0.25rem;
+  }
+  .block {
+    margin-top: 1.5rem;
+  }
+  .layers strong {
+    color: var(--text);
+  }
+  .block h2 {
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem;
+  }
+  .block ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--text-muted);
+    display: grid;
+    gap: 0.35rem;
+  }
+  .cta-row {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+  }
+  .booking-block {
+    margin-top: 2.5rem;
+  }
+  @media (min-width: 1024px) {
+    .model-calc {
+      position: sticky;
+      top: 1rem;
+    }
+  }
+  @media (max-width: 960px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

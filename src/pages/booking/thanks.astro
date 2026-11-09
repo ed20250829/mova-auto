@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import PromoCode from '../../components/client/PromoCode';
+
+const order = Astro.url.searchParams.get('order') || '';
+const ics = Astro.url.searchParams.get('ics') || '';
+---
+
+<BaseLayout title="Спасибо за запись — Мова" description="Заявка принята. Добавьте слот в календарь и поделитесь с другом.">
+  <SiteHeader />
+  <main id="main" class="section">
+    <div class="container thanks">
+      <p class="kicker">Готово</p>
+      <h1 class="display">Заявка принята{order ? ` #${order}` : ''}</h1>
+      <p class="muted">
+        Мы получили данные. Если Telegram настроен — владельцу уже ушло уведомление. Ждите подтверждение слота.
+      </p>
+
+      {ics && (
+        <a
+          class="btn"
+          href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`}
+          download={`mova-booking-${order || 'slot'}.ics`}
+        >
+          Скачать .ics в календарь
+        </a>
+      )}
+
+      <div class="referral surface">
+        <h2 class="display" style="font-size:1.4rem; margin:0 0 0.5rem;">Поделись с другом</h2>
+        <p class="muted" style="margin:0 0 1rem;">
+          Друг записывается по вашей рекомендации — вы получаете 100 BYN скидку на следующую услугу или продление OTA-страховки.
+        </p>
+        <button class="btn" id="ref-share" type="button">Поделиться ссылкой</button>
+        <p class="muted" id="ref-status" style="min-height:1.2em; margin:0.75rem 0 0;"></p>
+      </div>
+
+      <PromoCode client:visible />
+      <p style="margin-top:1.5rem;"><a href="/">← На главную</a></p>
+    </div>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<script>
+  const btn = document.getElementById('ref-share');
+  const status = document.getElementById('ref-status');
+  btn?.addEventListener('click', async () => {
+    const url = `${location.origin}/?utm_source=referral&utm_medium=share&utm_campaign=thanks100`;
+    const text = `Мова — русификация авто в Минске. Фикс-цена на сайте: ${url}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Мова', text, url });
+      } else {
+        await navigator.clipboard.writeText(text);
+        if (status) status.textContent = 'Ссылка скопирована';
+      }
+      fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'share_click', meta: { type: 'referral' }, utmSource: 'referral' }),
+      });
+    } catch {
+      if (status) status.textContent = 'Не удалось поделиться. Скопируйте адрес вручную.';
+    }
+  });
+</script>
+
+<style>
+  .thanks {
+    max-width: 720px;
+    display: grid;
+    gap: 1.1rem;
+  }
+  h1.display {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0;
+  }
+  .referral {
+    padding: 1.25rem;
+  }
+</style>

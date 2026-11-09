@@ -1,0 +1,18 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import SubscriptionsPanel from '../../components/admin/SubscriptionsPanel';
+import { db } from '../../db';
+import { subscriptions } from '../../db/schema';
+import { ensureDb } from '../../lib/models';
+
+ensureDb();
+const rows = db.select().from(subscriptions).all();
+const active = rows.filter((r) => r.status === 'active');
+const mrr = Math.round(active.reduce((s, r) => s + r.price, 0) / 12);
+const churned = rows.filter((r) => r.status === 'churned').length;
+const churn = rows.length ? Math.round((churned / rows.length) * 100) : 0;
+---
+
+<AdminLayout title="Подписки OTA">
+  <SubscriptionsPanel client:load subscriptions={rows} mrr={mrr} churn={churn} />
+</AdminLayout>

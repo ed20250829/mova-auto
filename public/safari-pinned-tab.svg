@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Monochrome silhouette for Safari mask-icon; color via <link color> -->
+  <path
+    fill="#000"
+    d="M2.2 13.2V3.2h1.85l2.1 5.05L8.3 3.2h1.85v10H8.55V8.05L6.95 13.2H5.55L3.9 8.05v5.15H2.2zm9.55-6.55h2.05v.95H11.75v-.95zm0 2.45h2.05v.95H11.75v-.95z"
+  />
+</svg>

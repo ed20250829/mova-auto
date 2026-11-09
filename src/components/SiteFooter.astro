@@ -1,0 +1,130 @@
+---
+import PromoCode from './client/PromoCode';
+const year = new Date().getFullYear();
+const bot = import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_bot';
+---
+
+<footer class="site-footer section-tight">
+  <div class="container footer-grid">
+    <div>
+      <p class="logo">
+        <svg class="logo-mark" viewBox="0 0 64 64" width="32" height="32" aria-hidden="true" focusable="false">
+          <rect width="64" height="64" rx="14" fill="#0E0F10"></rect>
+          <path
+            fill="#FF5722"
+            d="M12 48V16h7.2l8.4 20.4L36 16h7.2v32h-6.4V27.6L29.6 48h-5.2L17.2 27.6V48H12z"
+          ></path>
+          <rect x="46" y="25" width="9" height="4" rx="1.2" fill="#F4F1EC"></rect>
+          <rect x="46" y="35" width="9" height="4" rx="1.2" fill="#F4F1EC"></rect>
+        </svg>
+        <span class="logo-word">Мова</span>
+      </p>
+      <p class="muted">Язык твоего авто. Русификация мультимедиа китайских авто в Минске.</p>
+      <p class="muted" style="margin-top:0.75rem; font-size:0.85rem; max-width:42ch;">
+        Услуга формулируется как настройка и локализация программного обеспечения мультимедийной системы.
+        Не ремонт автомобиля.
+      </p>
+    </div>
+    <div>
+      <p style="font-weight:700; margin:0 0 0.5rem;">Разделы</p>
+      <ul>
+        <li><a href="/#calculator">Калькулятор</a></li>
+        <li><a href="/#segments">Сегменты</a></li>
+        <li><a href="/#faq">FAQ</a></li>
+        <li><a href="/#booking">Запись</a></li>
+        <li><a href="/admin">Админка</a></li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-weight:700; margin:0 0 0.5rem;">Контакт</p>
+      <ul>
+        <li>Минск, Беларусь</li>
+        <li><a href={bot} target="_blank" rel="noreferrer">Telegram-бот</a></li>
+        <li><a href="mailto:hello@mova-auto.tech">hello@mova-auto.tech</a></li>
+      </ul>
+      <div style="margin-top:1rem;">
+        <PromoCode client:visible compact />
+      </div>
+    </div>
+  </div>
+  <div class="container footer-meta">
+    <span>© {year} Мова · mova-auto.tech · Минск</span>
+    <a
+      class="doko-credit"
+      href="https://doko.by/web-design"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      сайт разработан doko.by
+    </a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--border);
+  }
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.6rem;
+    letter-spacing: -0.05em;
+    margin: 0 0 0.5rem;
+  }
+  .logo-mark {
+    display: block;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .logo-word {
+    line-height: 1;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1.2fr;
+    gap: 2rem;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  a {
+    color: var(--text-muted);
+  }
+  a:hover {
+    color: var(--text);
+  }
+  .footer-meta {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    justify-content: space-between;
+    align-items: baseline;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+  }
+  .doko-credit {
+    color: var(--text-muted);
+    text-underline-offset: 0.22em;
+    transition: color 180ms var(--ease-out);
+  }
+  .doko-credit:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  @media (max-width: 800px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

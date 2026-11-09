@@ -1,0 +1,63 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const path = Astro.url.pathname;
+
+const links = [
+  { href: '/admin', label: 'Дашборд' },
+  { href: '/admin/orders', label: 'Заказы' },
+  { href: '/admin/leads', label: 'Лиды' },
+  { href: '/admin/models', label: 'Модели' },
+  { href: '/admin/partners', label: 'Партнёры' },
+  { href: '/admin/subscriptions', label: 'Подписки' },
+  { href: '/admin/analytics', label: 'Аналитика' },
+  { href: '/admin/finance', label: 'Финансы' },
+];
+
+function isCurrent(href: string) {
+  if (href === '/admin') return path === '/admin';
+  return path.startsWith(href);
+}
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>{title} · Мова Admin</title>
+    <meta name="theme-color" content="#0E0F10" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700,900&display=swap" rel="stylesheet" />
+  </head>
+  <body class="admin-body">
+    <div class="admin-shell">
+      <aside class="admin-nav">
+        <p style="padding: 0.35rem 0.75rem 1rem; font-weight: 900; letter-spacing: -0.04em; font-size: 1.25rem;">
+          Мова <span style="color:#ff5722">Admin</span>
+        </p>
+        {links.map((l) => (
+          <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a>
+        ))}
+        <form method="post" action="/api/admin/logout" style="margin-top: 1.5rem; padding: 0 0.75rem;">
+          <button class="admin-btn ghost" type="submit" style="width:100%">Выйти</button>
+        </form>
+      </aside>
+      <main class="admin-main">
+        <header style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
+          <h1 style="margin:0; font-size:1.55rem; letter-spacing:-0.03em;">{title}</h1>
+          <a href="/" style="color:#8a8580; font-size:0.85rem;">← На сайт</a>
+        </header>
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>

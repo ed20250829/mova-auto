@@ -1,0 +1,435 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Calculator from '../components/client/Calculator';
+import BookingForm from '../components/client/BookingForm';
+import Faq from '../components/client/Faq';
+import PromoCode from '../components/client/PromoCode';
+import SmoothScroll from '../components/client/SmoothScroll';
+import HeroMotion from '../components/client/HeroMotion';
+import { getAllModels } from '../lib/models';
+
+const models = getAllModels();
+const calcModels = models.map((m) => ({
+  id: m.id,
+  brand: m.brand,
+  brandSlug: m.brandSlug,
+  model: m.model,
+  modelSlug: m.modelSlug,
+  priceBase: m.priceBase,
+  timeMinutes: m.timeMinutes,
+  complexity: m.complexity,
+  requiresOtaSubscription: m.requiresOtaSubscription,
+  notes: m.notes,
+}));
+
+const localBusiness = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: 'Мова',
+  description: 'Русификация китайских авто в Минске. Фикс-цена, запись онлайн, OTA-страховка.',
+  url: 'https://mova-auto.tech',
+  image: 'https://mova-auto.tech/og.svg',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Минск',
+    addressCountry: 'BY',
+  },
+  areaServed: {
+    '@type': 'City',
+    name: 'Минск',
+  },
+  priceRange: '450-1450 BYN',
+  currenciesAccepted: 'BYN',
+};
+
+const brands = [...new Set(models.map((m) => m.brand))];
+---
+
+<BaseLayout
+  title="Мова — русификация китайских авто в Минске"
+  description="Фикс-цена на сайте. Запись онлайн за 60 секунд. Гарантия 6 месяцев. OTA-страховка. Мова — язык твоего авто. Минск."
+  jsonLd={localBusiness}
+>
+  <SmoothScroll client:load />
+  <SiteHeader />
+  <main id="main">
+    <section class="hero section">
+      <HeroMotion client:load />
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="brand display" data-hero-reveal>Мова</p>
+          <h1 class="display" data-hero-reveal>
+            Язык твоего авто
+          </h1>
+          <p class="lead muted" data-hero-reveal>
+            Русификация меню китайских авто в Минске. Фикс-цена. Слот онлайн.
+          </p>
+          <p class="hero-aside muted" data-hero-reveal>
+            Штатный голос часто остаётся китайским · Яндекс-приложения — где позволяет система
+          </p>
+          <div class="hero-cta" data-hero-reveal>
+            <a class="btn" href="#calculator">Узнать цену</a>
+            <a class="btn btn-ghost" href="#booking">Выбрать слот</a>
+          </div>
+          <div class="hero-scene" aria-hidden="true">
+            <span class="cn" data-hero-cn>设置 · 系统 · 导航</span>
+            <span class="arrow">→</span>
+            <span class="ru" data-hero-ru>Настройки · Система · Навигация</span>
+          </div>
+        </div>
+        <div id="calculator" class="hero-calc" data-hero-reveal>
+          <Calculator client:load models={calcModels} />
+        </div>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div class="container">
+        <PromoCode client:visible />
+      </div>
+    </section>
+
+    <section class="section" id="segments">
+      <div class="container">
+        <p class="kicker">Аудитория</p>
+        <h2 class="display section-title">Четыре разных боли. Четыре разных ответа.</h2>
+        <div class="segments">
+          <article>
+            <h3>Новичок</h3>
+            <p class="muted">Купил китайца. Меню непонятное. Боится нажать не туда.</p>
+            <p>Фикс по модели. Честно: штатный голос часто остаётся китайским; для Алисы, Карт и Музыки — пакет приложений, где система позволяет.</p>
+            <a class="btn" href="#calculator">Показать цену по модели</a>
+          </article>
+          <article>
+            <h3>Уже пробовал</h3>
+            <p class="muted">Дешёвый мастер. OTA сбросил русский. Платил зря.</p>
+            <p>OTA-страховка отдельно от приложений. Подписка. Гарантия 6 месяцев. Повтор без полной оплаты заново.</p>
+            <a class="btn" href="#booking">Записаться с OTA-страховкой</a>
+          </article>
+          <article>
+            <h3>Импортёр</h3>
+            <p class="muted">5–15 машин в месяц. Клиент возвращается: «почему по-китайски?».</p>
+            <p>Оптовые цены. Приоритетные слоты. Уведомления о готовности в Telegram.</p>
+            <a class="btn" href="/segments/importers">Условия для импортёров</a>
+          </article>
+          <article>
+            <h3>Автосалон</h3>
+            <p class="muted">Официальные продажи. Нужны документы и тихая репутация.</p>
+            <p>Договор. Закрывающие. Фикс за машину. Отчётность без лишнего шума.</p>
+            <a class="btn" href="/segments/dealers">Запрос для салона</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div class="container brands-block">
+        <div>
+          <p class="kicker">База моделей</p>
+          <h2 class="display section-title">40+ моделей в прайсе</h2>
+          <p class="muted">Цена и время по каждой. Карточки индексируются поиском.</p>
+        </div>
+        <div class="brand-chips">
+          {brands.map((b) => {
+            const sample = models.find((m) => m.brand === b);
+            return (
+              <a class="chip" href={sample ? `/auto/${sample.brandSlug}/${sample.modelSlug}` : '#'}>
+                {b}
+              </a>
+            );
+          })}
+        </div>
+        <div class="model-links">
+          {models.slice(0, 12).map((m) => (
+            <a class="model-link" href={`/auto/${m.brandSlug}/${m.modelSlug}`}>
+              <span class="model-link-main">{m.brand} {m.model}</span>
+              <span class="model-link-price">{m.priceBase}&nbsp;BYN</span>
+            </a>
+          ))}
+        </div>
+        <p class="muted" style="margin-top:1rem;">
+          Полный список — в калькуляторе и по прямым URL `/auto/[марка]/[модель]`.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="honest">
+      <div class="container honest">
+        <div>
+          <p class="kicker">Честно</p>
+          <h2 class="display section-title">Что делаем. Чего не делаем.</h2>
+        </div>
+        <div class="honest-grid">
+          <div>
+            <h3>Делаем</h3>
+            <ul>
+              <li>Базовая русификация: меню и настройки, где позволяет система</li>
+              <li>Пакет Яндекс-приложений (Алиса, Карты, Музыка…) — где технически возможно</li>
+              <li>OTA-страховка по подписке — отдельный слой</li>
+              <li>Фикс-цена базы до визита</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Не делаем</h3>
+            <ul>
+              <li>Ремонт и диагностика узлов</li>
+              <li>«Тюнинг» и чип ради мощности</li>
+              <li>Не обещаем, что штатный китайский голос станет русским</li>
+              <li>Скрытых доплат на месте</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="container faq-grid">
+        <div>
+          <p class="kicker">FAQ</p>
+          <h2 class="display section-title">Короткие ответы</h2>
+          <p class="muted">Если ответа нет — напишите в Telegram. Ответим по делу.</p>
+        </div>
+        <Faq client:visible />
+      </div>
+    </section>
+
+    <section class="section" id="booking">
+      <div class="container booking-wrap">
+        <BookingForm client:visible models={calcModels} />
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-top: clamp(1.5rem, 4vw, 2.75rem);
+    padding-bottom: clamp(2.5rem, 6vw, 4rem);
+    overflow-x: clip;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(1.25rem, 3.5vw, 2.5rem);
+    align-items: start;
+  }
+  .hero-calc {
+    min-width: 0;
+  }
+  @media (min-width: 1024px) {
+    .hero-calc {
+      position: sticky;
+      top: 1rem;
+    }
+  }
+  .brand {
+    font-size: clamp(3.4rem, 9vw, 5.8rem);
+    margin: 0;
+    color: var(--accent);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+  h1.display {
+    font-size: clamp(1.7rem, 3.8vw, 2.45rem);
+    margin: 0.45rem 0 0;
+    max-width: 12ch;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+  .lead {
+    font-size: 1.05rem;
+    max-width: 32ch;
+    margin: 0.95rem 0 0;
+    line-height: 1.5;
+  }
+  .hero-aside {
+    margin: 0.55rem 0 0;
+    font-size: 0.88rem;
+    max-width: 36ch;
+    line-height: 1.45;
+    color: #c2bbb3;
+  }
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 1.2rem;
+  }
+  .hero-scene {
+    margin-top: 1.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 0.75rem;
+    align-items: center;
+    font-size: clamp(0.88rem, 2vw, 1.05rem);
+    letter-spacing: -0.02em;
+  }
+  .hero-scene .cn {
+    color: #d2ccc4;
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: color-mix(in srgb, #d2ccc4 55%, transparent);
+  }
+  .hero-scene .arrow {
+    color: var(--accent);
+    font-weight: 900;
+  }
+  .hero-scene .ru {
+    font-weight: 700;
+    color: var(--text);
+  }
+  .section-title {
+    font-size: clamp(1.7rem, 3.8vw, 2.45rem);
+    margin: 0.4rem 0 1.35rem;
+    max-width: 16ch;
+  }
+  .segments {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem 1.5rem;
+  }
+  .segments article {
+    padding: 1.15rem 0 1.25rem;
+    border-top: 1px solid var(--border-strong);
+    display: grid;
+    gap: 0.55rem;
+    align-content: start;
+    min-width: 0;
+  }
+  .segments article:nth-child(even) {
+    transform: translateY(0.65rem);
+  }
+  .segments h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    letter-spacing: -0.03em;
+  }
+  .segments .btn {
+    justify-self: start;
+    min-height: 42px;
+    margin-top: 0.25rem;
+  }
+  .brand-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  .model-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    column-gap: 1.5rem;
+    row-gap: 0;
+  }
+  .model-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.7rem 0.75rem 0.7rem 0;
+    border-bottom: 1px solid var(--border);
+    min-width: 0;
+  }
+  .model-link-main {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .model-link-price {
+    color: var(--text);
+    font-weight: 700;
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .honest-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  .honest-grid ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.1rem;
+    color: var(--text-muted);
+    display: grid;
+    gap: 0.4rem;
+  }
+  .faq-grid {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  .booking-wrap {
+    max-width: 920px;
+  }
+
+  @media (max-width: 1023px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .hero-copy {
+      order: 1;
+    }
+    .hero-calc {
+      order: 2;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .segments,
+    .honest-grid,
+    .faq-grid,
+    .model-links {
+      grid-template-columns: 1fr;
+    }
+    .segments article:nth-child(even) {
+      transform: none;
+    }
+    h1.display {
+      max-width: none;
+    }
+    .hero-cta .btn,
+    .hero-cta .btn-ghost {
+      flex: 1 1 auto;
+      min-width: min(100%, 10rem);
+    }
+    .model-link {
+      padding-inline-end: 0;
+    }
+  }
+
+  @media (max-width: 390px) {
+    .container {
+      width: min(1180px, calc(100% - 1.25rem));
+    }
+    .brand {
+      font-size: clamp(2.9rem, 14vw, 3.6rem);
+    }
+    .hero-scene {
+      font-size: 0.84rem;
+      gap: 0.4rem 0.55rem;
+    }
+    .calc-brands {
+      gap: 0.3rem;
+    }
+    .lead,
+    .hero-aside {
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .brand {
+      font-size: 2.7rem;
+    }
+    .hero-cta .btn,
+    .hero-cta .btn-ghost {
+      width: 100%;
+    }
+  }
+</style>

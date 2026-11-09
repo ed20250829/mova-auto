@@ -1,0 +1,58 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getAnalytics } from '../../lib/admin-stats';
+import FunnelChart from '../../components/admin/FunnelChart';
+
+const a = getAnalytics();
+const max = Math.max(...a.funnel.map((f) => f.count), 1);
+---
+
+<AdminLayout title="Аналитика">
+  <p style="color:#8a8580;">События с UTM. Воронка: посетитель → калькулятор → форма → заявка.</p>
+  <div class="admin-kpi" style="margin:1rem 0;">
+    <article>
+      <span>Всего событий</span>
+      <strong>{a.totalEvents}</strong>
+    </article>
+    {a.devices.map(([name, n]) => (
+      <article>
+        <span>{name}</span>
+        <strong>{n}</strong>
+      </article>
+    ))}
+  </div>
+
+  <section style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:1rem;">
+    <div style="background:#14171a; border:1px solid #22262a; border-radius:12px; padding:1rem;">
+      <h2 style="margin:0 0 0.75rem; font-size:1rem;">Воронка</h2>
+      <FunnelChart client:load funnel={a.funnel} />
+      <ul style="list-style:none; padding:0; margin:1rem 0 0; display:grid; gap:0.45rem;">
+        {a.funnel.map((f) => (
+          <li>
+            <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+              <span>{f.step}</span>
+              <strong>{f.count}</strong>
+            </div>
+            <div style={`height:8px; border-radius:99px; background:#222; overflow:hidden;`}>
+              <div style={`height:100%; width:${Math.round((f.count / max) * 100)}%; background:#ff5722;`}></div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div style="background:#14171a; border:1px solid #22262a; border-radius:12px; padding:1rem;">
+      <h2 style="margin:0 0 0.75rem; font-size:1rem;">Топ источники (utm)</h2>
+      <ol style="margin:0; padding-left:1.1rem;">
+        {a.topSources.length === 0 && <li style="color:#8a8580;">Пока пусто</li>}
+        {a.topSources.map(([name, n]) => (
+          <li>
+            {name} · <strong>{n}</strong>
+          </li>
+        ))}
+      </ol>
+      <p style="color:#8a8580; font-size:0.85rem; margin-top:1rem;">
+        Гео: на старте фиксируем Минск vs область через ручной тег в meta события (расширение — по IP позже).
+      </p>
+    </div>
+  </section>
+</AdminLayout>

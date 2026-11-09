@@ -1,0 +1,45 @@
+{
+  "name": "mova-auto",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1 --port 4321",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1 --port 4321",
+    "astro": "astro",
+    "db:seed": "tsx src/db/seed.ts",
+    "db:seed:force": "tsx src/db/seed.ts --force",
+    "db:migrate:pg": "tsx src/db/migrate-postgres.ts",
+    "icons:generate": "node scripts/generate-brand-icons.mjs",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/node": "^11.1.11",
+    "@astrojs/react": "^7.1.4",
+    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/vercel": "^11.0.20",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vercel/node": "^30.0.0",
+    "astro": "^7.4.7",
+    "better-sqlite3": "^13.0.3",
+    "drizzle-orm": "^0.45.4",
+    "gsap": "^3.15.1",
+    "lenis": "^1.3.27",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "recharts": "^3.10.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/better-sqlite3": "^9.6.0",
+    "drizzle-kit": "^0.31.11",
+    "tailwindcss": "^4.3.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

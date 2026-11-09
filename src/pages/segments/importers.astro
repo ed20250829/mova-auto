@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+---
+
+<BaseLayout
+  title="Для импортёров — Мова"
+  description="Оптовые цены на русификацию, приоритетные слоты и уведомления о готовности. Минск."
+>
+  <SiteHeader />
+  <main id="main" class="section">
+    <div class="container" style="max-width:820px; display:grid; gap:1rem;">
+      <p class="kicker">Импортёры и перекупы</p>
+      <h1 class="display" style="font-size:clamp(2rem,5vw,3rem); margin:0;">Поток машин без возвратов «почему по-китайски»</h1>
+      <p class="muted">
+        Фикс за модель. Приоритет вечером и в выходные. Статус готовности в Telegram. Отчёт по месяцу для вашего учёта.
+      </p>
+      <ul class="muted">
+        <li>Оптовая сетка от 5 машин / месяц</li>
+        <li>Один контакт — один менеджер слотов</li>
+        <li>Партнёрский бот: «машина готова»</li>
+      </ul>
+      <a class="btn" href="/#booking">Оставить заявку как партнёр</a>
+      <p class="muted" style="font-size:0.9rem;">В комментарии напишите «импортёр» и объём в месяц.</p>
+    </div>
+  </main>
+  <SiteFooter />
+</BaseLayout>

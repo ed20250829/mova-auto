@@ -1,0 +1,158 @@
+---
+const bot = import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_bot';
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="/" aria-label="Мова — на главную">
+      <svg class="logo-mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" rx="14" fill="#0E0F10"></rect>
+        <path
+          fill="#FF5722"
+          d="M12 48V16h7.2l8.4 20.4L36 16h7.2v32h-6.4V27.6L29.6 48h-5.2L17.2 27.6V48H12z"
+        ></path>
+        <rect x="46" y="25" width="9" height="4" rx="1.2" fill="#F4F1EC"></rect>
+        <rect x="46" y="35" width="9" height="4" rx="1.2" fill="#F4F1EC"></rect>
+      </svg>
+      <span class="logo-word">Мова</span>
+    </a>
+    <nav class="site-nav" aria-label="Основная" data-site-nav>
+      <a href="/#calculator" data-nav-section="calculator">Цена</a>
+      <a href="/#segments" data-nav-section="segments">Кому подходит</a>
+      <a href="/#faq" data-nav-section="faq">FAQ</a>
+      <a href="/#booking" data-nav-section="booking">Запись</a>
+    </nav>
+    <div class="header-actions">
+      <a class="btn btn-ghost" href={bot} target="_blank" rel="noreferrer">Telegram</a>
+      <a class="btn" href="/#booking">Выбрать слот</a>
+    </div>
+  </div>
+</header>
+
+<script>
+  function initNavSpy() {
+    const links = [...document.querySelectorAll('[data-site-nav] [data-nav-section]')];
+    if (!links.length) return;
+
+    const sections = links
+      .map((a) => {
+        const id = a.getAttribute('data-nav-section');
+        return id ? document.getElementById(id) : null;
+      })
+      .filter(Boolean);
+
+    const setActive = (id) => {
+      for (const a of links) {
+        const on = a.getAttribute('data-nav-section') === id;
+        a.classList.toggle('is-active', on);
+        if (on) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]?.target?.id) setActive(visible[0].target.id);
+      },
+      {
+        rootMargin: '-20% 0px -55% 0px',
+        threshold: [0.1, 0.25, 0.5],
+      },
+    );
+
+    for (const s of sections) observer.observe(s);
+
+    const hash = window.location.hash.replace(/^#/, '');
+    if (hash) setActive(hash);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNavSpy, { once: true });
+  } else {
+    initNavSpy();
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(12px);
+    background: color-mix(in srgb, #0e0f10 88%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 68px;
+  }
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.45rem;
+    letter-spacing: -0.05em;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .logo-mark {
+    display: block;
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .logo-word {
+    line-height: 1;
+  }
+  nav {
+    display: flex;
+    gap: 1.1rem;
+  }
+  nav a {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    position: relative;
+    padding-block: 0.25rem;
+  }
+  nav a:hover {
+    color: var(--text);
+  }
+  nav a.is-active {
+    color: var(--text);
+  }
+  nav a.is-active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2px;
+    background: color-mix(in srgb, var(--accent) 70%, transparent);
+    border-radius: 2px;
+  }
+  .header-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .header-actions .btn {
+    min-height: 40px;
+  }
+  @media (max-width: 900px) {
+    nav {
+      display: none;
+    }
+    .header-actions .btn-ghost {
+      display: none;
+    }
+  }
+</style>

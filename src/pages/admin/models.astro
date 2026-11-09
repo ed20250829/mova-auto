@@ -1,0 +1,15 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import ModelsTable from '../../components/admin/ModelsTable';
+import { db } from '../../db';
+import { models } from '../../db/schema';
+import { ensureDb } from '../../lib/models';
+import { asc } from 'drizzle-orm';
+
+ensureDb();
+const rows = db.select().from(models).orderBy(asc(models.brand), asc(models.model)).all();
+---
+
+<AdminLayout title="Модели">
+  <ModelsTable client:load models={rows} />
+</AdminLayout>

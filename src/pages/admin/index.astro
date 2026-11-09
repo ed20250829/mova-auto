@@ -1,0 +1,97 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getDashboardStats } from '../../lib/admin-stats';
+import { formatByn } from '../../lib/format';
+import DashboardCharts from '../../components/admin/DashboardCharts';
+
+const s = getDashboardStats();
+const revDelta =
+  s.prevMonth.revenue > 0
+    ? Math.round(((s.month.revenue - s.prevMonth.revenue) / s.prevMonth.revenue) * 100)
+    : s.month.revenue > 0
+      ? 100
+      : 0;
+---
+
+<AdminLayout title="Дашборд">
+  <section class="admin-kpi">
+    <article>
+      <span>Заявки сегодня</span>
+      <strong>{s.today.orders}</strong>
+    </article>
+    <article>
+      <span>Выручка сегодня</span>
+      <strong>{formatByn(s.today.revenue)}</strong>
+    </article>
+    <article>
+      <span>За неделю</span>
+      <strong>{s.week.orders}</strong>
+      <small style="color:#8a8580;">{formatByn(s.week.revenue)}</small>
+    </article>
+    <article>
+      <span>За месяц</span>
+      <strong>{s.month.orders}</strong>
+      <small style="color:#8a8580;">{formatByn(s.month.revenue)} · Δ {revDelta}%</small>
+    </article>
+    <article>
+      <span>Средний чек</span>
+      <strong>{formatByn(s.month.avg)}</strong>
+    </article>
+    <article>
+      <span>Конверсия</span>
+      <strong>{s.month.conversion}%</strong>
+    </article>
+    <article>
+      <span>Прибыль (мес.)</span>
+      <strong style={`color:${s.month.profit >= 0 ? '#3dd68c' : '#ff5c5c'}`}>
+        {formatByn(Math.round(s.month.profit))}
+      </strong>
+      <small style="color:#8a8580;">− расходы {formatByn(Math.round(s.month.expenses))}</small>
+    </article>
+  </section>
+
+  <section class="dash-grid">
+    <div style="background:#14171a; border:1px solid #22262a; border-radius:12px; padding:1rem;">
+      <h2 style="margin:0 0 0.75rem; font-size:1rem;">Заявки и выручка · 14 дней</h2>
+      <DashboardCharts client:load days={s.days} />
+    </div>
+    <div style="display:grid; gap:1rem;">
+      <div style="background:#14171a; border:1px solid #22262a; border-radius:12px; padding:1rem;">
+        <h2 style="margin:0 0 0.75rem; font-size:1rem;">Топ-3 модели</h2>
+        <ol style="margin:0; padding-left:1.1rem;">
+          {s.topModels.length === 0 && <li style="color:#8a8580;">Пока нет заказов</li>}
+          {s.topModels.map(([name, n]) => (
+            <li>
+              {name} <strong>· {n}</strong>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div style="background:#14171a; border:1px solid #22262a; border-radius:12px; padding:1rem;">
+        <h2 style="margin:0 0 0.75rem; font-size:1rem;">Топ-3 источника</h2>
+        <ol style="margin:0; padding-left:1.1rem;">
+          {s.topSources.length === 0 && <li style="color:#8a8580;">Нет данных UTM</li>}
+          {s.topSources.map(([name, n]) => (
+            <li>
+              {name} <strong>· {n}</strong>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+</AdminLayout>
+
+<style>
+  .dash-grid {
+    margin-top: 1.25rem;
+    display: grid;
+    grid-template-columns: 1.4fr 0.8fr;
+    gap: 1rem;
+  }
+  @media (max-width: 1000px) {
+    .dash-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

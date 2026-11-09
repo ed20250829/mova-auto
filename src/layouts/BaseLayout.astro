@@ -1,0 +1,64 @@
+---
+import '../styles/global.css';
+import SampleBanner from '../components/client/SampleBanner';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title = 'Мова — русификация китайских авто в Минске',
+  description = 'Фикс-цена на сайте. Запись онлайн. Гарантия 6 месяцев. OTA-страховка. Русификация мультимедиа китайских авто в Минске.',
+  ogImage = '/og.png',
+  jsonLd,
+} = Astro.props;
+
+const site = Astro.site?.toString().replace(/\/$/, '') || 'https://mova-auto.tech';
+const canonical = new URL(Astro.url.pathname, site).toString();
+const ld = jsonLd
+  ? Array.isArray(jsonLd)
+    ? jsonLd
+    : [jsonLd]
+  : [];
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_BY" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(ogImage, site).toString()} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#0E0F10" />
+    <meta name="msapplication-TileColor" content="#0E0F10" />
+    <meta name="apple-mobile-web-app-title" content="Мова" />
+    <meta name="application-name" content="Мова" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#FF5722" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700,900&f[]=general-sans@500,600,700&display=swap" rel="stylesheet" />
+    {ld.map((item) => (
+      <script type="application/ld+json" set:html={JSON.stringify(item)} />
+    ))}
+  </head>
+  <body>
+    <a class="sr-only" href="#main">К содержанию</a>
+    <SampleBanner client:load />
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,21 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import FinancePanel from '../../components/admin/FinancePanel';
+import { getFinanceSummary } from '../../lib/admin-stats';
+
+const s = getFinanceSummary();
+---
+
+<AdminLayout title="Финансы">
+  <FinancePanel
+    client:load
+    income={s.income}
+    expenseSum={s.expenseSum}
+    balance={s.balance}
+    byCategory={s.byCategory}
+    topProfitable={s.topProfitable}
+    topLoss={s.topLoss}
+    months={s.months}
+    expenses={s.expenses}
+  />
+</AdminLayout>
