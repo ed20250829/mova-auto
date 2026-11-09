@@ -4,7 +4,12 @@ import { callbackSuccessCopy, isAfterHoursMinsk } from '../../lib/minsk-hours';
 const SESSION_KEY = 'mova_callback_shown';
 const DISMISS_KEY = 'mova_callback_dismiss_until';
 const DISMISS_DAYS = 7;
-const IDLE_MS = 50_000;
+/** Idle on calculator — calm, not first-seconds. */
+const IDLE_MS = 80_000;
+/** Exit-intent armed only after a short settle on desktop. */
+const EXIT_ARM_MS = 28_000;
+const PHONE_E164 = '+375447149978';
+const PHONE_DISPLAY = '+375 44 714-99-78';
 
 type Trigger = 'model_missing' | 'idle_calc' | 'exit_intent' | 'manual';
 
@@ -26,15 +31,26 @@ function track(name: string, meta?: Record<string, unknown>) {
   });
 }
 
-function canShow(): boolean {
+function isDismissed(): boolean {
   try {
-    if (sessionStorage.getItem(SESSION_KEY) === '1') return false;
     const until = Number(localStorage.getItem(DISMISS_KEY) || 0);
-    if (until && Date.now() < until) return false;
+    return Boolean(until && Date.now() < until);
   } catch {
-    /* ignore */
+    return false;
   }
-  return true;
+}
+
+function wasShownThisSession(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+/** Auto popups: once per session and respect dismiss TTL. */
+function canAutoShow(): boolean {
+  return !wasShownThisSession() && !isDismissed();
 }
 
 function markShown() {
@@ -54,6 +70,24 @@ function markDismissed() {
   }
 }
 
+function isDesktopPointer() {
+  try {
+    return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  } catch {
+    return false;
+  }
+}
+
+function resolvePhone() {
+  const fromEnv = (import.meta.env.PUBLIC_PHONE as string | undefined)?.trim() || '';
+  const digits = fromEnv.replace(/\D/g, '');
+  if (digits.length >= 9) {
+    const e164 = fromEnv.startsWith('+') ? fromEnv.replace(/\s/g, '') : `+${digits}`;
+    return { e164, display: fromEnv.includes(' ') ? fromEnv : PHONE_DISPLAY };
+  }
+  return { e164: PHONE_E164, display: PHONE_DISPLAY };
+}
+
 function isValidPhone(phone: string) {
   const digits = phone.replace(/\D/g, '');
   return digits.length >= 9 && digits.length <= 15;
@@ -70,17 +104,33 @@ export default function CallbackWidget() {
   const [error, setError] = useState('');
   const [done, setDone] = useState<string | null>(null);
   const afterHours = isAfterHoursMinsk();
-  const openedRef = useRef(false);
+  const openRef = useRef(false);
+  const autoShownRef = useRef(false);
+  const phoneInfo = resolvePhone();
 
   function openWidget(next: Trigger) {
-    if (openedRef.current) return;
-    if (!canShow() && next !== 'manual' && next !== 'model_missing') return;
-    // model_missing / manual always allowed once per session if not dismissed this session open
-    if (sessionStorage.getItem(SESSION_KEY) === '1' && next !== 'model_missing' && next !== 'manual') {
-      return;
+    if (openRef.current) return;
+
+    if (next === 'manual') {
+      // Explicit FAB / CTA — always allowed; do not fight dismiss for intentional open.
+    } else if (next === 'model_missing') {
+      // Contextual: ok immediately, but still respect dismiss TTL.
+      if (isDismissed()) return;
+    } else {
+      // idle / exit — soft auto: 1×/session + dismiss TTL
+      if (autoShownRef.current || !canAutoShow()) return;
     }
-    openedRef.current = true;
-    markShown();
+
+    openRef.current = true;
+    if (next !== 'manual') {
+      autoShownRef.current = true;
+      markShown();
+    } else if (!wasShownThisSession()) {
+      // Manual open still counts as session shown so idle/exit won't nag later.
+      markShown();
+      autoShownRef.current = true;
+    }
+
     setTrigger(next);
     setOpen(true);
     setDone(null);
@@ -90,8 +140,10 @@ export default function CallbackWidget() {
 
   function close(dismiss = true) {
     setOpen(false);
+    openRef.current = false;
     if (dismiss) {
       markDismissed();
+      autoShownRef.current = true;
       track('callback_dismiss', { trigger });
     }
   }
@@ -103,7 +155,6 @@ export default function CallbackWidget() {
     };
     window.addEventListener('mova:callback', onCustom);
 
-    // Idle on calculator
     let idleTimer = window.setTimeout(() => {
       const calc = document.querySelector('[data-calc-root]');
       if (calc) openWidget('idle_calc');
@@ -122,9 +173,15 @@ export default function CallbackWidget() {
     window.addEventListener('pointerdown', bumpIdle, { passive: true });
     window.addEventListener('keydown', bumpIdle);
 
-    // Exit intent near booking / calc
+    let exitArmed = false;
+    const armExit = window.setTimeout(() => {
+      exitArmed = true;
+    }, EXIT_ARM_MS);
+
     const onMouseOut = (e: MouseEvent) => {
+      if (!exitArmed || !isDesktopPointer()) return;
       if (e.clientY > 12) return;
+      if (e.relatedTarget) return;
       const booking = document.getElementById('booking');
       const calc = document.getElementById('calculator');
       if (!booking && !calc) return;
@@ -138,9 +195,23 @@ export default function CallbackWidget() {
       window.removeEventListener('keydown', bumpIdle);
       document.removeEventListener('mouseout', onMouseOut);
       window.clearTimeout(idleTimer);
+      window.clearTimeout(armExit);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, trigger]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -176,6 +247,7 @@ export default function CallbackWidget() {
       track('callback_submit', { trigger, afterHours: data.afterHours });
       setDone(data.message || callbackSuccessCopy(Boolean(data.afterHours)));
       markDismissed();
+      autoShownRef.current = true;
       setBusy(false);
     } catch {
       setError('Сеть недоступна. Напишите в Telegram или позвоните.');
@@ -183,14 +255,15 @@ export default function CallbackWidget() {
     }
   }
 
-  const publicPhone = (import.meta.env.PUBLIC_PHONE as string | undefined) || '';
-
   return (
     <>
       <button
         type="button"
         className="callback-fab"
         aria-label="Заказать звонок"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        hidden={open}
         onClick={() => openWidget('manual')}
       >
         Звонок
@@ -205,6 +278,15 @@ export default function CallbackWidget() {
             aria-modal="true"
             aria-labelledby="callback-title"
           >
+            <button
+              type="button"
+              className="callback-close"
+              aria-label="Закрыть"
+              onClick={() => close(true)}
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+
             {done ? (
               <div className="callback-done">
                 <p className="kicker" style={{ margin: 0 }}>
@@ -295,11 +377,9 @@ export default function CallbackWidget() {
                   <button className="btn" type="submit" disabled={busy}>
                     {busy ? 'Отправляем…' : 'Жду звонка'}
                   </button>
-                  {!afterHours && publicPhone && (
-                    <a className="btn btn-ghost" href={`tel:${publicPhone.replace(/\s/g, '')}`}>
-                      Позвонить сейчас
-                    </a>
-                  )}
+                  <a className="btn btn-ghost" href={`tel:${phoneInfo.e164}`}>
+                    Позвонить {phoneInfo.display}
+                  </a>
                   <a
                     className="btn btn-ghost"
                     href={import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_bot'}
