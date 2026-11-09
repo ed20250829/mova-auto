@@ -72,6 +72,13 @@ export default function BookingForm({ models, preselectId }: Props) {
   const [busy, setBusy] = useState(false);
   const [started, setStarted] = useState(false);
   const [serverError, setServerError] = useState('');
+  const [promoMeta, setPromoMeta] = useState<{
+    kind: string;
+    value: number;
+    message: string;
+  } | null>(null);
+  const [promoStatus, setPromoStatus] = useState('');
+  const [promoBusy, setPromoBusy] = useState(false);
 
   useEffect(() => {
     try {
@@ -83,6 +90,8 @@ export default function BookingForm({ models, preselectId }: Props) {
         visit?: boolean;
         appPack?: boolean;
         promo?: string;
+        promoValue?: number;
+        promoKind?: string;
       };
       setForm((prev) => ({
         ...prev,
@@ -92,9 +101,27 @@ export default function BookingForm({ models, preselectId }: Props) {
         appPack: Boolean(saved.appPack),
         promoCode: saved.promo || prev.promoCode,
       }));
+      if (saved.promo && saved.promoValue != null && saved.promoKind) {
+        setPromoMeta({
+          kind: saved.promoKind,
+          value: saved.promoValue,
+          message: saved.promoKind === 'percent' ? `Скидка −${saved.promoValue}%` : `Скидка −${saved.promoValue} BYN`,
+        });
+        setPromoStatus('Промокод из калькулятора');
+      }
     } catch {
       /* ignore */
     }
+
+    if (typeof window !== 'undefined') {
+      const q = new URLSearchParams(window.location.search).get('promo');
+      if (q) {
+        const code = q.trim().toUpperCase();
+        setForm((prev) => ({ ...prev, promoCode: code }));
+        void validatePromo(code);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const selected = useMemo(
@@ -108,14 +135,54 @@ export default function BookingForm({ models, preselectId }: Props) {
       ota: form.ota,
       visit: form.visit,
       appPack: form.appPack,
-      promoCode: form.promoCode,
+      promoCode: promoMeta ? form.promoCode : null,
+      promoPercent: promoMeta?.kind === 'percent' ? promoMeta.value : null,
+      promoFixed: promoMeta?.kind === 'fixed' ? promoMeta.value : null,
     });
-  }, [selected, form.ota, form.visit, form.appPack, form.promoCode]);
+  }, [selected, form.ota, form.visit, form.appPack, form.promoCode, promoMeta]);
 
   function markStart() {
     if (!started) {
       setStarted(true);
       track('form_start');
+    }
+  }
+
+  async function validatePromo(codeOverride?: string) {
+    const code = (codeOverride ?? form.promoCode).trim().toUpperCase();
+    if (!code) {
+      setPromoMeta(null);
+      setPromoStatus('');
+      return;
+    }
+    setPromoBusy(true);
+    setPromoStatus('');
+    try {
+      const res = await fetch('/api/promo/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          phone: form.phone || undefined,
+          enforceFirstOrder: Boolean(form.phone),
+          source: 'booking',
+          ...readUtm(),
+        }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        setPromoMeta(null);
+        setPromoStatus(data.error || 'Код не найден');
+        return;
+      }
+      setForm((prev) => ({ ...prev, promoCode: data.code }));
+      setPromoMeta({ kind: data.kind, value: data.value, message: data.message });
+      setPromoStatus(data.message);
+    } catch {
+      setPromoMeta(null);
+      setPromoStatus('Не удалось проверить код');
+    } finally {
+      setPromoBusy(false);
     }
   }
 
@@ -152,6 +219,7 @@ export default function BookingForm({ models, preselectId }: Props) {
           slot: form.slot,
           comment: form.comment,
           promoCode: form.promoCode,
+          requirePromo: Boolean(form.promoCode && promoMeta),
           ota: form.ota,
           visit: form.visit,
           appPack: form.appPack,
@@ -161,6 +229,7 @@ export default function BookingForm({ models, preselectId }: Props) {
       const data = await res.json();
       if (!res.ok) {
         setServerError(data.error || 'Не удалось отправить. Попробуйте ещё раз.');
+        if (data.promoError) setPromoStatus(data.promoError);
         track('form_error', { reason: data.error || 'server' });
         setBusy(false);
         return;
@@ -171,7 +240,7 @@ export default function BookingForm({ models, preselectId }: Props) {
         /* ignore */
       }
       track('form_success', { orderId: data.orderId });
-      window.location.href = `/booking/thanks?order=${data.orderId}&ics=${encodeURIComponent(data.ics || '')}`;
+      window.location.href = `/booking/thanks?order=${data.orderId}&price=${data.price || ''}&ics=${encodeURIComponent(data.ics || '')}`;
     } catch {
       setServerError('Сеть недоступна. Напишите в Telegram.');
       track('form_error', { reason: 'network' });
@@ -182,6 +251,7 @@ export default function BookingForm({ models, preselectId }: Props) {
   return (
     <form
       className="surface"
+      id="booking-form"
       onSubmit={onSubmit}
       style={{ padding: '1.25rem', display: 'grid', gap: '0.85rem' }}
       noValidate
@@ -340,18 +410,48 @@ export default function BookingForm({ models, preselectId }: Props) {
         />
       </label>
 
-      <label style={{ display: 'grid', gap: '0.3rem', maxWidth: 280 }}>
+      <div style={{ display: 'grid', gap: '0.35rem', maxWidth: 420 }}>
         <span>Промокод</span>
-        <input
-          className="admin-input"
-          value={form.promoCode}
-          onChange={(e) => setForm({ ...form, promoCode: e.target.value.toUpperCase() })}
-          placeholder="MOVA10"
-        />
-      </label>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <input
+            className="admin-input"
+            style={{ flex: '1 1 160px' }}
+            value={form.promoCode}
+            onChange={(e) => {
+              setForm({ ...form, promoCode: e.target.value.toUpperCase() });
+              setPromoMeta(null);
+              setPromoStatus('');
+            }}
+            placeholder="MOVA10"
+          />
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={promoBusy || !form.promoCode.trim()}
+            onClick={() => void validatePromo()}
+          >
+            {promoBusy ? '…' : 'Применить'}
+          </button>
+        </div>
+        {promoStatus && (
+          <span
+            style={{
+              fontSize: '0.85rem',
+              color: promoMeta ? 'var(--text-muted)' : 'var(--error)',
+            }}
+          >
+            {promoStatus}
+          </span>
+        )}
+      </div>
 
       {selected && quote && (
         <p className="muted" style={{ margin: 0 }}>
+          {quote.discount > 0 ? (
+            <>
+              Без скидки {quote.subtotal}&nbsp;BYN · скидка −{quote.discount}&nbsp;BYN ·{' '}
+            </>
+          ) : null}
           Итого к заявке:{' '}
           <strong className="price-inline" style={{ color: 'var(--text)' }}>
             {quote.price}&nbsp;BYN

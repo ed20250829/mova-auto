@@ -2,9 +2,11 @@ import { count } from 'drizzle-orm';
 import { db, initSchema, sqlite } from './index';
 import { expenses, models, partners } from './schema';
 import { SEED_MODELS } from './seed-data';
+import { ensureDefaultPromoCodes } from '../lib/promo';
 
 export function seedDatabase(force = false) {
   initSchema();
+  ensureDefaultPromoCodes();
 
   const [{ value: modelCount }] = db.select({ value: count() }).from(models).all();
   if (modelCount > 0 && !force) {

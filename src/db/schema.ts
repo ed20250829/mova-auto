@@ -42,6 +42,21 @@ export const partners = sqliteTable('partners', {
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 });
 
+export const promoCodes = sqliteTable('promo_codes', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  code: text('code').notNull().unique(),
+  kind: text('kind').notNull().default('percent'), // percent | fixed
+  value: integer('value').notNull(),
+  firstOrderOnly: integer('first_order_only', { mode: 'boolean' }).notNull().default(true),
+  maxUses: integer('max_uses'),
+  usedCount: integer('used_count').notNull().default(0),
+  validFrom: text('valid_from'),
+  validTo: text('valid_to'),
+  channelNote: text('channel_note'),
+  active: integer('active', { mode: 'boolean' }).notNull().default(true),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+});
+
 export const orders = sqliteTable('orders', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
@@ -63,7 +78,14 @@ export const orders = sqliteTable('orders', {
   utmMedium: text('utm_medium'),
   utmCampaign: text('utm_campaign'),
   promoCode: text('promo_code'),
+  promoCodeId: integer('promo_code_id').references(() => promoCodes.id),
   referralCode: text('referral_code'),
+  paymentStatus: text('payment_status').notNull().default('unpaid'), // unpaid | pending | paid | refunded | failed
+  paidAt: text('paid_at'),
+  paymentMethod: text('payment_method'), // cash | transfer | erip | epos | card | krok | link | other
+  paymentProvider: text('payment_provider'), // bepaid | webpay | assist | manual
+  providerPaymentId: text('provider_payment_id'),
+  amountPaid: integer('amount_paid'),
 });
 
 export const leads = sqliteTable('leads', {
@@ -123,6 +145,7 @@ export const events = sqliteTable('events', {
 });
 
 export type Model = typeof models.$inferSelect;
+export type PromoCode = typeof promoCodes.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type Lead = typeof leads.$inferSelect;
 export type Partner = typeof partners.$inferSelect;

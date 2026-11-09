@@ -47,6 +47,21 @@ CREATE TABLE IF NOT EXISTS partners (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS promo_codes (
+  id SERIAL PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  kind TEXT NOT NULL DEFAULT 'percent',
+  value INTEGER NOT NULL,
+  first_order_only BOOLEAN NOT NULL DEFAULT TRUE,
+  max_uses INTEGER,
+  used_count INTEGER NOT NULL DEFAULT 0,
+  valid_from TEXT,
+  valid_to TEXT,
+  channel_note TEXT,
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS orders (
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -68,7 +83,14 @@ CREATE TABLE IF NOT EXISTS orders (
   utm_medium TEXT,
   utm_campaign TEXT,
   promo_code TEXT,
-  referral_code TEXT
+  promo_code_id INTEGER REFERENCES promo_codes(id),
+  referral_code TEXT,
+  payment_status TEXT NOT NULL DEFAULT 'unpaid',
+  paid_at TIMESTAMPTZ,
+  payment_method TEXT,
+  payment_provider TEXT,
+  provider_payment_id TEXT,
+  amount_paid INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS leads (

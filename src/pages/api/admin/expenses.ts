@@ -11,14 +11,25 @@ export const GET: APIRoute = async ({ url }) => {
   if (url.searchParams.get('format') === 'csv') {
     const summary = getFinanceSummary();
     const lines = [
-      ['type', 'date', 'category', 'description', 'amount', 'currency'].join(';'),
+      ['type', 'date', 'category', 'description', 'amount', 'currency', 'payment_status', 'payment_method'].join(
+        ';',
+      ),
       ...summary.orders.map((o) =>
-        ['income', o.createdAt.slice(0, 10), 'order', o.modelLabel, o.price, 'BYN']
+        [
+          'income',
+          (o.paidAt || o.createdAt).slice(0, 10),
+          'order',
+          o.modelLabel,
+          o.amountPaid != null ? o.amountPaid : o.price,
+          'BYN',
+          o.paymentStatus || 'paid',
+          o.paymentMethod || '',
+        ]
           .map(csvEscape)
           .join(';'),
       ),
       ...summary.expenses.map((e) =>
-        ['expense', e.date, e.category, e.description, e.amount, e.currency]
+        ['expense', e.date, e.category, e.description, e.amount, e.currency, '', '']
           .map(csvEscape)
           .join(';'),
       ),
