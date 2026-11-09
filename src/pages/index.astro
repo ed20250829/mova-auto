@@ -8,6 +8,7 @@ import Faq from '../components/client/Faq';
 import PromoCode from '../components/client/PromoCode';
 import SmoothScroll from '../components/client/SmoothScroll';
 import HeroMotion from '../components/client/HeroMotion';
+import { FAQ_ITEMS } from '../lib/faq-items';
 import { getAllModels } from '../lib/models';
 
 const models = getAllModels();
@@ -26,31 +27,69 @@ const calcModels = models.map((m) => ({
 
 const localBusiness = {
   '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
+  '@type': 'AutomotiveBusiness',
   name: 'Мова',
-  description: 'Русификация китайских авто в Минске. Фикс-цена, запись онлайн, OTA-страховка.',
+  alternateName: 'Mova',
+  description:
+    'Русификация мультимедиа китайских авто в Минске, Беларусь. Фикс-цена в BYN, запись онлайн, OTA-страховка.',
   url: 'https://mova-auto.tech',
-  image: 'https://mova-auto.tech/og.svg',
+  image: 'https://mova-auto.tech/og.png',
+  email: 'hello@mova-auto.tech',
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Минск',
     addressCountry: 'BY',
   },
-  areaServed: {
-    '@type': 'City',
-    name: 'Минск',
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 53.9006,
+    longitude: 27.559,
+  },
+  areaServed: [
+    { '@type': 'City', name: 'Минск' },
+    { '@type': 'AdministrativeArea', name: 'Минская область' },
+    { '@type': 'Country', name: 'Беларусь' },
+  ],
+  openingHoursSpecification: {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ],
+    opens: '08:00',
+    closes: '22:00',
   },
   priceRange: '450-1450 BYN',
   currenciesAccepted: 'BYN',
+  paymentAccepted: 'Cash, Bank Transfer',
+  availableLanguage: ['ru', 'be'],
+};
+
+const faqPage = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ_ITEMS.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.a,
+    },
+  })),
 };
 
 const brands = [...new Set(models.map((m) => m.brand))];
 ---
 
 <BaseLayout
-  title="Мова — русификация китайских авто в Минске"
-  description="Фикс-цена на сайте. Запись онлайн за 60 секунд. Гарантия 6 месяцев. OTA-страховка. Мова — язык твоего авто. Минск."
-  jsonLd={localBusiness}
+  title="Мова - русификация китайских авто в Минске"
+  description="Русификация меню китайских авто в Минске, Беларусь. Фикс-цена в BYN, запись онлайн за 60 секунд, гарантия 6 месяцев, OTA-страховка. Мова - язык твоего авто."
+  jsonLd={[localBusiness, faqPage]}
 >
   <SmoothScroll client:load />
   <SiteHeader />
@@ -64,10 +103,10 @@ const brands = [...new Set(models.map((m) => m.brand))];
             Язык твоего авто
           </h1>
           <p class="lead muted" data-hero-reveal>
-            Русификация меню китайских авто в Минске. Фикс-цена. Слот онлайн.
+            Русификация меню китайских авто в Минске. Фикс-цена в BYN. Слот онлайн.
           </p>
           <p class="hero-aside muted" data-hero-reveal>
-            Штатный голос часто остаётся китайским · Яндекс-приложения — где позволяет система
+            Штатный голос часто остаётся китайским · Яндекс-приложения - где позволяет система
           </p>
           <div class="hero-cta" data-hero-reveal>
             <a class="btn" href="#calculator">Узнать цену</a>
@@ -98,8 +137,8 @@ const brands = [...new Set(models.map((m) => m.brand))];
         <div class="segments">
           <article>
             <h3>Новичок</h3>
-            <p class="muted">Купил китайца. Меню непонятное. Боится нажать не туда.</p>
-            <p>Фикс по модели. Честно: штатный голос часто остаётся китайским; для Алисы, Карт и Музыки — пакет приложений, где система позволяет.</p>
+            <p class="muted">Купил китайца в Минске. Меню непонятное. Боится нажать не туда.</p>
+            <p>Фикс по модели. Честно: штатный голос часто остаётся китайским. Для Алисы, Карт и Музыки - пакет приложений, где система позволяет.</p>
             <a class="btn" href="#calculator">Показать цену по модели</a>
           </article>
           <article>
@@ -110,13 +149,13 @@ const brands = [...new Set(models.map((m) => m.brand))];
           </article>
           <article>
             <h3>Импортёр</h3>
-            <p class="muted">5–15 машин в месяц. Клиент возвращается: «почему по-китайски?».</p>
-            <p>Оптовые цены. Приоритетные слоты. Уведомления о готовности в Telegram.</p>
+            <p class="muted">5-15 машин в месяц. Клиент возвращается: почему снова по-китайски.</p>
+            <p>Оптовые цены. Приоритетные слоты по Минску. Уведомления о готовности в Telegram.</p>
             <a class="btn" href="/segments/importers">Условия для импортёров</a>
           </article>
           <article>
             <h3>Автосалон</h3>
-            <p class="muted">Официальные продажи. Нужны документы и тихая репутация.</p>
+            <p class="muted">Официальные продажи в Беларуси. Нужны документы и тихая репутация.</p>
             <p>Договор. Закрывающие. Фикс за машину. Отчётность без лишнего шума.</p>
             <a class="btn" href="/segments/dealers">Запрос для салона</a>
           </article>
@@ -129,7 +168,7 @@ const brands = [...new Set(models.map((m) => m.brand))];
         <div>
           <p class="kicker">База моделей</p>
           <h2 class="display section-title">40+ моделей в прайсе</h2>
-          <p class="muted">Цена и время по каждой. Карточки индексируются поиском.</p>
+          <p class="muted">Цена и время по каждой - для Минска, в BYN. Откройте карточку модели или посчитайте в калькуляторе.</p>
         </div>
         <div class="brand-chips">
           {brands.map((b) => {
@@ -150,7 +189,7 @@ const brands = [...new Set(models.map((m) => m.brand))];
           ))}
         </div>
         <p class="muted" style="margin-top:1rem;">
-          Полный список — в калькуляторе и по прямым URL `/auto/[марка]/[модель]`.
+          Полный список - в калькуляторе выше. Там же BYD, Geely, Zeekr, Li Auto и остальные марки из прайса.
         </p>
       </div>
     </section>
@@ -166,16 +205,16 @@ const brands = [...new Set(models.map((m) => m.brand))];
             <h3>Делаем</h3>
             <ul>
               <li>Базовая русификация: меню и настройки, где позволяет система</li>
-              <li>Пакет Яндекс-приложений (Алиса, Карты, Музыка…) — где технически возможно</li>
-              <li>OTA-страховка по подписке — отдельный слой</li>
-              <li>Фикс-цена базы до визита</li>
+              <li>Пакет Яндекс-приложений (Алиса, Карты, Музыка) - где технически возможно</li>
+              <li>OTA-страховка по подписке - отдельный слой</li>
+              <li>Фикс-цена базы до визита в Минске</li>
             </ul>
           </div>
           <div>
             <h3>Не делаем</h3>
             <ul>
               <li>Ремонт и диагностика узлов</li>
-              <li>«Тюнинг» и чип ради мощности</li>
+              <li>Тюнинг и чип ради мощности</li>
               <li>Не обещаем, что штатный китайский голос станет русским</li>
               <li>Скрытых доплат на месте</li>
             </ul>
@@ -189,7 +228,7 @@ const brands = [...new Set(models.map((m) => m.brand))];
         <div>
           <p class="kicker">FAQ</p>
           <h2 class="display section-title">Короткие ответы</h2>
-          <p class="muted">Если ответа нет — напишите в Telegram. Ответим по делу.</p>
+          <p class="muted">Если ответа нет - напишите в Telegram. Ответим из Минска, по делу.</p>
         </div>
         <Faq client:visible />
       </div>

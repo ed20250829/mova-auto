@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import SampleBanner from '../components/client/SampleBanner';
+import CallbackWidget from '../components/client/CallbackWidget';
 
 interface Props {
   title?: string;
@@ -10,8 +11,8 @@ interface Props {
 }
 
 const {
-  title = 'Мова — русификация китайских авто в Минске',
-  description = 'Фикс-цена на сайте. Запись онлайн. Гарантия 6 месяцев. OTA-страховка. Русификация мультимедиа китайских авто в Минске.',
+  title = 'Мова - русификация китайских авто в Минске',
+  description = 'Русификация мультимедиа китайских авто в Минске, Беларусь. Фикс-цена в BYN, запись онлайн, гарантия 6 месяцев, OTA-страховка.',
   ogImage = '/og.png',
   jsonLd,
 } = Astro.props;
@@ -40,7 +41,12 @@ const ld = jsonLd
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={new URL(ogImage, site).toString()} />
+    <meta property="og:site_name" content="Мова" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="geo.region" content="BY-MI" />
+    <meta name="geo.placename" content="Минск" />
     <meta name="theme-color" content="#0E0F10" />
     <meta name="msapplication-TileColor" content="#0E0F10" />
     <meta name="apple-mobile-web-app-title" content="Мова" />
@@ -60,5 +66,6 @@ const ld = jsonLd
     <a class="sr-only" href="#main">К содержанию</a>
     <SampleBanner client:load />
     <slot />
+    <CallbackWidget client:load />
   </body>
 </html>

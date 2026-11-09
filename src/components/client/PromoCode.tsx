@@ -36,7 +36,7 @@ export default function PromoCode({ compact = false }: { compact?: boolean }) {
     >
       <span style={{ fontWeight: 700 }}>
         {compact ? 'Скидка 10%' : 'Промокод на первую запись'}
-        {!compact && <span className="muted"> — 10% на русификацию</span>}
+        {!compact && <span className="muted"> - 10% на русификацию</span>}
       </span>
       <code
         style={{
