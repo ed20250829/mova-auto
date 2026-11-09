@@ -1,0 +1,15 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db } from '../../db';
+import { promoCodes } from '../../db/schema';
+import { ensureDb } from '../../lib/models';
+import PromosPanel from '../../components/admin/PromosPanel';
+import { desc } from 'drizzle-orm';
+
+ensureDb();
+const rows = db.select().from(promoCodes).orderBy(desc(promoCodes.id)).all();
+---
+
+<AdminLayout title="Промокоды">
+  <PromosPanel client:load promos={rows} />
+</AdminLayout>

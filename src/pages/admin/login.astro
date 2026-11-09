@@ -16,13 +16,13 @@ const error = Astro.url.searchParams.get('error');
     <link href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700,900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/admin-login.css" />
   </head>
-  <body class="admin-body" style="display:grid; place-items:center; min-height:100vh; margin:0; background:#0a0b0c; color:#eee; font-family:Satoshi,sans-serif;">
-    <form method="post" action="/api/admin/login" style="width:min(380px, calc(100% - 2rem)); display:grid; gap:0.85rem; padding:1.5rem; border:1px solid #222; border-radius:14px; background:#121416;">
+  <body class="admin-body" style="display:grid; place-items:center; min-height:100dvh; margin:0; padding:max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left)); box-sizing:border-box; background:#0a0b0c; color:#eee; font-family:Satoshi,sans-serif;">
+    <form method="post" action="/api/admin/login" style="width:min(380px, 100%); max-width:100%; box-sizing:border-box; display:grid; gap:0.85rem; padding:1.5rem; border:1px solid #222; border-radius:14px; background:#121416;">
       <h1 style="margin:0; letter-spacing:-0.04em;">Мова Admin</h1>
       <p style="margin:0; color:#8a8580; font-size:0.9rem;">Вход по токену из `.env` (`ADMIN_TOKEN`).</p>
       <label style="display:grid; gap:0.35rem;">
         <span>Токен</span>
-        <input name="token" type="password" required autocomplete="current-password" style="background:#0f1113; border:1px solid #2a3036; border-radius:8px; padding:0.65rem; color:inherit;" />
+        <input name="token" type="password" required autocomplete="current-password" style="width:100%; box-sizing:border-box; background:#0f1113; border:1px solid #2a3036; border-radius:8px; padding:0.65rem; color:inherit;" />
       </label>
       <input type="hidden" name="next" value={Astro.url.searchParams.get('next') || '/admin'} />
       {error && <p style="color:#ff5c5c; margin:0;">Неверный токен</p>}

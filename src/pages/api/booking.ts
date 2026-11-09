@@ -1,10 +1,11 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../db';
-import { orders, leads } from '../../db/schema';
+import { orders, leads, type PromoCode } from '../../db/schema';
 import { ensureDb, getRawModel } from '../../lib/models';
 import { notifyOwnerBooking } from '../../lib/telegram';
 import { trackEvent, detectDevice } from '../../lib/analytics';
 import { computeOrderPrice } from '../../lib/pricing';
+import { bumpPromoUsage, normalizePromoCode, validatePromoCode } from '../../lib/promo';
 
 function isValidPhone(phone: string) {
   const digits = phone.replace(/\D/g, '');
@@ -47,7 +48,7 @@ export const POST: APIRoute = async ({ request }) => {
   const date = String(body.date || '');
   const slot = String(body.slot || '');
   const comment = String(body.comment || '').trim() || null;
-  const promoCode = String(body.promoCode || '').trim().toUpperCase() || null;
+  const rawPromo = normalizePromoCode(body.promoCode as string);
   const today = new Date().toISOString().slice(0, 10);
 
   if (name.length < 2 || !isValidPhone(phone) || !modelId || !date || date < today || !slot) {
@@ -59,7 +60,6 @@ export const POST: APIRoute = async ({ request }) => {
       device: detectDevice(request.headers.get('user-agent')),
       meta: { reason: 'validation' },
     });
-    // save as lead drop
     db.insert(leads)
       .values({
         name,
@@ -79,12 +79,48 @@ export const POST: APIRoute = async ({ request }) => {
   const model = getRawModel(modelId);
   if (!model) return json({ error: 'Модель не найдена' }, 404);
 
-  // Recompute server-side from flags + DB base — never trust a client total.
+  let promoRow: PromoCode | null = null;
+  let promoError: string | null = null;
+
+  if (rawPromo) {
+    const validated = validatePromoCode({
+      code: rawPromo,
+      phone,
+      enforceFirstOrder: true,
+    });
+    if (validated.ok) {
+      promoRow = validated.promo;
+      trackEvent({
+        name: 'promo_apply',
+        utmSource: body.utmSource as string,
+        utmMedium: body.utmMedium as string,
+        utmCampaign: body.utmCampaign as string,
+        device: detectDevice(request.headers.get('user-agent')),
+        meta: { code: validated.code, source: 'booking' },
+      });
+    } else {
+      promoError = validated.error;
+      trackEvent({
+        name: 'promo_reject',
+        utmSource: body.utmSource as string,
+        utmMedium: body.utmMedium as string,
+        utmCampaign: body.utmCampaign as string,
+        device: detectDevice(request.headers.get('user-agent')),
+        meta: { code: rawPromo, error: validated.error, source: 'booking' },
+      });
+      // Soft fail: take booking without discount unless client insisted
+      if (body.requirePromo) {
+        return json({ error: validated.error, promoError: validated.error }, 400);
+      }
+    }
+  }
+
   const { price, options, promoCode: normalizedPromo } = computeOrderPrice(model.priceBase, {
     ota: Boolean(body.ota),
     visit: Boolean(body.visit),
     appPack: Boolean(body.appPack),
-    promoCode,
+    promo: promoRow,
+    promoCode: promoRow ? promoRow.code : null,
   });
 
   const result = db
@@ -106,11 +142,17 @@ export const POST: APIRoute = async ({ request }) => {
       utmSource: (body.utmSource as string) || null,
       utmMedium: (body.utmMedium as string) || null,
       utmCampaign: (body.utmCampaign as string) || null,
-      promoCode: normalizedPromo,
+      promoCode: promoRow ? promoRow.code : null,
+      promoCodeId: promoRow ? promoRow.id : null,
+      paymentStatus: 'unpaid',
     })
     .run();
 
   const orderId = Number(result.lastInsertRowid);
+
+  if (promoRow) {
+    bumpPromoUsage(promoRow.id);
+  }
 
   const tg = await notifyOwnerBooking({
     name,
@@ -129,10 +171,6 @@ export const POST: APIRoute = async ({ request }) => {
     },
   });
 
-  if (!tg.ok) {
-    // order saved; telegram failed — still success for user
-  }
-
   const ics = buildIcs({
     title: `Мова: русификация ${model.brand} ${model.model}`,
     date,
@@ -140,7 +178,15 @@ export const POST: APIRoute = async ({ request }) => {
     description: `Заявка #${orderId}. Телефон: ${phone}`,
   });
 
-  return json({ ok: true, orderId, ics, telegramSkipped: Boolean(tg.skipped) });
+  return json({
+    ok: true,
+    orderId,
+    ics,
+    price,
+    promoCode: normalizedPromo,
+    promoWarning: promoError,
+    telegramSkipped: Boolean(tg.skipped),
+  });
 };
 
 function json(data: unknown, status = 200) {

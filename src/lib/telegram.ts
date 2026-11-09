@@ -89,3 +89,43 @@ export async function notifyPartnerReady(message: string): Promise<{ ok: boolean
   });
   return { ok: true };
 }
+
+export async function notifyOwnerCallback(payload: {
+  name: string;
+  phone: string;
+  modelLabel?: string;
+  preferredSlot?: string;
+  afterHours: boolean;
+  trigger?: string;
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
+  const token = env('TELEGRAM_BOT_TOKEN');
+  const chatId = env('TELEGRAM_CHAT_ID');
+  if (!token || !chatId) return { ok: true, skipped: true };
+
+  const slotLabel =
+    payload.preferredSlot === 'morning'
+      ? 'утром'
+      : payload.preferredSlot === 'day'
+        ? 'днём'
+        : payload.preferredSlot === 'evening'
+          ? 'вечером'
+          : null;
+
+  const lines = [
+    `📞 Callback — Мова${payload.afterHours ? ' · после часов' : ''}`,
+    `Имя: ${payload.name}`,
+    `Телефон: ${payload.phone}`,
+    payload.modelLabel ? `Модель: ${payload.modelLabel}` : null,
+    slotLabel ? `Удобно: ${slotLabel}` : null,
+    payload.trigger ? `Триггер: ${payload.trigger}` : null,
+  ].filter(Boolean);
+
+  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text: lines.join('\n') }),
+  });
+
+  if (!res.ok) return { ok: false, error: await res.text() };
+  return { ok: true };
+}

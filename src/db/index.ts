@@ -61,6 +61,21 @@ export function initSchema() {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS promo_codes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code TEXT NOT NULL UNIQUE,
+      kind TEXT NOT NULL DEFAULT 'percent',
+      value INTEGER NOT NULL,
+      first_order_only INTEGER NOT NULL DEFAULT 1,
+      max_uses INTEGER,
+      used_count INTEGER NOT NULL DEFAULT 0,
+      valid_from TEXT,
+      valid_to TEXT,
+      channel_note TEXT,
+      active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS orders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -82,7 +97,14 @@ export function initSchema() {
       utm_medium TEXT,
       utm_campaign TEXT,
       promo_code TEXT,
-      referral_code TEXT
+      promo_code_id INTEGER REFERENCES promo_codes(id),
+      referral_code TEXT,
+      payment_status TEXT NOT NULL DEFAULT 'unpaid',
+      paid_at TEXT,
+      payment_method TEXT,
+      payment_provider TEXT,
+      provider_payment_id TEXT,
+      amount_paid INTEGER
     );
 
     CREATE TABLE IF NOT EXISTS leads (
@@ -147,6 +169,13 @@ export function initSchema() {
 
   ensureColumn('models', 'body_style', "TEXT NOT NULL DEFAULT 'crossover'");
   ensureColumn('models', 'image_path', 'TEXT');
+  ensureColumn('orders', 'promo_code_id', 'INTEGER REFERENCES promo_codes(id)');
+  ensureColumn('orders', 'payment_status', "TEXT NOT NULL DEFAULT 'unpaid'");
+  ensureColumn('orders', 'paid_at', 'TEXT');
+  ensureColumn('orders', 'payment_method', 'TEXT');
+  ensureColumn('orders', 'payment_provider', 'TEXT');
+  ensureColumn('orders', 'provider_payment_id', 'TEXT');
+  ensureColumn('orders', 'amount_paid', 'INTEGER');
 }
 
 function ensureColumn(table: string, column: string, definition: string) {

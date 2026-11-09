@@ -3,8 +3,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import PromoCode from '../../components/client/PromoCode';
+import PaymentStub from '../../components/client/PaymentStub';
 
 const order = Astro.url.searchParams.get('order') || '';
+const price = Astro.url.searchParams.get('price') || '';
 const ics = Astro.url.searchParams.get('ics') || '';
 ---
 
@@ -27,6 +29,8 @@ const ics = Astro.url.searchParams.get('ics') || '';
           Скачать .ics в календарь
         </a>
       )}
+
+      <PaymentStub client:visible orderId={order} price={price} />
 
       <div class="referral surface">
         <h2 class="display" style="font-size:1.4rem; margin:0 0 0.5rem;">Поделись с другом</h2>

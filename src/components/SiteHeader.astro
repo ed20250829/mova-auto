@@ -4,7 +4,7 @@ const bot = import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_b
 
 <header class="site-header">
   <div class="container header-inner">
-    <a class="logo" href="/" aria-label="Мова — на главную">
+    <a class="logo" href="/" aria-label="Мова - на главную">
       <svg class="logo-mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true" focusable="false">
         <rect width="64" height="64" rx="14" fill="#0E0F10"></rect>
         <path
@@ -153,6 +153,25 @@ const bot = import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_b
     }
     .header-actions .btn-ghost {
       display: none;
+    }
+  }
+  @media (max-width: 420px) {
+    .header-inner {
+      gap: 0.55rem;
+      min-height: 60px;
+    }
+    .logo {
+      font-size: 1.25rem;
+      gap: 0.4rem;
+    }
+    .logo-mark {
+      width: 24px;
+      height: 24px;
+    }
+    .header-actions .btn {
+      min-height: 40px;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.9rem;
     }
   }
 </style>

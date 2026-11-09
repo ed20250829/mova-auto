@@ -8,6 +8,17 @@ const STATUSES = [
   { value: 'cancelled', label: 'Отменён' },
 ];
 
+const PAY_METHODS = [
+  { value: 'cash', label: 'Наличные' },
+  { value: 'transfer', label: 'Перевод' },
+  { value: 'erip', label: 'ЕРИП' },
+  { value: 'epos', label: 'E-POS' },
+  { value: 'card', label: 'Карта' },
+  { value: 'krok', label: 'КРОК' },
+  { value: 'link', label: 'Ссылка' },
+  { value: 'other', label: 'Другое' },
+];
+
 export default function OrdersTable({ orders: initial }: { orders: Order[] }) {
   const [orders, setOrders] = useState(initial);
   const [status, setStatus] = useState('');
@@ -39,6 +50,20 @@ export default function OrdersTable({ orders: initial }: { orders: Order[] }) {
     });
     if (res.ok) {
       setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: next } : o)));
+    }
+    setBusyId(null);
+  }
+
+  async function markPaid(id: number, method: string) {
+    setBusyId(id);
+    const res = await fetch('/api/admin/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, markPaid: true, paymentMethod: method }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setOrders((prev) => prev.map((o) => (o.id === id ? data.order : o)));
     }
     setBusyId(null);
   }
@@ -77,6 +102,7 @@ export default function OrdersTable({ orders: initial }: { orders: Order[] }) {
               <th>Себест.</th>
               <th>Маржа</th>
               <th>Статус</th>
+              <th>Оплата</th>
               <th>Источник</th>
               <th>Слот</th>
             </tr>
@@ -89,6 +115,9 @@ export default function OrdersTable({ orders: initial }: { orders: Order[] }) {
                 <td>
                   <div>{o.clientName}</div>
                   <div style={{ color: '#8a8580' }}>{o.clientPhone}</div>
+                  {o.promoCode && (
+                    <div style={{ color: '#8a8580', fontSize: '0.75rem' }}>promo {o.promoCode}</div>
+                  )}
                 </td>
                 <td>{o.modelLabel}</td>
                 <td>{o.price}</td>
@@ -109,6 +138,35 @@ export default function OrdersTable({ orders: initial }: { orders: Order[] }) {
                     ))}
                   </select>
                 </td>
+                <td>
+                  {o.paymentStatus === 'paid' ? (
+                    <div>
+                      <div style={{ color: '#3dd68c' }}>оплачено</div>
+                      <div style={{ color: '#8a8580', fontSize: '0.75rem' }}>
+                        {(o.paidAt || '').slice(0, 10)} · {o.paymentMethod || '—'}
+                      </div>
+                    </div>
+                  ) : (
+                    <select
+                      className="admin-select"
+                      style={{ minWidth: 130 }}
+                      defaultValue=""
+                      disabled={busyId === o.id}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (v) void markPaid(o.id, v);
+                        e.target.value = '';
+                      }}
+                    >
+                      <option value="">Отметить…</option>
+                      {PAY_METHODS.map((m) => (
+                        <option key={m.value} value={m.value}>
+                          {m.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </td>
                 <td>{o.utmSource || o.source || '—'}</td>
                 <td>
                   {o.scheduledDate || '—'} {o.scheduledSlot || ''}
@@ -117,7 +175,7 @@ export default function OrdersTable({ orders: initial }: { orders: Order[] }) {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={10} style={{ color: '#8a8580' }}>
+                <td colSpan={11} style={{ color: '#8a8580' }}>
                   Нет заказов
                 </td>
               </tr>

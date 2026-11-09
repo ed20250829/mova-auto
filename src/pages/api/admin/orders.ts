@@ -18,6 +18,28 @@ export const PATCH: APIRoute = async ({ request }) => {
   if (body.price !== undefined) patch.price = Number(body.price);
   if (body.cost !== undefined) patch.cost = Number(body.cost);
 
+  if (body.markPaid) {
+    const row = db.select().from(orders).where(eq(orders.id, id)).get();
+    patch.paymentStatus = 'paid';
+    patch.paidAt = body.paidAt || new Date().toISOString();
+    patch.paymentMethod = String(body.paymentMethod || 'cash');
+    patch.paymentProvider = String(body.paymentProvider || 'manual');
+    patch.amountPaid =
+      body.amountPaid != null ? Number(body.amountPaid) : row?.price ?? 0;
+  } else if (body.paymentStatus) {
+    patch.paymentStatus = String(body.paymentStatus);
+    if (body.paymentStatus === 'paid') {
+      patch.paidAt = body.paidAt || new Date().toISOString();
+      if (body.paymentMethod) patch.paymentMethod = String(body.paymentMethod);
+      if (body.paymentProvider) patch.paymentProvider = String(body.paymentProvider);
+      if (body.amountPaid != null) patch.amountPaid = Number(body.amountPaid);
+    }
+    if (body.paymentStatus === 'unpaid') {
+      patch.paidAt = null;
+      patch.amountPaid = null;
+    }
+  }
+
   db.update(orders).set(patch).where(eq(orders.id, id)).run();
   const row = db.select().from(orders).where(eq(orders.id, id)).get();
 
@@ -64,6 +86,11 @@ export const GET: APIRoute = async ({ url }) => {
       'cost',
       'margin',
       'status',
+      'payment_status',
+      'paid_at',
+      'payment_method',
+      'amount_paid',
+      'promo_code',
       'source',
       'date',
       'slot',
@@ -81,6 +108,11 @@ export const GET: APIRoute = async ({ url }) => {
           r.cost,
           r.price - r.cost,
           r.status,
+          r.paymentStatus || 'unpaid',
+          r.paidAt || '',
+          r.paymentMethod || '',
+          r.amountPaid ?? '',
+          r.promoCode || '',
           r.utmSource || r.source || '',
           r.scheduledDate || '',
           r.scheduledSlot || '',

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import ShareButton from './ShareButton';
-import { CALC_OPTIONS_STORAGE_KEY, PRICING_OPTIONS } from '../../lib/pricing';
+import { CALC_OPTIONS_STORAGE_KEY, PRICING_OPTIONS, computeOrderPrice } from '../../lib/pricing';
 
 export type CalcModel = {
   id: number;
@@ -50,7 +50,6 @@ function goToModel(m: CalcModel) {
   const path = modelPath(m);
   if (typeof window === 'undefined') return;
   if (window.location.pathname === path) return;
-  // Soft-ish: View Transition when available, else full route load (SSR left panel + SEO URL).
   const navigate = () => {
     window.location.assign(path);
   };
@@ -109,7 +108,15 @@ export default function Calculator({
   const [ota, setOta] = useState(false);
   const [appPack, setAppPack] = useState(false);
   const [visit, setVisit] = useState(false);
-  const [promo, setPromo] = useState(false);
+  const [promoInput, setPromoInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<{
+    code: string;
+    value: number;
+    kind: string;
+    message: string;
+  } | null>(null);
+  const [promoError, setPromoError] = useState('');
+  const [promoBusy, setPromoBusy] = useState(false);
 
   const selected = models.find((m) => m.id === modelId) || brandModels[0];
 
@@ -123,6 +130,17 @@ export default function Calculator({
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const p = new URLSearchParams(window.location.search);
+    const fromQuery = (p.get('promo') || '').trim().toUpperCase();
+    if (fromQuery) {
+      setPromoInput(fromQuery);
+      void applyPromo(fromQuery);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once on mount for ?promo=
+  }, []);
+
+  useEffect(() => {
     if (!brandModels.some((m) => m.id === modelId) && brandModels[0]) {
       setModelId(brandModels[0].id);
     }
@@ -132,16 +150,55 @@ export default function Calculator({
     if (selected?.requiresOtaSubscription) setOta(true);
   }, [selected?.id, selected?.requiresOtaSubscription]);
 
-  const price = useMemo(() => {
-    if (!selected) return 0;
-    let total = selected.priceBase;
-    if (ota) total += PRICING_OPTIONS.otaInsurance;
-    if (visit) total += PRICING_OPTIONS.onSiteVisit;
-    if (promo) total = Math.round(total * (1 - PRICING_OPTIONS.promoMova10Percent / 100));
-    return total;
-  }, [selected, ota, visit, promo]);
+  const quote = useMemo(() => {
+    if (!selected) return null;
+    return computeOrderPrice(selected.priceBase, {
+      ota,
+      visit,
+      appPack,
+      promoCode: appliedPromo?.code || null,
+      promoPercent: appliedPromo?.kind === 'percent' ? appliedPromo.value : null,
+      promoFixed: appliedPromo?.kind === 'fixed' ? appliedPromo.value : null,
+    });
+  }, [selected, ota, visit, appPack, appliedPromo]);
 
-  const tickPrice = useTickPrice(price);
+  const tickPrice = useTickPrice(quote?.price ?? 0);
+
+  async function applyPromo(codeOverride?: string) {
+    const code = (codeOverride ?? promoInput).trim().toUpperCase();
+    setPromoBusy(true);
+    setPromoError('');
+    try {
+      const res = await fetch('/api/promo/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, source: 'calculator', ...readUtm() }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        setAppliedPromo(null);
+        setPromoError(data.error || 'Код не найден');
+        return;
+      }
+      setAppliedPromo({
+        code: data.code,
+        value: data.value,
+        kind: data.kind,
+        message: data.message,
+      });
+      setPromoInput(data.code);
+    } catch {
+      setPromoError('Не удалось проверить код');
+    } finally {
+      setPromoBusy(false);
+    }
+  }
+
+  function clearPromo() {
+    setAppliedPromo(null);
+    setPromoInput('');
+    setPromoError('');
+  }
 
   function selectBrand(nextBrand: string) {
     track('calc_model_select', { brand: nextBrand });
@@ -163,12 +220,12 @@ export default function Calculator({
     setModelId(id);
   }
 
-  if (!selected) {
+  if (!selected || !quote) {
     return <p className="muted">Модели пока не загружены.</p>;
   }
 
   return (
-    <div className="surface calc">
+    <div className="surface calc" data-calc-root>
       <div className="calc-head">
         <div>
           <p className="kicker">Калькулятор</p>
@@ -204,17 +261,30 @@ export default function Calculator({
         >
           {brandModels.map((m) => (
             <option key={m.id} value={m.id}>
-              {m.model} — {m.priceBase} BYN · {m.timeMinutes} мин
+              {m.model} - {m.priceBase} BYN · {m.timeMinutes} мин
             </option>
           ))}
         </select>
       </label>
 
+      <button
+        type="button"
+        className="calc-missing muted"
+        data-callback-trigger="model_missing"
+        onClick={() => {
+          window.dispatchEvent(
+            new CustomEvent('mova:callback', { detail: { trigger: 'model_missing' } }),
+          );
+        }}
+      >
+        Моей модели нет в списке →
+      </button>
+
       <div className="calc-options" role="group" aria-label="Опции">
         <div className="calc-opt calc-opt--locked">
           <span className="calc-opt-main">
             <strong>Базовая русификация</strong>
-            <span className="muted">меню / настройки · в цене</span>
+            <span className="muted">меню и настройки · в цене</span>
           </span>
         </div>
 
@@ -265,22 +335,43 @@ export default function Calculator({
           </span>
           <span className="calc-opt-price">+{PRICING_OPTIONS.onSiteVisit} BYN</span>
         </label>
+      </div>
 
-        <label className={`calc-opt ${promo ? 'is-on' : ''}`}>
+      <div className="calc-promo">
+        <span className="calc-label">Промокод</span>
+        <div className="calc-promo-row">
           <input
-            type="checkbox"
-            checked={promo}
-            onChange={(e) => {
-              setPromo(e.target.checked);
-              track('calc_option_toggle', { option: 'mova10', on: e.target.checked });
+            className="calc-select"
+            value={promoInput}
+            onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+            placeholder="MOVA10 или код с визитки"
+            aria-label="Промокод"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                void applyPromo();
+              }
             }}
           />
-          <span className="calc-opt-main">
-            <strong>MOVA10</strong>
-            <span className="muted">промокод</span>
-          </span>
-          <span className="calc-opt-price">−10%</span>
-        </label>
+          {appliedPromo ? (
+            <button type="button" className="btn btn-ghost" onClick={clearPromo}>
+              Сбросить
+            </button>
+          ) : (
+            <button type="button" className="btn" disabled={promoBusy || !promoInput.trim()} onClick={() => void applyPromo()}>
+              {promoBusy ? '…' : 'Применить'}
+            </button>
+          )}
+        </div>
+        {appliedPromo && <p className="calc-promo-ok muted">{appliedPromo.message}</p>}
+        {promoError && (
+          <p className="calc-promo-err" role="status">
+            {promoError}
+          </p>
+        )}
+        <p className="muted" style={{ margin: '0.35rem 0 0', fontSize: '0.82rem' }}>
+          Первая запись −10%: код MOVA10. Код с визитки или рекламы - сюда.
+        </p>
       </div>
 
       <div className="calc-total" aria-live="polite">
@@ -288,19 +379,18 @@ export default function Calculator({
           <p className="calc-total-label">
             Итого · {selected.brand} {selected.model} · ~{selected.timeMinutes} мин
           </p>
-          <p className="display calc-total-price">
-            {tickPrice}&nbsp;BYN
-          </p>
+          <p className="display calc-total-price">{tickPrice}&nbsp;BYN</p>
           <p className="calc-total-layers muted">
             база
             {ota ? ' · OTA' : ''}
             {appPack ? ' · Яндекс-приложения' : ''}
             {visit ? ' · выезд' : ''}
-            {promo ? ' · −10%' : ''}
+            {appliedPromo ? ` · −${appliedPromo.kind === 'percent' ? `${appliedPromo.value}%` : `${appliedPromo.value} BYN`}` : ''}
+            {quote.discount > 0 ? ` · было ${quote.subtotal} BYN` : ''}
           </p>
         </div>
         <div className="calc-total-actions">
-          <ShareButton price={price} modelLabel={`${selected.brand} ${selected.model}`} />
+          <ShareButton price={quote.price} modelLabel={`${selected.brand} ${selected.model}`} />
           <a
             className="btn"
             href="#booking"
@@ -313,7 +403,9 @@ export default function Calculator({
                     ota,
                     visit,
                     appPack,
-                    promo: promo ? 'MOVA10' : '',
+                    promo: appliedPromo?.code || '',
+                    promoValue: appliedPromo?.value,
+                    promoKind: appliedPromo?.kind,
                   }),
                 );
               } catch {
@@ -322,10 +414,11 @@ export default function Calculator({
               track('cta_click', {
                 from: 'calculator',
                 modelId: selected.id,
-                price,
+                price: quote.price,
                 ota,
                 appPack,
                 visit,
+                promo: appliedPromo?.code || null,
               });
             }}
           >
