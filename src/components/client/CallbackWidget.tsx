@@ -111,22 +111,20 @@ export default function CallbackWidget() {
   function openWidget(next: Trigger) {
     if (openRef.current) return;
 
-    if (next === 'manual') {
-      // Explicit FAB / CTA — always allowed; do not fight dismiss for intentional open.
-    } else if (next === 'model_missing') {
-      // Contextual: ok immediately, but still respect dismiss TTL.
-      if (isDismissed()) return;
+    // Intentional clicks always open; only soft auto-popups respect dismiss/session.
+    if (next === 'manual' || next === 'model_missing') {
+      // FAB / «Моей модели нет» — user asked for the form.
     } else {
       // idle / exit — soft auto: 1×/session + dismiss TTL
       if (autoShownRef.current || !canAutoShow()) return;
     }
 
     openRef.current = true;
-    if (next !== 'manual') {
+    if (next === 'idle_calc' || next === 'exit_intent') {
       autoShownRef.current = true;
       markShown();
     } else if (!wasShownThisSession()) {
-      // Manual open still counts as session shown so idle/exit won't nag later.
+      // Intentional open still counts as session shown so idle/exit won't nag later.
       markShown();
       autoShownRef.current = true;
     }

@@ -105,7 +105,8 @@ export default function Calculator({
   const [modelId, setModelId] = useState<number>(
     initialModelId || brandModels[0]?.id || models[0]?.id || 0,
   );
-  const [ota, setOta] = useState(false);
+  // OTA recommended for every model — on by default from first paint (not only after effect).
+  const [ota, setOta] = useState(true);
   const [appPack, setAppPack] = useState(false);
   const [visit, setVisit] = useState(false);
   const [promoInput, setPromoInput] = useState('');
@@ -145,10 +146,6 @@ export default function Calculator({
       setModelId(brandModels[0].id);
     }
   }, [brand, brandModels, modelId]);
-
-  useEffect(() => {
-    if (selected?.requiresOtaSubscription) setOta(true);
-  }, [selected?.id, selected?.requiresOtaSubscription]);
 
   const quote = useMemo(() => {
     if (!selected) return null;

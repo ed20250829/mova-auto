@@ -64,7 +64,7 @@ export default function BookingForm({ models, preselectId }: Props) {
     slot: '18:00',
     comment: '',
     promoCode: '',
-    ota: false,
+    ota: true,
     visit: false,
     appPack: false,
   });

@@ -1,31 +1,30 @@
 #!/usr/bin/env bash
-# Builds a hoster.by-ready zip: prebuilt dist + slim runtime deps (no Astro build on server).
+# Builds hoster.by zips: prebuilt dist + slim runtime deps (no Astro build on server).
+# - mova-auto-hoster.zip         — full (includes seeded data/mova.db) for first deploy
+# - mova-auto-hoster-update.zip  — no database (safe for redeploys)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT_DIR="$ROOT/dist-hoster"
-ZIP_NAME="mova-auto-hoster.zip"
-ZIP_PATH="$ROOT/$ZIP_NAME"
+FULL_ZIP="$ROOT/mova-auto-hoster.zip"
+UPDATE_ZIP="$ROOT/mova-auto-hoster-update.zip"
 
 cd "$ROOT"
 npm run build
 npm run db:seed
 
-rm -rf "$OUT_DIR" "$ZIP_PATH"
+rm -rf "$OUT_DIR" "$FULL_ZIP" "$UPDATE_ZIP"
 mkdir -p "$OUT_DIR/data"
 
-# Prebuilt app
 cp -R "$ROOT/dist" "$OUT_DIR/dist"
 cp "$ROOT/server.mjs" "$OUT_DIR/server.mjs"
 cp "$ROOT/.env.example" "$OUT_DIR/.env.example"
+touch "$OUT_DIR/data/.gitkeep"
 
-# Seeded SQLite so the host does not need tsx/seed tooling
 if [[ -f "$ROOT/data/mova.db" ]]; then
   cp "$ROOT/data/mova.db" "$OUT_DIR/data/mova.db"
 fi
-touch "$OUT_DIR/data/.gitkeep"
 
-# Slim package.json — only runtime imports from dist/server (+ no express)
 cat > "$OUT_DIR/package.json" <<'EOF'
 {
   "name": "mova-auto",
@@ -36,7 +35,8 @@ cat > "$OUT_DIR/package.json" <<'EOF'
     "node": ">=22.23.4"
   },
   "scripts": {
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "ispmanager-custom-command": "node ./server.mjs"
   },
   "dependencies": {
     "@oslojs/encoding": "1.1.0",
@@ -63,11 +63,10 @@ EOF
 
 (
   cd "$OUT_DIR"
-  zip -r "$ZIP_PATH" . \
-    -x '*.DS_Store' \
-    -x '**/.DS_Store'
+  zip -r "$FULL_ZIP" . -x '*.DS_Store' -x '**/.DS_Store'
+  zip -r "$UPDATE_ZIP" . -x '*.DS_Store' -x '**/.DS_Store' -x 'data/mova.db'
 )
 
 rm -rf "$OUT_DIR"
-echo "Created: $ZIP_PATH"
-ls -lh "$ZIP_PATH"
+echo "Created:"
+ls -lh "$FULL_ZIP" "$UPDATE_ZIP"

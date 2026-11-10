@@ -14,7 +14,6 @@ const error = Astro.url.searchParams.get('error');
     <meta name="robots" content="noindex" />
     <title>Вход · Мова Admin</title>
     <link href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700,900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/admin-login.css" />
   </head>
   <body class="admin-body" style="display:grid; place-items:center; min-height:100dvh; margin:0; padding:max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left)); box-sizing:border-box; background:#0a0b0c; color:#eee; font-family:Satoshi,sans-serif;">
     <form method="post" action="/api/admin/login" style="width:min(380px, 100%); max-width:100%; box-sizing:border-box; display:grid; gap:0.85rem; padding:1.5rem; border:1px solid #222; border-radius:14px; background:#121416;">

@@ -47,15 +47,29 @@ function resolveClientFile(urlPath) {
 }
 
 function tryServeStatic(req, res) {
-  const filePath = resolveClientFile(req.url || '/');
-  if (!filePath) return false;
-  const ext = path.extname(filePath).toLowerCase();
-  res.setHeader('Content-Type', MIME[ext] || 'application/octet-stream');
-  if ((req.url || '').startsWith('/_astro/')) {
-    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  const raw = req.url || '/';
+  const clean = decodeURIComponent(raw.split('?')[0] || '/');
+  const filePath = resolveClientFile(raw);
+
+  if (filePath) {
+    const ext = path.extname(filePath).toLowerCase();
+    res.setHeader('Content-Type', MIME[ext] || 'application/octet-stream');
+    if (clean.startsWith('/_astro/')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+    fs.createReadStream(filePath).pipe(res);
+    return true;
   }
-  fs.createReadStream(filePath).pipe(res);
-  return true;
+
+  // Missing files with an extension must not fall through to SSR —
+  // on shared hosting that can hang the request for tens of seconds.
+  if (clean !== '/' && /\.[a-zA-Z0-9]{1,8}$/.test(clean)) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Not found');
+    return true;
+  }
+
+  return false;
 }
 
 const server = http.createServer((req, res) => {
