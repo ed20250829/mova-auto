@@ -34,3 +34,7 @@ data/*.sqlite-*
 
 # vercel build output
 .vercel/
+
+# hoster deploy archive
+*.zip
+dist-hoster/
