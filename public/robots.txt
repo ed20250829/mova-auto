@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /admin/
 Disallow: /api/
 
 Sitemap: https://mova-auto.tech/sitemap-index.xml

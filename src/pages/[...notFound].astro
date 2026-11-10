@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+/** Catch-all so unknown HTML paths are a real SSR route (hoster/nginx otherwise hangs). */
+Astro.response.status = 404;
+---
+
+<BaseLayout
+  title="Страница не найдена — Мова"
+  description="Такой страницы нет. Вернитесь на главную Мова в Минске."
+  robots="noindex,nofollow"
+>
+  <SiteHeader />
+  <main id="main" class="section">
+    <div class="container" style="max-width:40rem;">
+      <p class="kicker">404</p>
+      <h1 class="display">Страница не найдена</h1>
+      <p class="muted">
+        Ссылка устарела или адреса не существует. Запись на русификацию — на главной, блок «Запись».
+      </p>
+      <p style="margin-top:1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <a class="btn" href="/">На главную</a>
+        <a class="btn btn-ghost" href="/#booking">Записаться</a>
+      </p>
+    </div>
+  </main>
+  <SiteFooter />
+</BaseLayout>

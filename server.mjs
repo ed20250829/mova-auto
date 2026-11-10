@@ -77,8 +77,19 @@ const server = http.createServer((req, res) => {
   ssrHandler(req, res, (err) => {
     if (err) {
       console.error(err);
-      if (!res.headersSent) res.writeHead(500);
-      res.end('Internal Server Error');
+      if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('Internal Server Error');
+      }
+      return;
+    }
+    // @astrojs/node middleware calls next() when nothing matched.
+    // Without ending the response, nginx waits until upstream timeout (0 bytes).
+    if (!res.headersSent) {
+      res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(
+        '<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>404 — Мова</title></head><body><h1>Страница не найдена</h1><p><a href="/">На главную</a></p></body></html>',
+      );
     }
   });
 });

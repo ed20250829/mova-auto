@@ -7,6 +7,7 @@ interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  robots?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
@@ -14,6 +15,7 @@ const {
   title = 'Мова - русификация китайских авто в Минске',
   description = 'Русификация мультимедиа китайских авто в Минске, Беларусь. Фикс-цена в BYN, запись онлайн, гарантия 6 месяцев, OTA-страховка.',
   ogImage = '/og.png',
+  robots,
   jsonLd,
 } = Astro.props;
 
@@ -24,6 +26,10 @@ const ld = jsonLd
     ? jsonLd
     : [jsonLd]
   : [];
+
+/** Demo banner only when explicitly enabled or in local `astro dev`. Hidden on prod by default. */
+const showSampleBanner =
+  import.meta.env.PUBLIC_SHOW_SAMPLE_BANNER === '1' || import.meta.env.DEV;
 ---
 
 <!doctype html>
@@ -34,6 +40,7 @@ const ld = jsonLd
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {robots && <meta name="robots" content={robots} />}
     <link rel="canonical" href={canonical} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ru_BY" />
@@ -64,7 +71,7 @@ const ld = jsonLd
   </head>
   <body>
     <a class="sr-only" href="#main">К содержанию</a>
-    <SampleBanner client:load />
+    {showSampleBanner && <SampleBanner client:load />}
     <slot />
     <CallbackWidget client:load />
   </body>
