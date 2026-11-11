@@ -6,11 +6,8 @@ import { notifyOwnerBooking } from '../../lib/telegram';
 import { trackEvent, detectDevice } from '../../lib/analytics';
 import { computeOrderPrice } from '../../lib/pricing';
 import { bumpPromoUsage, normalizePromoCode, validatePromoCode } from '../../lib/promo';
+import { isValidPhone } from '../../lib/phone';
 
-function isValidPhone(phone: string) {
-  const digits = phone.replace(/\D/g, '');
-  return digits.length >= 9 && digits.length <= 15;
-}
 
 function buildIcs(opts: { title: string; date: string; slot: string; description: string }) {
   const [hh, mm] = opts.slot.split(':').map(Number);

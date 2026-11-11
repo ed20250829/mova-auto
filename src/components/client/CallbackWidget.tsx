@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { callbackSuccessCopy, isAfterHoursMinsk } from '../../lib/minsk-hours';
+import { isValidPhone } from '../../lib/phone';
+
 
 const SESSION_KEY = 'mova_callback_shown';
 const DISMISS_KEY = 'mova_callback_dismiss_until';
@@ -86,11 +88,6 @@ function resolvePhone() {
     return { e164, display: fromEnv.includes(' ') ? fromEnv : PHONE_DISPLAY };
   }
   return { e164: PHONE_E164, display: PHONE_DISPLAY };
-}
-
-function isValidPhone(phone: string) {
-  const digits = phone.replace(/\D/g, '');
-  return digits.length >= 9 && digits.length <= 15;
 }
 
 export default function CallbackWidget() {

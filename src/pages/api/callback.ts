@@ -5,11 +5,8 @@ import { ensureDb } from '../../lib/models';
 import { trackEvent, detectDevice } from '../../lib/analytics';
 import { callbackSuccessCopy, isAfterHoursMinsk } from '../../lib/minsk-hours';
 import { notifyOwnerCallback } from '../../lib/telegram';
+import { isValidPhone } from '../../lib/phone';
 
-function isValidPhone(phone: string) {
-  const digits = phone.replace(/\D/g, '');
-  return digits.length >= 9 && digits.length <= 15;
-}
 
 export const POST: APIRoute = async ({ request }) => {
   ensureDb();

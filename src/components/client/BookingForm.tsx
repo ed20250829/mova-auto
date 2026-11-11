@@ -5,6 +5,8 @@ import {
   PRICING_OPTIONS,
   computeOrderPrice,
 } from '../../lib/pricing';
+import { isValidPhone } from '../../lib/phone';
+
 
 type Props = {
   models: CalcModel[];
@@ -47,11 +49,6 @@ function track(name: string, meta?: Record<string, unknown>) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, meta, ...readUtm() }),
   });
-}
-
-function isValidPhone(phone: string) {
-  const digits = phone.replace(/\D/g, '');
-  return digits.length >= 9 && digits.length <= 15;
 }
 
 export default function BookingForm({ models, preselectId }: Props) {
