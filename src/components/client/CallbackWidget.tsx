@@ -100,6 +100,7 @@ export default function CallbackWidget() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
   const afterHours = isAfterHoursMinsk();
   const openRef = useRef(false);
   const autoShownRef = useRef(false);
@@ -217,6 +218,10 @@ export default function CallbackWidget() {
     }
     if (!isValidPhone(phone)) {
       setError('Проверьте телефон');
+      return;
+    }
+    if (!consent) {
+      setError('Нужно согласие на обработку персональных данных');
       return;
     }
     setBusy(true);
@@ -362,6 +367,16 @@ export default function CallbackWidget() {
                   ))}
                 </div>
 
+                <label className={`callback-consent ${consent ? 'is-on' : ''}`}>
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    required
+                  />
+                  <span>Согласен на обработку персональных данных</span>
+                </label>
+
                 {error && (
                   <p role="alert" style={{ color: 'var(--error)', margin: 0, fontSize: '0.9rem' }}>
                     {error}
@@ -369,7 +384,7 @@ export default function CallbackWidget() {
                 )}
 
                 <div className="callback-actions">
-                  <button className="btn" type="submit" disabled={busy}>
+                  <button className="btn" type="submit" disabled={busy || !consent}>
                     {busy ? 'Отправляем…' : 'Жду звонка'}
                   </button>
                   <a className="btn btn-ghost" href={`tel:${phoneInfo.e164}`}>

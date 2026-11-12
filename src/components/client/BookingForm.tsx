@@ -79,6 +79,7 @@ export default function BookingForm({ models, preselectId }: Props) {
   } | null>(null);
   const [promoStatus, setPromoStatus] = useState('');
   const [promoBusy, setPromoBusy] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -218,6 +219,7 @@ export default function BookingForm({ models, preselectId }: Props) {
     if (!form.modelId) next.modelId = 'Выберите модель';
     if (!form.date || form.date < today()) next.date = 'Дата не может быть в прошлом';
     if (!form.slot) next.slot = 'Выберите слот';
+    if (!consent) next.consent = 'Нужно согласие на обработку персональных данных';
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -490,6 +492,31 @@ export default function BookingForm({ models, preselectId }: Props) {
         </p>
       )}
 
+      <label className={`calc-opt ${consent ? 'is-on' : ''}`}>
+        <input
+          type="checkbox"
+          checked={consent}
+          onChange={(e) => {
+            setConsent(e.target.checked);
+            if (e.target.checked) {
+              setErrors((prev) => {
+                const next = { ...prev };
+                delete next.consent;
+                return next;
+              });
+            }
+          }}
+          required
+        />
+        <span className="calc-opt-main">
+          <strong>Согласен на обработку персональных данных</strong>
+          <span className="muted">Имя и телефон нужны только для связи по заявке</span>
+        </span>
+      </label>
+      {errors.consent && (
+        <span style={{ color: 'var(--error)', fontSize: '0.8rem' }}>{errors.consent}</span>
+      )}
+
       {serverError && (
         <p role="alert" style={{ color: 'var(--error)', margin: 0 }}>
           {serverError}
@@ -497,7 +524,7 @@ export default function BookingForm({ models, preselectId }: Props) {
       )}
 
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-        <button className="btn" type="submit" disabled={busy}>
+        <button className="btn" type="submit" disabled={busy || !consent}>
           {busy ? 'Отправляем…' : 'Забронировать слот'}
         </button>
         <a
