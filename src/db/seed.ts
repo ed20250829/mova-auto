@@ -1,12 +1,22 @@
 import { and, count, eq } from 'drizzle-orm';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { db, initSchema, sqlite } from './index';
-import { expenses, models, partners } from './schema';
+import { expenses, models, partners, portfolioCases } from './schema';
 import { SEED_MODELS } from './seed-data';
 import { ensureDefaultPromoCodes } from '../lib/promo';
+
+const SEED_CASES = [
+  { title: 'Geely Monjaro', description: 'Меню RU · Минск', imagePath: '/cases/geely-cabin.jpg', sortOrder: 0 },
+  { title: 'BYD Song Plus', description: 'Меню RU · Минск', imagePath: '/cases/byd-cabin.jpg', sortOrder: 1 },
+  { title: 'Zeekr 001', description: 'Меню RU · Минск', imagePath: '/cases/zeekr-cabin.jpg', sortOrder: 2 },
+  { title: 'Li Auto L7', description: 'Меню RU · Минск', imagePath: '/cases/li-cabin.jpg', sortOrder: 3 },
+] as const;
 
 export function seedDatabase(force = false) {
   initSchema();
   ensureDefaultPromoCodes();
+  ensurePortfolioCases(force);
 
   const [{ value: modelCount }] = db.select({ value: count() }).from(models).all();
   if (modelCount > 0 && !force) {
@@ -148,6 +158,32 @@ function ensureDomainExpense() {
         recurring: true,
         nextPaymentDate: '2027-11-09',
         notes: 'Стартовый расход. Уже оплачен.',
+      })
+      .run();
+  }
+}
+
+/** Seed published home portfolio cases when empty (Pexels RF cabin stills under /public/cases). */
+function ensurePortfolioCases(force = false) {
+  if (force) {
+    sqlite.exec('DELETE FROM portfolio_cases');
+  }
+  const [{ value: caseCount }] = db.select({ value: count() }).from(portfolioCases).all();
+  if (caseCount > 0) return;
+
+  for (const c of SEED_CASES) {
+    const disk = resolve(`./public${c.imagePath}`);
+    if (!existsSync(disk)) {
+      console.warn(`[seed] missing case image ${c.imagePath} — skip row`);
+      continue;
+    }
+    db.insert(portfolioCases)
+      .values({
+        title: c.title,
+        description: c.description,
+        imagePath: c.imagePath,
+        published: true,
+        sortOrder: c.sortOrder,
       })
       .run();
   }

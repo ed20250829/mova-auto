@@ -1,0 +1,17 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import CasesPanel from '../../components/admin/CasesPanel';
+import { listAllCases } from '../../lib/cases';
+import { ensureDb } from '../../lib/models';
+
+ensureDb();
+const cases = listAllCases();
+---
+
+<AdminLayout title="Кейсы">
+  <p style="margin:0 0 1rem; color:#8a8580; font-size:0.9rem;">
+    Портфолио для блока «Работы» на главной. Загрузите фото экрана/салона, укажите модель и короткое
+    описание, опубликуйте. Пустой список — секция на сайте не показывается.
+  </p>
+  <CasesPanel client:load cases={cases} />
+</AdminLayout>

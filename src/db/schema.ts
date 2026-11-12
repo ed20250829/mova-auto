@@ -181,6 +181,18 @@ export const bookingSlots = sqliteTable('booking_slots', {
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 });
 
+/** Published portfolio cases shown on the home page works section. */
+export const portfolioCases = sqliteTable('portfolio_cases', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  title: text('title').notNull(), // e.g. Geely Monjaro
+  description: text('description').notNull().default(''),
+  imagePath: text('image_path').notNull(), // /uploads/cases/...
+  published: integer('published', { mode: 'boolean' }).notNull().default(false),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+  updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
+});
+
 export type Model = typeof models.$inferSelect;
 export type PromoCode = typeof promoCodes.$inferSelect;
 export type Order = typeof orders.$inferSelect;
@@ -192,3 +204,4 @@ export type Event = typeof events.$inferSelect;
 export type TelegramUser = typeof telegramUsers.$inferSelect;
 export type TelegramBridge = typeof telegramBridges.$inferSelect;
 export type BookingSlot = typeof bookingSlots.$inferSelect;
+export type PortfolioCase = typeof portfolioCases.$inferSelect;

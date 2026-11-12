@@ -15,6 +15,7 @@ import {
   localBusinessJsonLd,
   organizationJsonLd,
 } from '../lib/seo';
+import { getPublishedCases } from '../lib/cases';
 
 const models = getAllModels();
 const calcModels = models.map((m) => ({
@@ -31,12 +32,7 @@ const calcModels = models.map((m) => ({
 }));
 
 const brands = [...new Map(models.map((m) => [m.brand, m.brandSlug])).entries()];
-const caseSlots = [
-  { label: 'Geely Monjaro', caption: 'Меню RU · Минск' },
-  { label: 'BYD Song Plus', caption: 'Меню RU · Минск' },
-  { label: 'Zeekr 001', caption: 'Меню RU · Минск' },
-  { label: 'Li Auto L7', caption: 'Меню RU · Минск' },
-];
+const publishedCases = getPublishedCases();
 ---
 
 <BaseLayout
@@ -175,28 +171,32 @@ const caseSlots = [
       </div>
     </section>
 
-    <section class="section-tight" id="cases">
-      <div class="container">
-        <p class="kicker">Работы</p>
-        <h2 class="display section-title">Место под кейсы</h2>
-        <p class="muted cases-lead">
-          Сюда пойдут фото до/после с реальных визитов. Пока — каркас без отзывов и без чужих картинок.
-        </p>
-        <div class="cases-grid">
-          {caseSlots.map((c) => (
-            <figure class="case-slot">
-              <div class="case-frame" aria-hidden="true">
-                <span>Фото</span>
-              </div>
-              <figcaption>
-                <strong>{c.label}</strong>
-                <span class="muted">{c.caption}</span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </div>
-    </section>
+    {
+      publishedCases.length > 0 && (
+        <section class="section-tight" id="cases">
+          <div class="container">
+            <p class="kicker">Работы</p>
+            <h2 class="display section-title">Реальные визиты в Минске</h2>
+            <p class="muted cases-lead">
+              Фото с приёмки: модель и коротко, что сделали. Без чужих картинок и без обещаний «до/после».
+            </p>
+            <div class="cases-grid">
+              {publishedCases.map((c) => (
+                <figure class="case-slot">
+                  <div class="case-frame">
+                    <img src={c.imagePath} alt={`${c.title} — русификация меню`} loading="lazy" />
+                  </div>
+                  <figcaption>
+                    <strong>{c.title}</strong>
+                    <span class="muted">{c.description}</span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+      )
+    }
 
     <section class="section" id="faq">
       <div class="container faq-grid">
@@ -401,15 +401,15 @@ const caseSlots = [
   }
   .case-frame {
     aspect-ratio: 4 / 3;
-    border: 1px dashed var(--border-strong);
     border-radius: var(--radius-md);
     background: color-mix(in srgb, var(--surface) 70%, transparent);
-    display: grid;
-    place-items: center;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    overflow: hidden;
+  }
+  .case-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
   .case-slot figcaption {
     display: grid;

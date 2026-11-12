@@ -7,16 +7,16 @@ import { faqPageJsonLd, organizationJsonLd, SITE_PHONE_DISPLAY, SITE_URL } from 
 
 const title = 'Автосалонам Минска — партнёрство с Мовой | Русификация';
 const description =
-  'Партнёрство для автосалонов Минска: русификация мультимедиа китайских авто с фикс-ценой в BYN, приоритетные слоты и договор. Мова — подрядчик по ПО, не общий ремонт.';
+  'Партнёрство для автосалонов Минска: русификация мультимедиа китайских авто по прайсу в BYN, приоритетные слоты и договор. Мова — подрядчик по ПО, не общий ремонт.';
 
 const faq = [
   {
     q: 'Сколько стоит русификация для машин салона?',
-    a: 'Фикс за машину в BYN по модели из прайса. От объёма от N авто в месяц — индивидуальная сетка. Точные цифры согласуем после короткого созвона.',
+    a: 'Цена за машину в BYN — по модели из прайса. От объёма от N авто в месяц — индивидуальная сетка. Точные цифры согласуем после короткого созвона.',
   },
   {
-    q: 'Можно ли white-label под бренд салона?',
-    a: 'Да: клиент салона получает слот и работу, материалы и QR можно оформить с вашим логотипом. На договоре услуга остаётся настройкой ПО мультимедиа.',
+    q: 'Можно ли оформить работу под бренд салона?',
+    a: 'Да: клиент салона получает слот и работу, материалы и QR можно оформить с вашим логотипом. В договоре услуга остаётся настройкой ПО мультимедиа.',
   },
   {
     q: 'Что не входит в партнёрство?',
@@ -52,12 +52,26 @@ const serviceLd = {
   <main id="main">
     <section class="section partner-hero">
       <div class="container partner-hero-inner">
-        <p class="brand display" data-partner-reveal>Мова</p>
+        <p class="brand display" data-partner-reveal>
+          <svg class="brand-mark" viewBox="0 0 64 64" width="40" height="40" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="14" fill="#0E0F10"></rect>
+            <path
+              fill="#FF5722"
+              d="M12 48V16h7.2l8.4 20.4L36 16h7.2v32h-6.4V27.6L29.6 48h-5.2L17.2 27.6V48H12z"
+            ></path>
+            <rect x="46" y="25" width="9" height="4" rx="1.2" fill="#F4F1EC"></rect>
+            <rect x="46" y="35" width="9" height="4" rx="1.2" fill="#F4F1EC"></rect>
+          </svg>
+          <span>Мова</span>
+        </p>
         <p class="kicker" data-partner-reveal>Автосалонам · Минск</p>
-        <h1 class="display" data-partner-reveal>Русское меню для машин, которые продаёте</h1>
+        <h1 class="display" data-partner-reveal>
+          Русское меню для машин,&nbsp;которые&nbsp;продаёте
+        </h1>
         <p class="lead muted" data-partner-reveal>
-          Клиент забирает китайца из салона и через неделю звонит: «почему всё по-китайски».
-          Мы закрываем этот хвост — фикс в BYN, слот под вашу выдачу, договор и закрывающие.
+          Клиент забирает машину из салона — а через неделю звонит: «почему всё по-китайски».
+          Мы берём этот участок на себя: понятная цена в BYN по модели, слот под вашу выдачу,
+          договор и закрывающие документы.
         </p>
         <p class="partner-aside muted" data-partner-reveal>
           По документам — настройка ПО мультимедиа. Не ремонт автомобиля.
@@ -76,7 +90,7 @@ const serviceLd = {
         <ul class="partner-points muted">
           <li>Выдача с русским меню — меньше претензий в первые дни владения</li>
           <li>Один подрядчик по ПО вместо «найдите мастера сами»</li>
-          <li>Понятная цена для менеджера продаж: фикс по модели, без торга на месте</li>
+          <li>Понятная цена для менеджера продаж: по модели из прайса, без торга на месте</li>
           <li>Приоритетные слоты под клиентов салона — вечером и в выходные по Минску</li>
         </ul>
       </div>
@@ -85,16 +99,16 @@ const serviceLd = {
     <section class="section" aria-labelledby="package">
       <div class="container partner-block">
         <p class="kicker">Пакет</p>
-        <h2 id="package" class="display section-title">Один формат: referral + white-label install</h2>
+        <h2 id="package" class="display section-title">Один формат: направление клиента и установка под ваш бренд</h2>
         <p class="muted partner-lead">
-          Салон направляет клиента (или машину) к Мове. Работа идёт как white-label install для проданных авто:
+          Салон направляет клиента или машину к Мове. Работа идёт под ваш бренд для проданных авто:
           клиент видит спокойный процесс, салон держит контроль качества выдачи.
         </p>
         <div class="partner-grid">
           <article>
             <h3>Цена</h3>
             <p class="muted">
-              Фикс за машину в BYN по модели из прайса. От N авто в месяц — индивидуальная сетка
+              Цена за машину в BYN — по модели из прайса. От N авто в месяц — индивидуальная сетка
               (оптовый порог согласуем). Опционально: страховка после обновления ПО для клиента салона.
             </p>
           </article>
@@ -225,38 +239,52 @@ const serviceLd = {
     padding-bottom: clamp(2rem, 5vw, 3.25rem);
   }
   .partner-hero-inner {
-    max-width: 42rem;
+    max-width: 44rem;
     display: grid;
-    gap: 0.65rem;
+    gap: 0.8rem;
   }
   .brand {
-    font-size: clamp(2.8rem, 8vw, 4.6rem);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: clamp(2.6rem, 7vw, 4.2rem);
     margin: 0;
     color: var(--accent);
-    line-height: 0.9;
+    line-height: 1;
     letter-spacing: -0.05em;
+  }
+  .brand-mark {
+    display: block;
+    width: clamp(2rem, 5vw, 2.6rem);
+    height: clamp(2rem, 5vw, 2.6rem);
+    border-radius: 0.55rem;
+    flex-shrink: 0;
   }
   h1.display {
     font-size: clamp(1.85rem, 4.2vw, 2.75rem);
     margin: 0;
-    max-width: 16ch;
+    max-width: 22ch;
     letter-spacing: -0.03em;
+    line-height: 1.12;
+    text-wrap: balance;
   }
   .lead {
-    margin: 0.15rem 0 0;
-    font-size: 1.05rem;
-    max-width: 46ch;
+    margin: 0.2rem 0 0;
+    font-size: 1.08rem;
+    line-height: 1.55;
+    max-width: 48ch;
   }
   .partner-aside {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
+    line-height: 1.45;
     max-width: 42ch;
   }
   .partner-hero-cta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.65rem;
-    margin-top: 0.55rem;
+    margin-top: 0.35rem;
   }
   .partner-block {
     max-width: 52rem;

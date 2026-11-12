@@ -194,8 +194,22 @@ export function initSchema() {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS portfolio_cases (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      image_path TEXT NOT NULL,
+      published INTEGER NOT NULL DEFAULT 0,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE UNIQUE INDEX IF NOT EXISTS models_brand_model_uidx
       ON models(brand_slug, model_slug);
+
+    CREATE INDEX IF NOT EXISTS portfolio_cases_published_idx
+      ON portfolio_cases(published, sort_order);
 
     CREATE INDEX IF NOT EXISTS telegram_bridges_owner_msg_idx
       ON telegram_bridges(owner_message_id);

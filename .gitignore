@@ -26,6 +26,12 @@ data/*.db-*
 data/*.sqlite
 data/*.sqlite-*
 
+# runtime case photo uploads (keep folder via .gitkeep)
+data/uploads/cases/*
+!data/uploads/cases/.gitkeep
+public/uploads/cases/*
+!public/uploads/cases/.gitkeep
+
 # macOS-specific files
 .DS_Store
 

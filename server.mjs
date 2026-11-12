@@ -18,6 +18,7 @@ try {
 }
 
 const clientRoot = path.join(__dirname, 'dist/client');
+const uploadsRoot = path.join(__dirname, 'data', 'uploads');
 
 const MIME = {
   '.css': 'text/css; charset=utf-8',
@@ -37,25 +38,38 @@ const MIME = {
   '.woff2': 'font/woff2',
 };
 
-function resolveClientFile(urlPath) {
+function resolveUnderRoot(root, urlPath) {
   const clean = decodeURIComponent((urlPath || '/').split('?')[0]);
   if (clean === '/' || clean.endsWith('/')) return null;
-  const resolved = path.normalize(path.join(clientRoot, clean));
-  if (!resolved.startsWith(clientRoot)) return null;
+  const resolved = path.normalize(path.join(root, clean));
+  if (!resolved.startsWith(root)) return null;
   if (!fs.existsSync(resolved) || !fs.statSync(resolved).isFile()) return null;
   return resolved;
+}
+
+function resolveClientFile(urlPath) {
+  return resolveUnderRoot(clientRoot, urlPath);
+}
+
+function resolveUploadFile(urlPath) {
+  const clean = decodeURIComponent((urlPath || '/').split('?')[0]);
+  if (!clean.startsWith('/uploads/')) return null;
+  const rel = clean.slice('/uploads'.length);
+  return resolveUnderRoot(uploadsRoot, rel);
 }
 
 function tryServeStatic(req, res) {
   const raw = req.url || '/';
   const clean = decodeURIComponent(raw.split('?')[0] || '/');
-  const filePath = resolveClientFile(raw);
+  const filePath = resolveClientFile(raw) || resolveUploadFile(raw);
 
   if (filePath) {
     const ext = path.extname(filePath).toLowerCase();
     res.setHeader('Content-Type', MIME[ext] || 'application/octet-stream');
     if (clean.startsWith('/_astro/')) {
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (clean.startsWith('/uploads/')) {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
     }
     fs.createReadStream(filePath).pipe(res);
     return true;
