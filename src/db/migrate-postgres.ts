@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS orders (
   client_name TEXT NOT NULL,
   client_phone TEXT NOT NULL,
   client_telegram TEXT,
+  client_telegram_chat_id TEXT,
   model_id INTEGER REFERENCES models(id),
   model_label TEXT NOT NULL,
   price INTEGER NOT NULL,
@@ -148,6 +149,28 @@ CREATE TABLE IF NOT EXISTS events (
   meta TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS telegram_users (
+  chat_id TEXT PRIMARY KEY,
+  username TEXT,
+  first_name TEXT,
+  last_name TEXT,
+  phone TEXT,
+  state TEXT NOT NULL DEFAULT 'idle',
+  draft TEXT NOT NULL DEFAULT '{}',
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS telegram_bridges (
+  id SERIAL PRIMARY KEY,
+  owner_message_id INTEGER NOT NULL,
+  client_chat_id TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS telegram_bridges_owner_msg_idx ON telegram_bridges(owner_message_id);
+CREATE INDEX IF NOT EXISTS telegram_users_username_idx ON telegram_users(username);
 `;
 
 async function main() {

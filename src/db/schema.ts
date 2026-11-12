@@ -63,11 +63,12 @@ export const orders = sqliteTable('orders', {
   clientName: text('client_name').notNull(),
   clientPhone: text('client_phone').notNull(),
   clientTelegram: text('client_telegram'),
+  clientTelegramChatId: text('client_telegram_chat_id'),
   modelId: integer('model_id').references(() => models.id),
   modelLabel: text('model_label').notNull(),
   price: integer('price').notNull(),
   cost: integer('cost').notNull().default(80),
-  status: text('status').notNull().default('new'), // new | in_progress | done | cancelled
+  status: text('status').notNull().default('new'), // new | confirmed | in_progress | done | cancelled
   source: text('source').default('site'),
   partnerId: integer('partner_id').references(() => partners.id),
   scheduledDate: text('scheduled_date'),
@@ -144,6 +145,27 @@ export const events = sqliteTable('events', {
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 });
 
+/** Telegram bot contacts + FSM draft for conversational booking. */
+export const telegramUsers = sqliteTable('telegram_users', {
+  chatId: text('chat_id').primaryKey(),
+  username: text('username'),
+  firstName: text('first_name'),
+  lastName: text('last_name'),
+  phone: text('phone'),
+  state: text('state').notNull().default('idle'),
+  draft: text('draft').notNull().default('{}'),
+  updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+});
+
+/** Maps owner Telegram message_id → client chat for reply bridging. */
+export const telegramBridges = sqliteTable('telegram_bridges', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  ownerMessageId: integer('owner_message_id').notNull(),
+  clientChatId: text('client_chat_id').notNull(),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+});
+
 export type Model = typeof models.$inferSelect;
 export type PromoCode = typeof promoCodes.$inferSelect;
 export type Order = typeof orders.$inferSelect;
@@ -152,3 +174,5 @@ export type Partner = typeof partners.$inferSelect;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type Expense = typeof expenses.$inferSelect;
 export type Event = typeof events.$inferSelect;
+export type TelegramUser = typeof telegramUsers.$inferSelect;
+export type TelegramBridge = typeof telegramBridges.$inferSelect;

@@ -3,7 +3,15 @@ import { eq } from 'drizzle-orm';
 import { db } from '../../../db';
 import { orders } from '../../../db/schema';
 import { ensureDb } from '../../../lib/models';
-import { notifyClientStatus, notifyPartnerReady } from '../../../lib/telegram';
+import {
+  inlineKeyboard,
+  notifyClientStatus,
+  notifyPartnerReady,
+  resolveClientChatId,
+  siteAddress,
+  statusMessageForClient,
+  urlBtn,
+} from '../../../lib/telegram';
 import { csvEscape } from '../../../lib/format';
 
 export const PATCH: APIRoute = async ({ request }) => {
@@ -12,6 +20,9 @@ export const PATCH: APIRoute = async ({ request }) => {
   const id = Number(body.id);
   if (!id) return json({ error: 'id required' }, 400);
 
+  const before = db.select().from(orders).where(eq(orders.id, id)).get();
+  if (!before) return json({ error: 'not found' }, 404);
+
   const patch: Record<string, unknown> = {};
   if (body.status) patch.status = String(body.status);
   if (body.partnerId !== undefined) patch.partnerId = body.partnerId ? Number(body.partnerId) : null;
@@ -19,13 +30,12 @@ export const PATCH: APIRoute = async ({ request }) => {
   if (body.cost !== undefined) patch.cost = Number(body.cost);
 
   if (body.markPaid) {
-    const row = db.select().from(orders).where(eq(orders.id, id)).get();
     patch.paymentStatus = 'paid';
     patch.paidAt = body.paidAt || new Date().toISOString();
     patch.paymentMethod = String(body.paymentMethod || 'cash');
     patch.paymentProvider = String(body.paymentProvider || 'manual');
     patch.amountPaid =
-      body.amountPaid != null ? Number(body.amountPaid) : row?.price ?? 0;
+      body.amountPaid != null ? Number(body.amountPaid) : before.price ?? 0;
   } else if (body.paymentStatus) {
     patch.paymentStatus = String(body.paymentStatus);
     if (body.paymentStatus === 'paid') {
@@ -40,13 +50,39 @@ export const PATCH: APIRoute = async ({ request }) => {
     }
   }
 
+  // Backfill chat id if client already talked to the bot.
+  if (!before.clientTelegramChatId) {
+    const chatId = resolveClientChatId({
+      telegram: before.clientTelegram,
+      phone: before.clientPhone,
+    });
+    if (chatId) patch.clientTelegramChatId = chatId;
+  }
+
   db.update(orders).set(patch).where(eq(orders.id, id)).run();
   const row = db.select().from(orders).where(eq(orders.id, id)).get();
 
-  if (body.notifyClient && row) {
+  const statusChanged = Boolean(body.status && body.status !== before.status);
+  const shouldNotify =
+    body.notifyClient === true ||
+    (body.notifyClient !== false && statusChanged && body.status !== 'new');
+
+  if (shouldNotify && row) {
+    const replyMarkup =
+      row.status === 'confirmed'
+        ? inlineKeyboard([
+            [urlBtn('Показать на карте', `https://maps.google.com/?q=${encodeURIComponent(siteAddress())}`)],
+          ])
+        : row.status === 'done'
+          ? inlineKeyboard([[urlBtn('OTA на сайте', `${(import.meta.env.PUBLIC_SITE_URL as string) || 'https://mova-auto.tech'}/#ota`)]])
+          : undefined;
+
     await notifyClientStatus({
+      chatId: row.clientTelegramChatId,
+      telegram: row.clientTelegram,
       phone: row.clientPhone,
-      message: `Мова: заказ #${row.id} — статус «${row.status}». Модель: ${row.modelLabel}.`,
+      message: statusMessageForClient(row),
+      replyMarkup,
     });
   }
   if (body.notifyPartner && row?.status === 'done') {

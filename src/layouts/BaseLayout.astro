@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import SampleBanner from '../components/client/SampleBanner';
+import CookieBanner from '../components/client/CookieBanner';
 import CallbackWidget from '../components/client/CallbackWidget';
 
 interface Props {
@@ -73,6 +74,7 @@ const showSampleBanner =
     <a class="sr-only" href="#main">К содержанию</a>
     {showSampleBanner && <SampleBanner client:load />}
     <slot />
+    <CookieBanner client:load />
     <CallbackWidget client:load />
   </body>
 </html>

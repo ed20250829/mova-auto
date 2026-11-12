@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { db } from '../../db';
 import { orders, leads, type PromoCode } from '../../db/schema';
 import { ensureDb, getRawModel } from '../../lib/models';
-import { notifyOwnerBooking } from '../../lib/telegram';
+import { notifyOwnerBooking, resolveClientChatId } from '../../lib/telegram';
 import { trackEvent, detectDevice } from '../../lib/analytics';
 import { computeOrderPrice } from '../../lib/pricing';
 import { bumpPromoUsage, normalizePromoCode, validatePromoCode } from '../../lib/promo';
@@ -120,12 +120,18 @@ export const POST: APIRoute = async ({ request }) => {
     promoCode: promoRow ? promoRow.code : null,
   });
 
+  const clientTelegramChatId = resolveClientChatId({
+    telegram,
+    phone,
+  });
+
   const result = db
     .insert(orders)
     .values({
       clientName: name,
       clientPhone: phone,
       clientTelegram: telegram,
+      clientTelegramChatId,
       modelId: model.id,
       modelLabel: `${model.brand} ${model.model}`,
       price,
@@ -152,6 +158,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const tg = await notifyOwnerBooking({
+    orderId,
     name,
     phone,
     telegram: telegram || undefined,
@@ -161,6 +168,7 @@ export const POST: APIRoute = async ({ request }) => {
     comment: comment || undefined,
     price,
     promoCode: normalizedPromo || undefined,
+    source: 'сайт',
     utm: {
       source: body.utmSource as string,
       medium: body.utmMedium as string,

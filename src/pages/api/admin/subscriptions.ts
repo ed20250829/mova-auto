@@ -55,6 +55,7 @@ export const PATCH: APIRoute = async ({ request }) => {
     if (row) {
       await notifyClientStatus({
         phone: row.clientPhone,
+        telegram: row.clientTelegram,
         message: `Мова: напоминание об OTA-страховке. Следующий платёж ${row.nextPaymentAt}.`,
       });
     }

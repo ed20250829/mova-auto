@@ -82,6 +82,7 @@ export function initSchema() {
       client_name TEXT NOT NULL,
       client_phone TEXT NOT NULL,
       client_telegram TEXT,
+      client_telegram_chat_id TEXT,
       model_id INTEGER REFERENCES models(id),
       model_label TEXT NOT NULL,
       price INTEGER NOT NULL,
@@ -163,8 +164,33 @@ export function initSchema() {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS telegram_users (
+      chat_id TEXT PRIMARY KEY,
+      username TEXT,
+      first_name TEXT,
+      last_name TEXT,
+      phone TEXT,
+      state TEXT NOT NULL DEFAULT 'idle',
+      draft TEXT NOT NULL DEFAULT '{}',
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS telegram_bridges (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      owner_message_id INTEGER NOT NULL,
+      client_chat_id TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE UNIQUE INDEX IF NOT EXISTS models_brand_model_uidx
       ON models(brand_slug, model_slug);
+
+    CREATE INDEX IF NOT EXISTS telegram_bridges_owner_msg_idx
+      ON telegram_bridges(owner_message_id);
+
+    CREATE INDEX IF NOT EXISTS telegram_users_username_idx
+      ON telegram_users(username);
   `);
 
   ensureColumn('models', 'body_style', "TEXT NOT NULL DEFAULT 'crossover'");
@@ -176,6 +202,7 @@ export function initSchema() {
   ensureColumn('orders', 'payment_provider', 'TEXT');
   ensureColumn('orders', 'provider_payment_id', 'TEXT');
   ensureColumn('orders', 'amount_paid', 'INTEGER');
+  ensureColumn('orders', 'client_telegram_chat_id', 'TEXT');
 }
 
 function ensureColumn(table: string, column: string, definition: string) {

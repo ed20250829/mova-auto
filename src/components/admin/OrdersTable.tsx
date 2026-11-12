@@ -3,6 +3,7 @@ import type { Order } from '../../db/schema';
 
 const STATUSES = [
   { value: 'new', label: 'Новый' },
+  { value: 'confirmed', label: 'Подтверждён' },
   { value: 'in_progress', label: 'В работе' },
   { value: 'done', label: 'Готов' },
   { value: 'cancelled', label: 'Отменён' },
@@ -46,7 +47,11 @@ export default function OrdersTable({ orders: initial }: { orders: Order[] }) {
     const res = await fetch('/api/admin/orders', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status: next, notifyClient: next === 'done' || next === 'in_progress' }),
+      body: JSON.stringify({
+        id,
+        status: next,
+        notifyClient: next === 'confirmed' || next === 'done' || next === 'in_progress' || next === 'cancelled',
+      }),
     });
     if (res.ok) {
       setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: next } : o)));

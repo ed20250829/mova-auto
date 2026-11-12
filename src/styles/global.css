@@ -500,6 +500,110 @@ select.calc-select {
   }
 }
 
+/* Cookie notice — site palette, floating card at bottom */
+.cookie-banner {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 75;
+  display: flex;
+  justify-content: center;
+  padding: 0 1rem max(1rem, env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+.cookie-banner__card {
+  pointer-events: auto;
+  width: min(560px, 100%);
+  padding: 1.35rem 1.4rem 1.25rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-lift);
+  color: var(--text);
+}
+
+.cookie-banner__text {
+  margin: 0 0 1.1rem;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.cookie-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.cookie-banner__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background 160ms var(--ease-out), color 160ms var(--ease-out), border-color 160ms var(--ease-out);
+}
+
+.cookie-banner__btn--accept {
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: #120b08;
+}
+
+.cookie-banner__btn--accept:hover {
+  background: var(--accent-hover);
+}
+
+.cookie-banner__btn--decline {
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text);
+}
+
+.cookie-banner__btn--decline:hover {
+  border-color: var(--accent-edge);
+  background: var(--accent-soft);
+}
+
+.cookie-banner__btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+body.has-cookie-banner .callback-fab {
+  bottom: calc(11.5rem + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 480px) {
+  .cookie-banner {
+    padding-inline: 0.75rem;
+  }
+
+  .cookie-banner__card {
+    padding: 1.15rem 1.1rem 1.05rem;
+  }
+
+  .cookie-banner__actions {
+    width: 100%;
+  }
+
+  .cookie-banner__btn {
+    flex: 1 1 auto;
+  }
+
+  body.has-cookie-banner .callback-fab {
+    bottom: calc(13rem + env(safe-area-inset-bottom));
+  }
+}
+
 .display {
   font-family: var(--font-display);
   font-weight: 700;
