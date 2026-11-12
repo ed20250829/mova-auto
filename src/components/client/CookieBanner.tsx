@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
-import { COOKIE_CONSENT_KEY, loadYandexMetrika } from '../../lib/client-analytics';
+import { COOKIE_CONSENT_KEY, loadGoogleTagManager, loadYandexMetrika } from '../../lib/client-analytics';
 
 type Props = {
   /** Digits-only Yandex Metrika counter. Empty/undefined → never loads. */
   metrikaId?: string;
+  /** GTM container id, e.g. GTM-XXXX. Empty/undefined → never loads. */
+  gtmId?: string;
 };
 
-export default function CookieBanner({ metrikaId }: Props) {
+function loadConsentedTags(metrikaId?: string, gtmId?: string) {
+  if (metrikaId) loadYandexMetrika(metrikaId);
+  if (gtmId) loadGoogleTagManager(gtmId);
+}
+
+export default function CookieBanner({ metrikaId, gtmId }: Props) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -16,13 +23,13 @@ export default function CookieBanner({ metrikaId }: Props) {
         setVisible(true);
         return;
       }
-      if (consent === 'accepted' && metrikaId) {
-        loadYandexMetrika(metrikaId);
+      if (consent === 'accepted') {
+        loadConsentedTags(metrikaId, gtmId);
       }
     } catch {
       setVisible(true);
     }
-  }, [metrikaId]);
+  }, [metrikaId, gtmId]);
 
   useEffect(() => {
     document.body.classList.toggle('has-cookie-banner', visible);
@@ -35,8 +42,8 @@ export default function CookieBanner({ metrikaId }: Props) {
     } catch {
       /* ignore */
     }
-    if (value === 'accepted' && metrikaId) {
-      loadYandexMetrika(metrikaId);
+    if (value === 'accepted') {
+      loadConsentedTags(metrikaId, gtmId);
     }
     setVisible(false);
   }

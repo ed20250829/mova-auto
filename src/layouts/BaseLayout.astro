@@ -38,6 +38,9 @@ const showSampleBanner =
 const yandexMetrikaId = String(
   process.env.PUBLIC_YANDEX_METRIKA_ID || import.meta.env.PUBLIC_YANDEX_METRIKA_ID || '',
 ).trim();
+
+/** Google Tag Manager: only inject id when set; container loads after cookie accept. */
+const gtmId = String(process.env.PUBLIC_GTM_ID || import.meta.env.PUBLIC_GTM_ID || '').trim();
 ---
 
 <!doctype html>
@@ -81,7 +84,7 @@ const yandexMetrikaId = String(
     <a class="sr-only" href="#main">К содержанию</a>
     {showSampleBanner && <SampleBanner client:load />}
     <slot />
-    <CookieBanner client:load metrikaId={yandexMetrikaId || undefined} />
+    <CookieBanner client:load metrikaId={yandexMetrikaId || undefined} gtmId={gtmId || undefined} />
     <CallbackWidget client:load />
   </body>
 </html>

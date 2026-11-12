@@ -1,12 +1,15 @@
-/** Browser-side analytics: first-party /api/events + Yandex Metrika reachGoal. */
+/** Browser-side analytics: first-party /api/events + Yandex Metrika reachGoal + GTM. */
 
 export const COOKIE_CONSENT_KEY = 'mova_cookie_consent';
 
 declare global {
   interface Window {
     ym?: (id: number, method: string, ...args: unknown[]) => void;
+    dataLayer?: unknown[];
     __movaMetrikaId?: string;
     __movaMetrikaLoaded?: boolean;
+    __movaGtmId?: string;
+    __movaGtmLoaded?: boolean;
   }
 }
 
@@ -117,4 +120,37 @@ export function loadYandexMetrika(counterId: string) {
     webvisor: true,
   });
   flushPendingGoals(id);
+}
+
+/** Load GTM container once. Call only after cookie accept (or if already accepted). Separate from Metrika. */
+export function loadGoogleTagManager(containerId: string) {
+  if (typeof window === 'undefined') return;
+  const id = String(containerId || '').trim();
+  if (!id || !/^GTM-[A-Z0-9]+$/i.test(id)) return;
+
+  window.__movaGtmId = id;
+  if (window.__movaGtmLoaded) return;
+  window.__movaGtmLoaded = true;
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(id)}`;
+  const first = document.getElementsByTagName('script')[0];
+  first?.parentNode?.insertBefore(script, first);
+
+  // Standard noscript iframe, injected after consent (JS gate; mirrors head+body snippet).
+  if (!document.getElementById('mova-gtm-ns')) {
+    const iframe = document.createElement('iframe');
+    iframe.id = 'mova-gtm-ns';
+    iframe.src = `https://www.googletagmanager.com/ns.html?id=${encodeURIComponent(id)}`;
+    iframe.height = '0';
+    iframe.width = '0';
+    iframe.style.display = 'none';
+    iframe.style.visibility = 'hidden';
+    iframe.setAttribute('title', 'Google Tag Manager');
+    document.body.insertBefore(iframe, document.body.firstChild);
+  }
 }

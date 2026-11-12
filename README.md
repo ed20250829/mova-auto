@@ -28,7 +28,7 @@ Admin: [http://127.0.0.1:4321/admin](http://127.0.0.1:4321/admin) — token from
 
 ## Env
 
-See `.env.example` and [`docs/setup.md`](docs/setup.md): `ADMIN_TOKEN`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `DATABASE_PATH`, optional partner bot, `DATABASE_URL` for Postgres, optional `PUBLIC_YANDEX_METRIKA_ID`.
+See `.env.example` and [`docs/setup.md`](docs/setup.md): `ADMIN_TOKEN`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `DATABASE_PATH`, optional partner bot, `DATABASE_URL` for Postgres, optional `PUBLIC_YANDEX_METRIKA_ID`, optional `PUBLIC_GTM_ID`.
 
 ## Deploy
 
