@@ -267,7 +267,10 @@ export default function BookingForm({ models, preselectId }: Props) {
         /* ignore */
       }
       track('form_success', { orderId: data.orderId });
-      window.location.href = `/booking/thanks?order=${data.orderId}&price=${data.price || ''}&ics=${encodeURIComponent(data.ics || '')}`;
+      const thanks = new URLSearchParams();
+      if (data.price) thanks.set('price', String(data.price));
+      if (data.ics) thanks.set('ics', data.ics);
+      window.location.href = `/booking/thanks${thanks.toString() ? `?${thanks}` : ''}`;
     } catch {
       setServerError('Сеть недоступна. Напишите в Telegram.');
       track('form_error', { reason: 'network' });
@@ -402,7 +405,7 @@ export default function BookingForm({ models, preselectId }: Props) {
             onChange={(e) => setForm({ ...form, ota: e.target.checked })}
           />
           <span className="calc-opt-main">
-            <strong>OTA-страховка</strong>
+            <strong>Страховка после обновления ПО</strong>
             <span className="muted">+{PRICING_OPTIONS.otaInsurance}&nbsp;BYN/год</span>
           </span>
         </label>
@@ -414,7 +417,7 @@ export default function BookingForm({ models, preselectId }: Props) {
           />
           <span className="calc-opt-main">
             <strong>Яндекс-приложения</strong>
-            <span className="muted">цену скажем до визита</span>
+            <span className="muted">цену до визита</span>
           </span>
         </label>
         <label className={`calc-opt ${form.visit ? 'is-on' : ''}`}>

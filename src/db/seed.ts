@@ -1,4 +1,4 @@
-import { count } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import { db, initSchema, sqlite } from './index';
 import { expenses, models, partners } from './schema';
 import { SEED_MODELS } from './seed-data';
@@ -10,6 +10,8 @@ export function seedDatabase(force = false) {
 
   const [{ value: modelCount }] = db.select({ value: count() }).from(models).all();
   if (modelCount > 0 && !force) {
+    // Keep client-facing notes/issues in sync with seed without wiping orders.
+    syncModelCopyFromSeed();
     ensureDomainExpense();
     return { models: modelCount, seeded: false };
   }
@@ -77,6 +79,25 @@ export function seedDatabase(force = false) {
 
   const [{ value: finalCount }] = db.select({ value: count() }).from(models).all();
   return { models: finalCount, seeded: true };
+}
+
+function syncModelCopyFromSeed() {
+  for (const m of SEED_MODELS) {
+    const row = db
+      .select({ id: models.id })
+      .from(models)
+      .where(and(eq(models.brandSlug, m.brandSlug), eq(models.modelSlug, m.modelSlug)))
+      .get();
+    if (!row) continue;
+    db.update(models)
+      .set({
+        knownIssues: JSON.stringify(m.knownIssues),
+        notes: m.notes,
+        requiresOtaSubscription: m.requiresOtaSubscription,
+      })
+      .where(eq(models.id, row.id))
+      .run();
+  }
 }
 
 function ensureDomainExpense() {

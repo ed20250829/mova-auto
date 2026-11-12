@@ -297,8 +297,8 @@ export default function Calculator({
             }}
           />
           <span className="calc-opt-main">
-            <strong>OTA-страховка</strong>
-            <span className="muted">сброс языка после обновления</span>
+            <strong>Страховка после обновления ПО</strong>
+            <span className="muted">если язык слетит после обновления авто</span>
           </span>
           <span className="calc-opt-price">+{PRICING_OPTIONS.otaInsurance} BYN/год</span>
         </label>
@@ -378,7 +378,7 @@ export default function Calculator({
           <p className="display calc-total-price">{tickPrice}&nbsp;BYN</p>
           <p className="calc-total-layers muted">
             база
-            {ota ? ' · OTA' : ''}
+            {ota ? ' · страховка обновлений' : ''}
             {appPack ? ' · Яндекс-приложения' : ''}
             {visit ? ' · выезд' : ''}
             {appliedPromo ? ` · −${appliedPromo.kind === 'percent' ? `${appliedPromo.value}%` : `${appliedPromo.value} BYN`}` : ''}

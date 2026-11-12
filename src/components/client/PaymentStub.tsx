@@ -3,7 +3,7 @@ type Props = {
 };
 
 export default function PaymentStub({ price }: Props) {
-  const amount = price ? `${price} BYN` : 'сумма из заявки';
+  const amount = price ? `${price} BYN` : 'сумма из записи';
 
   return (
     <div className="surface payment-stub">
@@ -17,18 +17,18 @@ export default function PaymentStub({ price }: Props) {
         Пока принимаем перевод, ЕРИП/E-POS по ссылке от мастера или оплату на месте. К оплате {amount}.
       </p>
       <div className="payment-stub-methods" role="group" aria-label="Способы оплаты (скоро)">
-        <button type="button" className="btn btn-ghost" disabled title="bePaid / КРОК — позже">
+        <button type="button" className="btn btn-ghost" disabled title="Позже">
           КРОК
         </button>
-        <button type="button" className="btn btn-ghost" disabled title="Карты — позже">
+        <button type="button" className="btn btn-ghost" disabled title="Позже">
           Карта
         </button>
-        <button type="button" className="btn btn-ghost" disabled title="ЕРИП — позже">
+        <button type="button" className="btn btn-ghost" disabled title="Позже">
           ЕРИП
         </button>
       </div>
       <p className="muted" style={{ margin: '0.85rem 0 0', fontSize: '0.82rem' }}>
-        Provider later: bePaid widget + webhook. Сейчас статус оплаты ставит админ вручную.
+        Статус оплаты пока отмечает мастер вручную.
       </p>
     </div>
   );

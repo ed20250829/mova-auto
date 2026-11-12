@@ -65,6 +65,19 @@ body {
   padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
 }
 
+/* Extra bottom room while cookie banner is visible — calc/CTAs stay reachable */
+body.has-cookie-banner {
+  --cookie-clearance: 5.75rem;
+}
+body.has-cookie-banner #main {
+  padding-bottom: calc(4.75rem + var(--cookie-clearance) + env(safe-area-inset-bottom, 0px));
+}
+@media (max-width: 480px) {
+  body.has-cookie-banner {
+    --cookie-clearance: 7.25rem;
+  }
+}
+
 body::before {
   content: "";
   position: fixed;
@@ -500,7 +513,7 @@ select.calc-select {
   }
 }
 
-/* Cookie notice — site palette, floating card at bottom */
+/* Cookie notice — compact strip so it does not bury the calculator */
 .cookie-banner {
   position: fixed;
   inset-inline: 0;
@@ -508,44 +521,51 @@ select.calc-select {
   z-index: 75;
   display: flex;
   justify-content: center;
-  padding: 0 1rem max(1rem, env(safe-area-inset-bottom));
+  padding: 0 0.85rem max(0.65rem, env(safe-area-inset-bottom));
   pointer-events: none;
 }
 
 .cookie-banner__card {
   pointer-events: auto;
-  width: min(560px, 100%);
-  padding: 1.35rem 1.4rem 1.25rem;
-  border-radius: var(--radius-lg);
-  background: var(--surface);
+  width: min(640px, 100%);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 0.85rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
   border: 1px solid var(--border-strong);
   box-shadow: var(--shadow-lift);
   color: var(--text);
+  backdrop-filter: blur(10px);
 }
 
 .cookie-banner__text {
-  margin: 0 0 1.1rem;
-  font-size: 0.98rem;
-  line-height: 1.45;
+  margin: 0;
+  flex: 1 1 14rem;
+  font-size: 0.84rem;
+  line-height: 1.35;
   font-weight: 500;
   color: var(--text-muted);
 }
 
 .cookie-banner__actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  margin-inline-start: auto;
 }
 
 .cookie-banner__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0.5rem 1.2rem;
-  border-radius: 999px;
+  min-height: 40px;
+  padding: 0.4rem 0.95rem;
+  border-radius: 10px;
   font: inherit;
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   cursor: pointer;
@@ -579,20 +599,22 @@ select.calc-select {
 }
 
 body.has-cookie-banner .callback-fab {
-  bottom: calc(11.5rem + env(safe-area-inset-bottom));
+  bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 
 @media (max-width: 480px) {
   .cookie-banner {
-    padding-inline: 0.75rem;
+    padding-inline: 0.65rem;
   }
 
   .cookie-banner__card {
-    padding: 1.15rem 1.1rem 1.05rem;
+    padding: 0.65rem 0.75rem;
+    gap: 0.55rem;
   }
 
   .cookie-banner__actions {
     width: 100%;
+    margin-inline-start: 0;
   }
 
   .cookie-banner__btn {
@@ -600,7 +622,7 @@ body.has-cookie-banner .callback-fab {
   }
 
   body.has-cookie-banner .callback-fab {
-    bottom: calc(13rem + env(safe-area-inset-bottom));
+    bottom: calc(7rem + env(safe-area-inset-bottom));
   }
 }
 
