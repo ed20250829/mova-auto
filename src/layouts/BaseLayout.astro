@@ -71,11 +71,14 @@ const gtmId = String(process.env.PUBLIC_GTM_ID || import.meta.env.PUBLIC_GTM_ID 
     <meta name="msapplication-TileColor" content="#0E0F10" />
     <meta name="apple-mobile-web-app-title" content="Мова" />
     <meta name="application-name" content="Мова" />
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#FF5722" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href={`${site}/favicon.ico`} sizes="48x48" type="image/x-icon" />
+    <link rel="icon" href={`${site}/icon-48.png`} type="image/png" sizes="48x48" />
+    <link rel="icon" href={`${site}/favicon.svg`} type="image/svg+xml" sizes="any" />
+    <link rel="icon" href={`${site}/icon-192.png`} type="image/png" sizes="192x192" />
+    <link rel="icon" href={`${site}/icon-512.png`} type="image/png" sizes="512x512" />
+    <link rel="apple-touch-icon" href={`${site}/apple-touch-icon.png`} sizes="180x180" />
+    <link rel="mask-icon" href={`${site}/safari-pinned-tab.svg`} color="#FF5722" />
+    <link rel="manifest" href={`${site}/site.webmanifest`} />
     <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
     <link href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700,900&f[]=general-sans@500,600,700&display=swap" rel="stylesheet" />
     {ld.map((item) => (

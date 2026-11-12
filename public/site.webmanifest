@@ -1,32 +1,38 @@
 {
   "name": "Мова - русификация авто",
   "short_name": "Мова",
-  "description": "Русификация мультимедиа китайских авто в Минске, Беларусь",
+  "description": "Русификация мультимедиа китайских авто в Минске",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0E0F10",
   "theme_color": "#0E0F10",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "https://mova-auto.tech/icon-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://mova-auto.tech/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "https://mova-auto.tech/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-maskable-192.png",
+      "src": "https://mova-auto.tech/icon-maskable-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icon-maskable-512.png",
+      "src": "https://mova-auto.tech/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

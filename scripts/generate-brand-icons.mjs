@@ -97,6 +97,7 @@ async function pngFromSvg(svg, size) {
 
 async function main() {
   const jobs = [
+    { file: 'icon-48.png', svg: markSvg(48), size: 48 },
     { file: 'apple-touch-icon.png', svg: markSvg(180), size: 180 },
     { file: 'icon-192.png', svg: markSvg(192), size: 192 },
     { file: 'icon-512.png', svg: markSvg(512), size: 512 },
@@ -109,6 +110,11 @@ async function main() {
     fs.writeFileSync(path.join(pub, j.file), buf);
     console.log('wrote', j.file, buf.length);
   }
+
+  // Keep public SVG favicons aligned with brand pack (orange M on dark, same as TikTok).
+  const brandMark = fs.readFileSync(path.join(pub, 'brand', 'mova-mark.svg'));
+  fs.writeFileSync(path.join(pub, 'favicon.svg'), brandMark);
+  fs.writeFileSync(path.join(pub, 'mova-mark.svg'), brandMark);
 
   const ico = buildIco([
     await pngFromSvg(markSvg(16), 16),
@@ -124,8 +130,9 @@ async function main() {
   fs.writeFileSync(path.join(pub, 'og.svg'), ogSvg());
   console.log('wrote og.svg');
 
+  const origin = 'https://mova-auto.tech';
   const manifest = {
-    name: 'Мова — русификация авто',
+    name: 'Мова - русификация авто',
     short_name: 'Мова',
     description: 'Русификация мультимедиа китайских авто в Минске',
     start_url: '/',
@@ -133,10 +140,11 @@ async function main() {
     background_color: BG,
     theme_color: BG,
     icons: [
-      { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-      { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-      { src: '/icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-      { src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+      { src: `${origin}/icon-48.png`, sizes: '48x48', type: 'image/png', purpose: 'any' },
+      { src: `${origin}/icon-192.png`, sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: `${origin}/icon-512.png`, sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: `${origin}/icon-maskable-192.png`, sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+      { src: `${origin}/icon-maskable-512.png`, sizes: '512x512', type: 'image/png', purpose: 'maskable' },
     ],
   };
   fs.writeFileSync(path.join(pub, 'site.webmanifest'), JSON.stringify(manifest, null, 2) + '\n');
