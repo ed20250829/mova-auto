@@ -57,9 +57,14 @@ export default function Faq() {
               role="region"
               aria-labelledby={btnId}
               hidden={!isOpen}
-              style={{ padding: '0 0 1rem', color: 'var(--text-muted)', maxWidth: '62ch' }}
+              style={{
+                padding: '0 0 1rem',
+                color: 'var(--text-muted)',
+                maxWidth: '56ch',
+                textWrap: 'pretty',
+              }}
             >
-              <p style={{ margin: 0 }}>{item.a}</p>
+              <p style={{ margin: 0, textWrap: 'pretty' }}>{item.a}</p>
             </div>
           </div>
         );

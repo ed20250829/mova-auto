@@ -117,7 +117,7 @@ export default function PartnerLeadForm() {
 
       <div className="partner-form-grid">
         <label className="partner-field">
-          <span>Салон / компания</span>
+          <span>Салон или компания</span>
           <input
             className="admin-input"
             name="company"
@@ -146,7 +146,7 @@ export default function PartnerLeadForm() {
           )}
         </label>
 
-        <label className="partner-field">
+        <label className="partner-field partner-field-wide">
           <span>Телефон</span>
           <input
             className="admin-input"

@@ -417,7 +417,10 @@ select.calc-select {
 }
 
 .container {
-  width: min(1180px, calc(100% - 2rem));
+  /* Shared desktop rail: fluid gutters, one max so home + /partneram share edges */
+  --page-max: 72.5rem; /* 1160px */
+  --page-gutter: clamp(1.25rem, 4.2vw, 3.5rem);
+  width: min(var(--page-max), calc(100% - (var(--page-gutter) * 2)));
   margin-inline: auto;
   max-width: 100%;
 }
@@ -631,6 +634,12 @@ body.has-cookie-banner .callback-fab {
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
+  text-wrap: balance;
+}
+
+.prose-measure {
+  max-width: 58ch;
+  text-wrap: pretty;
 }
 
 .btn {
@@ -676,11 +685,11 @@ body.has-cookie-banner .callback-fab {
 }
 
 .section {
-  padding: clamp(4rem, 8vw, 7rem) 0;
+  padding: clamp(3.25rem, 6.5vw, 5.75rem) 0;
 }
 
 .section-tight {
-  padding: clamp(2.5rem, 5vw, 4rem) 0;
+  padding: clamp(2.25rem, 4.5vw, 3.5rem) 0;
 }
 
 .kicker {
