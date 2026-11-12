@@ -103,6 +103,8 @@ export const leads = sqliteTable('leads', {
   device: text('device'),
   notes: text('notes'),
   contacted: integer('contacted', { mode: 'boolean' }).notNull().default(false),
+  /** new | contacted | booked | spam | closed */
+  status: text('status').notNull().default('new'),
 });
 
 export const subscriptions = sqliteTable('subscriptions', {
@@ -118,6 +120,10 @@ export const subscriptions = sqliteTable('subscriptions', {
   nextPaymentAt: text('next_payment_at').notNull(),
   status: text('status').notNull().default('active'), // active | paused | churned
   notes: text('notes'),
+  /** ISO date of last auto/manual remind window */
+  lastRemindAt: text('last_remind_at'),
+  /** Days-before window that was last reminded (14|7|3|0) */
+  lastRemindDays: integer('last_remind_days'),
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 });
 

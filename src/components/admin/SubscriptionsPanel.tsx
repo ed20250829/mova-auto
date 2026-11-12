@@ -11,6 +11,8 @@ export default function SubscriptionsPanel({
   churn: number;
 }) {
   const [rows, setRows] = useState(initial);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   async function remind(id: number) {
     await fetch('/api/admin/subscriptions', {
@@ -29,6 +31,37 @@ export default function SubscriptionsPanel({
     if (res.ok) setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
   }
 
+  async function runTodayReminds() {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch('/api/admin/subscriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'run_today_reminds', notify: true }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMsg(data.error || 'Ошибка');
+      } else {
+        setMsg(`На сегодня: отмечено ${data.reminded}, уведомлений ${data.notified}.`);
+        // Refresh lastRemind markers locally for reminded ids
+        if (Array.isArray(data.ids) && data.ids.length) {
+          const today = new Date().toISOString().slice(0, 10);
+          setRows((prev) =>
+            prev.map((r) =>
+              data.ids.includes(r.id) ? { ...r, lastRemindAt: today } : r,
+            ),
+          );
+        }
+      }
+    } catch {
+      setMsg('Не удалось создать напоминания');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div>
       <div className="admin-kpi" style={{ marginBottom: '1rem' }}>
@@ -45,6 +78,25 @@ export default function SubscriptionsPanel({
           <strong>{churn}%</strong>
         </article>
       </div>
+
+      <div
+        style={{
+          display: 'flex',
+          gap: '0.75rem',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          marginBottom: '0.85rem',
+        }}
+      >
+        <button type="button" className="admin-btn" disabled={busy} onClick={runTodayReminds}>
+          {busy ? 'Создаём…' : 'Создать напоминания на сегодня'}
+        </button>
+        <span style={{ color: '#8a8580', fontSize: '0.85rem' }}>
+          Окна −14 / −7 / −3 / 0 дней и просроченные
+        </span>
+      </div>
+      {msg && <p style={{ color: '#c8c3bc', fontSize: '0.85rem', marginTop: 0 }}>{msg}</p>}
+
       <div style={{ overflowX: 'auto' }}>
         <table className="admin-table">
           <thead>
@@ -55,6 +107,7 @@ export default function SubscriptionsPanel({
               <th>След. платёж</th>
               <th>Цена/год</th>
               <th>Статус</th>
+              <th>Remind</th>
               <th></th>
             </tr>
           </thead>
@@ -80,6 +133,10 @@ export default function SubscriptionsPanel({
                     <option value="churned">churned</option>
                   </select>
                 </td>
+                <td style={{ color: '#8a8580', fontSize: '0.82rem' }}>
+                  {s.lastRemindAt || '—'}
+                  {s.lastRemindDays != null ? ` (−${s.lastRemindDays}д)` : ''}
+                </td>
                 <td>
                   <button type="button" className="admin-btn ghost" onClick={() => remind(s.id)}>
                     Напомнить
@@ -89,7 +146,7 @@ export default function SubscriptionsPanel({
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ color: '#8a8580' }}>
+                <td colSpan={8} style={{ color: '#8a8580' }}>
                   Подписок пока нет
                 </td>
               </tr>

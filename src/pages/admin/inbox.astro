@@ -1,0 +1,44 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import InboxPanel from '../../components/admin/InboxPanel';
+import { getTodayInbox } from '../../lib/admin-inbox';
+
+const inbox = getTodayInbox();
+---
+
+<AdminLayout title="Входящие сегодня">
+  <div class="admin-kpi" style="margin-bottom:1rem;">
+    <article>
+      <span>Всего в inbox</span>
+      <strong>{inbox.counts.total}</strong>
+    </article>
+    <article>
+      <span>Новые заказы</span>
+      <strong>{inbox.counts.newOrders}</strong>
+    </article>
+    <article>
+      <span>Лиды new</span>
+      <strong>{inbox.counts.openLeads}</strong>
+    </article>
+    <article>
+      <span>OTA ≤7 дн.</span>
+      <strong>{inbox.counts.otaDue}</strong>
+    </article>
+  </div>
+
+  {
+    inbox.otaBackfill.created > 0 && (
+      <p style="color:#8a8580; font-size:0.85rem;">
+        Автосоздано OTA-подписок из заказов: {inbox.otaBackfill.created}
+      </p>
+    )
+  }
+
+  <InboxPanel
+    client:load
+    today={inbox.today}
+    newOrders={inbox.newOrders}
+    openLeads={inbox.openLeads}
+    otaDue={inbox.otaDue}
+  />
+</AdminLayout>

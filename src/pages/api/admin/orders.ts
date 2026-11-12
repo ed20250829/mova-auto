@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../../../db';
 import { orders } from '../../../db/schema';
 import { ensureDb } from '../../../lib/models';
+import { ensureOtaSubscriptionForOrder } from '../../../lib/ota';
 import {
   inlineKeyboard,
   notifyClientStatus,
@@ -61,6 +62,11 @@ export const PATCH: APIRoute = async ({ request }) => {
 
   db.update(orders).set(patch).where(eq(orders.id, id)).run();
   const row = db.select().from(orders).where(eq(orders.id, id)).get();
+
+  // Safety net: if order has OTA option, ensure subscription exists (e.g. older orders).
+  if (row) {
+    ensureOtaSubscriptionForOrder(row);
+  }
 
   const statusChanged = Boolean(body.status && body.status !== before.status);
   const shouldNotify =

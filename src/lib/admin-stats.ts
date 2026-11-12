@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { orders, expenses, events, leads } from '../db/schema';
+import { orders, expenses, events } from '../db/schema';
 import { ensureDb } from './models';
 
 function daysAgo(n: number) {
@@ -84,13 +84,16 @@ export function getDashboardStats() {
     days.push({ day: key.slice(5), orders: created.length, revenue: revenue(paid) });
   }
 
-  const leadsCount = db.select().from(leads).all().length;
+  // Site conversion: form_success / calc_open (not orders/(orders+leads) — that lied).
+  const monthEvents = db
+    .select()
+    .from(events)
+    .all()
+    .filter((e) => inRange(e.createdAt, month));
+  const calcOpen = monthEvents.filter((e) => e.name === 'calc_open').length;
+  const formSuccess = monthEvents.filter((e) => e.name === 'form_success').length;
   const conversion =
-    monthOrders.length + leadsCount > 0
-      ? Math.round((monthOrders.length / (monthOrders.length + leadsCount)) * 100)
-      : monthOrders.length > 0
-        ? 100
-        : 0;
+    calcOpen > 0 ? Math.round((formSuccess / calcOpen) * 100) : formSuccess > 0 ? 100 : 0;
 
   return {
     today: { orders: todayOrders.length, revenue: revenue(todayPaid) },
@@ -100,6 +103,8 @@ export function getDashboardStats() {
       revenue: revenue(monthPaid),
       avg: avgCheck(monthPaid),
       conversion,
+      conversionCalcOpen: calcOpen,
+      conversionFormSuccess: formSuccess,
       profit: revenue(monthPaid) - monthExpenses,
       expenses: monthExpenses,
     },

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { eq } from 'drizzle-orm';
 import { db } from '../../db';
 import { orders, leads, type PromoCode } from '../../db/schema';
 import { ensureDb, getRawModel } from '../../lib/models';
@@ -8,6 +9,7 @@ import { computeOrderPrice } from '../../lib/pricing';
 import { bumpPromoUsage, normalizePromoCode, validatePromoCode } from '../../lib/promo';
 import { isValidPhone } from '../../lib/phone';
 import { getFreeSlots, isActiveSlot } from '../../lib/slots';
+import { ensureOtaSubscriptionForOrder } from '../../lib/ota';
 
 
 function buildIcs(opts: { title: string; date: string; slot: string; description: string }) {
@@ -173,6 +175,11 @@ export const POST: APIRoute = async ({ request }) => {
 
   if (promoRow) {
     bumpPromoUsage(promoRow.id);
+  }
+
+  const createdOrder = db.select().from(orders).where(eq(orders.id, orderId)).get();
+  if (createdOrder) {
+    ensureOtaSubscriptionForOrder(createdOrder);
   }
 
   const tg = await notifyOwnerBooking({

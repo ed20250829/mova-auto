@@ -1,10 +1,13 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { getDashboardStats } from '../../lib/admin-stats';
+import { getTodayInbox } from '../../lib/admin-inbox';
 import { formatByn } from '../../lib/format';
 import DashboardCharts from '../../components/admin/DashboardCharts';
+import InboxPanel from '../../components/admin/InboxPanel';
 
 const s = getDashboardStats();
+const inbox = getTodayInbox();
 const revDelta =
   s.prevMonth.revenue > 0
     ? Math.round(((s.month.revenue - s.prevMonth.revenue) / s.prevMonth.revenue) * 100)
@@ -38,8 +41,11 @@ const revDelta =
       <strong>{formatByn(s.month.avg)}</strong>
     </article>
     <article>
-      <span>Конверсия</span>
+      <span>Конверсия сайта</span>
       <strong>{s.month.conversion}%</strong>
+      <small style="color:#8a8580;">
+        form_success {s.month.conversionFormSuccess} / calc_open {s.month.conversionCalcOpen}
+      </small>
     </article>
     <article>
       <span>Прибыль (мес.)</span>
@@ -48,6 +54,28 @@ const revDelta =
       </strong>
       <small style="color:#8a8580;">− расходы {formatByn(Math.round(s.month.expenses))}</small>
     </article>
+    <article>
+      <span>Inbox сегодня</span>
+      <strong>{inbox.counts.total}</strong>
+      <small style="color:#8a8580;">
+        <a href="/admin/inbox" style="color:#8a8580;">открыть →</a>
+      </small>
+    </article>
+  </section>
+
+  <section style="margin-top:1.25rem;">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+      <h2 style="margin:0; font-size:1.05rem;">Входящие на сегодня</h2>
+      <a href="/admin/inbox" style="color:#8a8580; font-size:0.85rem;">Полный inbox</a>
+    </div>
+    <InboxPanel
+      client:load
+      compact
+      today={inbox.today}
+      newOrders={inbox.newOrders}
+      openLeads={inbox.openLeads}
+      otaDue={inbox.otaDue}
+    />
   </section>
 
   <section class="dash-grid">

@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../../../db';
 import { subscriptions } from '../../../db/schema';
 import { ensureDb } from '../../../lib/models';
+import { runOtaRemindsToday, syncOtaSubscriptionsFromOrders } from '../../../lib/ota';
 import { notifyClientStatus } from '../../../lib/telegram';
 
 export const GET: APIRoute = async () => {
@@ -18,6 +19,17 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request }) => {
   ensureDb();
   const body = await request.json();
+
+  if (body.action === 'run_today_reminds') {
+    const result = await runOtaRemindsToday({ notify: body.notify !== false });
+    return json({ ok: true, ...result });
+  }
+
+  if (body.action === 'sync_from_orders') {
+    const result = syncOtaSubscriptionsFromOrders();
+    return json({ ok: true, ...result });
+  }
+
   const started = String(body.startedAt || new Date().toISOString().slice(0, 10));
   const next = String(body.nextPaymentAt || nextYear(started));
   const result = db
@@ -48,11 +60,18 @@ export const PATCH: APIRoute = async ({ request }) => {
   if (body.status) patch.status = String(body.status);
   if (body.nextPaymentAt) patch.nextPaymentAt = String(body.nextPaymentAt);
   if (body.notes !== undefined) patch.notes = body.notes;
-  db.update(subscriptions).set(patch).where(eq(subscriptions.id, id)).run();
+  if (Object.keys(patch).length) {
+    db.update(subscriptions).set(patch).where(eq(subscriptions.id, id)).run();
+  }
 
   if (body.remind) {
     const row = db.select().from(subscriptions).where(eq(subscriptions.id, id)).get();
     if (row) {
+      const today = new Date().toISOString().slice(0, 10);
+      db.update(subscriptions)
+        .set({ lastRemindAt: today, lastRemindDays: 0 })
+        .where(eq(subscriptions.id, id))
+        .run();
       await notifyClientStatus({
         phone: row.clientPhone,
         telegram: row.clientTelegram,

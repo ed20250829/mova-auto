@@ -107,7 +107,8 @@ CREATE TABLE IF NOT EXISTS leads (
   utm_campaign TEXT,
   device TEXT,
   notes TEXT,
-  contacted BOOLEAN NOT NULL DEFAULT FALSE
+  contacted BOOLEAN NOT NULL DEFAULT FALSE,
+  status TEXT NOT NULL DEFAULT 'new'
 );
 
 CREATE TABLE IF NOT EXISTS subscriptions (
@@ -123,6 +124,8 @@ CREATE TABLE IF NOT EXISTS subscriptions (
   next_payment_at DATE NOT NULL,
   status TEXT NOT NULL DEFAULT 'active',
   notes TEXT,
+  last_remind_at TEXT,
+  last_remind_days INTEGER,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

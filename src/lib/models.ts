@@ -3,6 +3,7 @@ import { db, initSchema } from '../db';
 import { models, type Model } from '../db/schema';
 import { seedDatabase } from '../db/seed';
 import { parseIssues } from './format';
+import { syncOtaSubscriptionsFromOrders } from './ota';
 
 let ready = false;
 
@@ -10,6 +11,8 @@ export function ensureDb() {
   if (ready) return;
   initSchema();
   seedDatabase(false);
+  // Auto-create missing OTA subs for orders that already had the ota option.
+  syncOtaSubscriptionsFromOrders();
   ready = true;
 }
 

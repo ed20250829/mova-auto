@@ -121,7 +121,8 @@ export function initSchema() {
       utm_campaign TEXT,
       device TEXT,
       notes TEXT,
-      contacted INTEGER NOT NULL DEFAULT 0
+      contacted INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'new'
     );
 
     CREATE TABLE IF NOT EXISTS subscriptions (
@@ -137,6 +138,8 @@ export function initSchema() {
       next_payment_at TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'active',
       notes TEXT,
+      last_remind_at TEXT,
+      last_remind_days INTEGER,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
@@ -213,6 +216,25 @@ export function initSchema() {
   ensureColumn('orders', 'provider_payment_id', 'TEXT');
   ensureColumn('orders', 'amount_paid', 'INTEGER');
   ensureColumn('orders', 'client_telegram_chat_id', 'TEXT');
+  ensureColumn('leads', 'status', "TEXT NOT NULL DEFAULT 'new'");
+  ensureColumn('subscriptions', 'last_remind_at', 'TEXT');
+  ensureColumn('subscriptions', 'last_remind_days', 'INTEGER');
+  backfillLeadStatuses();
+}
+
+function backfillLeadStatuses() {
+  sqlite
+    .prepare(
+      `UPDATE leads SET status = 'contacted'
+       WHERE contacted = 1 AND (status IS NULL OR status = '' OR status = 'new')`,
+    )
+    .run();
+  sqlite
+    .prepare(
+      `UPDATE leads SET status = 'new'
+       WHERE (status IS NULL OR status = '') AND contacted = 0`,
+    )
+    .run();
 }
 
 function seedBookingSlots() {
