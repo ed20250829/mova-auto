@@ -3,13 +3,16 @@ import { useEffect, useState } from 'react';
 const STORAGE_KEY = 'mova_sample_banner_dismissed';
 
 export default function SampleBanner() {
-  const [visible, setVisible] = useState(true);
+  // Start hidden to avoid a flash for users who already dismissed it
+  // (logo click remounts the banner and used to briefly show it again).
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     try {
-      if (localStorage.getItem(STORAGE_KEY) === '1') setVisible(false);
+      if (localStorage.getItem(STORAGE_KEY) !== '1') setVisible(true);
     } catch {
-      /* private mode — keep visible */
+      /* private mode — show */
+      setVisible(true);
     }
   }, []);
 
