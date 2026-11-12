@@ -1,5 +1,4 @@
 ---
-import PromoCode from './client/PromoCode';
 const year = new Date().getFullYear();
 const bot = import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_bot';
 ---
@@ -44,9 +43,6 @@ const bot = import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_b
         <li><a href={bot} target="_blank" rel="noreferrer">Telegram-бот</a></li>
         <li><a href="mailto:hello@mova-auto.tech">hello@mova-auto.tech</a></li>
       </ul>
-      <div style="margin-top:1rem;">
-        <PromoCode client:visible compact />
-      </div>
     </div>
   </div>
   <div class="container footer-meta">

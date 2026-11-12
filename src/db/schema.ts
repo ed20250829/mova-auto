@@ -166,6 +166,15 @@ export const telegramBridges = sqliteTable('telegram_bridges', {
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 });
 
+/** Editable booking time slots shown on site + Telegram bot. */
+export const bookingSlots = sqliteTable('booking_slots', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  time: text('time').notNull().unique(),
+  active: integer('active', { mode: 'boolean' }).notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+});
+
 export type Model = typeof models.$inferSelect;
 export type PromoCode = typeof promoCodes.$inferSelect;
 export type Order = typeof orders.$inferSelect;
@@ -176,3 +185,4 @@ export type Expense = typeof expenses.$inferSelect;
 export type Event = typeof events.$inferSelect;
 export type TelegramUser = typeof telegramUsers.$inferSelect;
 export type TelegramBridge = typeof telegramBridges.$inferSelect;
+export type BookingSlot = typeof bookingSlots.$inferSelect;

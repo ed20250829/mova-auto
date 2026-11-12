@@ -1,0 +1,13 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import SlotsPanel from '../../components/admin/SlotsPanel';
+import { ensureDb } from '../../lib/models';
+import { listBookingSlots } from '../../lib/slots';
+
+ensureDb();
+const slots = listBookingSlots();
+---
+
+<AdminLayout title="Слоты">
+  <SlotsPanel client:load slots={slots} />
+</AdminLayout>

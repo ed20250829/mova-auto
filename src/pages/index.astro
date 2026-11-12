@@ -5,7 +5,6 @@ import SiteFooter from '../components/SiteFooter.astro';
 import Calculator from '../components/client/Calculator';
 import BookingForm from '../components/client/BookingForm';
 import Faq from '../components/client/Faq';
-import PromoCode from '../components/client/PromoCode';
 import SmoothScroll from '../components/client/SmoothScroll';
 import HeroMotion from '../components/client/HeroMotion';
 import { FAQ_ITEMS } from '../lib/faq-items';
@@ -121,12 +120,6 @@ const brands = [...new Set(models.map((m) => m.brand))];
         <div id="calculator" class="hero-calc" data-hero-reveal>
           <Calculator client:load models={calcModels} />
         </div>
-      </div>
-    </section>
-
-    <section class="section-tight">
-      <div class="container">
-        <PromoCode client:visible />
       </div>
     </section>
 

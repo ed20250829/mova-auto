@@ -183,6 +183,14 @@ export function initSchema() {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS booking_slots (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      time TEXT NOT NULL UNIQUE,
+      active INTEGER NOT NULL DEFAULT 1,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE UNIQUE INDEX IF NOT EXISTS models_brand_model_uidx
       ON models(brand_slug, model_slug);
 
@@ -192,6 +200,8 @@ export function initSchema() {
     CREATE INDEX IF NOT EXISTS telegram_users_username_idx
       ON telegram_users(username);
   `);
+
+  seedBookingSlots();
 
   ensureColumn('models', 'body_style', "TEXT NOT NULL DEFAULT 'crossover'");
   ensureColumn('models', 'image_path', 'TEXT');
@@ -203,6 +213,19 @@ export function initSchema() {
   ensureColumn('orders', 'provider_payment_id', 'TEXT');
   ensureColumn('orders', 'amount_paid', 'INTEGER');
   ensureColumn('orders', 'client_telegram_chat_id', 'TEXT');
+}
+
+function seedBookingSlots() {
+  const count = (sqlite.prepare('SELECT COUNT(*) AS c FROM booking_slots').get() as { c: number }).c;
+  if (count > 0) return;
+  const defaults = ['10:00', '12:00', '14:00', '16:00', '18:00', '19:00', '20:00'];
+  const insert = sqlite.prepare(
+    'INSERT INTO booking_slots (time, active, sort_order) VALUES (?, 1, ?)',
+  );
+  const tx = sqlite.transaction(() => {
+    defaults.forEach((time, i) => insert.run(time, i));
+  });
+  tx();
 }
 
 function ensureColumn(table: string, column: string, definition: string) {

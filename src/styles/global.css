@@ -999,3 +999,129 @@ body.has-cookie-banner .callback-fab {
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* Booking calendar + slots */
+.booking-cal {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.booking-cal-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 52px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.booking-cal-panel {
+  background: #14171a;
+  border: 1px solid #2a3036;
+  border-radius: 14px;
+  padding: 0.85rem;
+}
+
+.booking-cal-head {
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.65rem;
+}
+
+.booking-cal-title {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-transform: capitalize;
+}
+
+.booking-cal-nav {
+  min-height: 48px;
+  border-radius: 10px;
+  border: 1px solid #2a3036;
+  background: #0f1113;
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.booking-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+  color: #8a8580;
+  font-size: 0.85rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.booking-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.35rem;
+}
+
+.booking-cal-day {
+  min-height: 48px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: #0f1113;
+  color: #f2f2f2;
+  font-size: 1.05rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.booking-cal-day.is-empty {
+  background: transparent;
+  border: 0;
+  pointer-events: none;
+}
+
+.booking-cal-day.is-disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+.booking-cal-day.is-selected,
+.booking-cal-day:not(.is-disabled):hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, #0f1113);
+}
+
+.booking-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 0.45rem;
+}
+
+.booking-slot-btn {
+  min-height: 48px;
+  border-radius: 10px;
+  border: 1px solid #2a3036;
+  background: #0f1113;
+  color: #f2f2f2;
+  font-size: 1.05rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.booking-slot-btn.is-on,
+.booking-slot-btn:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, #0f1113);
+}
+
+@media (max-width: 520px) {
+  .booking-cal-day,
+  .booking-cal-nav,
+  .booking-slot-btn {
+    min-height: 44px;
+  }
+}

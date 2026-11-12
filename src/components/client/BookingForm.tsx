@@ -6,7 +6,7 @@ import {
   computeOrderPrice,
 } from '../../lib/pricing';
 import { isValidPhone } from '../../lib/phone';
-
+import BookingCalendar from './BookingCalendar';
 
 type Props = {
   models: CalcModel[];
@@ -27,10 +27,12 @@ type FormState = {
   appPack: boolean;
 };
 
-const SLOTS = ['10:00', '12:00', '14:00', '16:00', '18:00', '19:00', '20:00'];
-
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 function readUtm() {
@@ -58,13 +60,14 @@ export default function BookingForm({ models, preselectId }: Props) {
     telegram: '',
     modelId: String(preselectId || models[0]?.id || ''),
     date: today(),
-    slot: '18:00',
+    slot: '',
     comment: '',
     promoCode: '',
-    ota: true,
+    ota: false,
     visit: false,
     appPack: false,
   });
+  const [slots, setSlots] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [started, setStarted] = useState(false);
@@ -76,6 +79,31 @@ export default function BookingForm({ models, preselectId }: Props) {
   } | null>(null);
   const [promoStatus, setPromoStatus] = useState('');
   const [promoBusy, setPromoBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadSlots(date: string) {
+      try {
+        const res = await fetch(`/api/slots?date=${encodeURIComponent(date)}`, {
+          cache: 'no-store',
+        });
+        const data = await res.json();
+        if (cancelled) return;
+        const list = Array.isArray(data.slots) ? (data.slots as string[]) : [];
+        setSlots(list);
+        setForm((prev) => ({
+          ...prev,
+          slot: list.includes(prev.slot) ? prev.slot : list[0] || '',
+        }));
+      } catch {
+        if (!cancelled) setSlots([]);
+      }
+    }
+    void loadSlots(form.date);
+    return () => {
+      cancelled = true;
+    };
+  }, [form.date]);
 
   useEffect(() => {
     try {
@@ -93,7 +121,7 @@ export default function BookingForm({ models, preselectId }: Props) {
       setForm((prev) => ({
         ...prev,
         modelId: saved.modelId ? String(saved.modelId) : prev.modelId,
-        ota: Boolean(saved.ota),
+        ota: false,
         visit: Boolean(saved.visit),
         appPack: Boolean(saved.appPack),
         promoCode: saved.promo || prev.promoCode,
@@ -316,7 +344,7 @@ export default function BookingForm({ models, preselectId }: Props) {
           <select
             className="admin-select"
             value={form.modelId}
-            onChange={(e) => setForm({ ...form, modelId: e.target.value })}
+            onChange={(e) => setForm({ ...form, modelId: e.target.value, ota: false })}
             required
           >
             {models.map((m) => (
@@ -330,33 +358,37 @@ export default function BookingForm({ models, preselectId }: Props) {
           )}
         </label>
 
-        <label style={{ display: 'grid', gap: '0.3rem' }}>
+        <div style={{ display: 'grid', gap: '0.3rem', gridColumn: '1 / -1' }}>
           <span>Дата</span>
-          <input
-            className="admin-input"
-            type="date"
-            min={today()}
+          <BookingCalendar
             value={form.date}
-            onChange={(e) => setForm({ ...form, date: e.target.value })}
-            required
+            min={today()}
+            onChange={(date) => setForm({ ...form, date })}
+            error={errors.date}
           />
-          {errors.date && <span style={{ color: 'var(--error)', fontSize: '0.8rem' }}>{errors.date}</span>}
-        </label>
+        </div>
 
-        <label style={{ display: 'grid', gap: '0.3rem' }}>
+        <label style={{ display: 'grid', gap: '0.3rem', gridColumn: '1 / -1' }}>
           <span>Слот</span>
-          <select
-            className="admin-select"
-            value={form.slot}
-            onChange={(e) => setForm({ ...form, slot: e.target.value })}
-            required
-          >
-            {SLOTS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+          {slots.length ? (
+            <div className="booking-slot-grid" role="group" aria-label="Свободное время">
+              {slots.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={`booking-slot-btn ${form.slot === s ? 'is-on' : ''}`}
+                  onClick={() => setForm({ ...form, slot: s })}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="muted" style={{ margin: 0 }}>
+              На эту дату свободных слотов нет — выберите другой день.
+            </p>
+          )}
+          {errors.slot && <span style={{ color: 'var(--error)', fontSize: '0.8rem' }}>{errors.slot}</span>}
         </label>
       </div>
 
@@ -419,7 +451,7 @@ export default function BookingForm({ models, preselectId }: Props) {
               setPromoMeta(null);
               setPromoStatus('');
             }}
-            placeholder="MOVA10"
+            placeholder="Если есть код"
           />
           <button
             type="button"

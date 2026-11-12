@@ -3,6 +3,7 @@ import { db } from '../db';
 import { orders } from '../db/schema';
 import { getAllModels, getBrands, getRawModel } from './models';
 import { PRICING_OPTIONS } from './pricing';
+import { getFreeSlots, occupiedSlots } from './slots';
 import {
   answerCallbackQuery,
   btn,
@@ -16,7 +17,6 @@ import {
   normalizeUsername,
   notifyClientStatus,
   notifyOwnerBooking,
-  occupiedSlots,
   ownerChatId,
   parseDraft,
   saveBridge,
@@ -32,8 +32,6 @@ import {
   urlBtn,
   digitsOnly,
 } from './telegram';
-
-const SLOTS = ['10:00', '12:00', '14:00', '16:00', '18:00', '19:00', '20:00'];
 
 type TgUser = {
   id: number;
@@ -227,8 +225,7 @@ async function askDates(chatId: string, draft: Record<string, unknown>) {
 }
 
 async function askSlots(chatId: string, draft: Record<string, unknown>, date: string) {
-  const busy = occupiedSlots(date);
-  const free = SLOTS.filter((s) => !busy.has(s));
+  const free = getFreeSlots(date);
   if (!free.length) {
     await sendMessage(chatId, 'На этот день слотов нет. Выберите другой день.', {
       replyMarkup: inlineKeyboard([[btn('← Назад', 'book:back:date')]]),

@@ -373,7 +373,7 @@ export default function CallbackWidget() {
                     {busy ? 'Отправляем…' : 'Жду звонка'}
                   </button>
                   <a className="btn btn-ghost" href={`tel:${phoneInfo.e164}`}>
-                    Позвонить {phoneInfo.display}
+                    Позвонить
                   </a>
                   <a
                     className="btn btn-ghost"

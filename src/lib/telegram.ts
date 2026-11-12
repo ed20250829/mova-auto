@@ -1,4 +1,4 @@
-import { and, desc, eq, like, ne, or } from 'drizzle-orm';
+import { desc, eq, like, or } from 'drizzle-orm';
 import { db } from '../db';
 import { orders, telegramBridges, telegramUsers } from '../db/schema';
 
@@ -440,11 +440,3 @@ export function addDaysIso(days: number) {
   return d.toISOString().slice(0, 10);
 }
 
-export function occupiedSlots(date: string): Set<string> {
-  const rows = db
-    .select({ slot: orders.scheduledSlot, status: orders.status })
-    .from(orders)
-    .where(and(eq(orders.scheduledDate, date), ne(orders.status, 'cancelled')))
-    .all();
-  return new Set(rows.map((r) => r.slot).filter(Boolean) as string[]);
-}

@@ -7,6 +7,7 @@ import { trackEvent, detectDevice } from '../../lib/analytics';
 import { computeOrderPrice } from '../../lib/pricing';
 import { bumpPromoUsage, normalizePromoCode, validatePromoCode } from '../../lib/promo';
 import { isValidPhone } from '../../lib/phone';
+import { getFreeSlots, isActiveSlot } from '../../lib/slots';
 
 
 function buildIcs(opts: { title: string; date: string; slot: string; description: string }) {
@@ -46,9 +47,19 @@ export const POST: APIRoute = async ({ request }) => {
   const slot = String(body.slot || '');
   const comment = String(body.comment || '').trim() || null;
   const rawPromo = normalizePromoCode(body.promoCode as string);
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-  if (name.length < 2 || !isValidPhone(phone) || !modelId || !date || date < today || !slot) {
+  if (
+    name.length < 2 ||
+    !isValidPhone(phone) ||
+    !modelId ||
+    !date ||
+    date < today ||
+    !slot ||
+    !isActiveSlot(slot) ||
+    !getFreeSlots(date).includes(slot)
+  ) {
     trackEvent({
       name: 'form_error',
       utmSource: body.utmSource as string,

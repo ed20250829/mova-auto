@@ -171,6 +171,14 @@ CREATE TABLE IF NOT EXISTS telegram_bridges (
 
 CREATE INDEX IF NOT EXISTS telegram_bridges_owner_msg_idx ON telegram_bridges(owner_message_id);
 CREATE INDEX IF NOT EXISTS telegram_users_username_idx ON telegram_users(username);
+
+CREATE TABLE IF NOT EXISTS booking_slots (
+  id SERIAL PRIMARY KEY,
+  time TEXT NOT NULL UNIQUE,
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 `;
 
 async function main() {

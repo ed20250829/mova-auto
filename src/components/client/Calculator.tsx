@@ -106,7 +106,7 @@ export default function Calculator({
     initialModelId || brandModels[0]?.id || models[0]?.id || 0,
   );
   // OTA recommended for every model — on by default from first paint (not only after effect).
-  const [ota, setOta] = useState(true);
+  const [ota, setOta] = useState(false);
   const [appPack, setAppPack] = useState(false);
   const [visit, setVisit] = useState(false);
   const [promoInput, setPromoInput] = useState('');
@@ -199,6 +199,7 @@ export default function Calculator({
 
   function selectBrand(nextBrand: string) {
     track('calc_model_select', { brand: nextBrand });
+    setOta(false);
     if (syncRoute) {
       const first = models.find((m) => m.brand === nextBrand);
       if (first) goToModel(first);
@@ -210,6 +211,7 @@ export default function Calculator({
   function selectModel(id: number) {
     const m = models.find((x) => x.id === id);
     track('calc_model_select', { modelId: id, label: m ? `${m.brand} ${m.model}` : id });
+    setOta(false);
     if (syncRoute && m) {
       goToModel(m);
       return;
@@ -341,7 +343,7 @@ export default function Calculator({
             className="calc-select"
             value={promoInput}
             onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-            placeholder="MOVA10 или код с визитки"
+            placeholder="Если есть код"
             aria-label="Промокод"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -366,9 +368,6 @@ export default function Calculator({
             {promoError}
           </p>
         )}
-        <p className="muted" style={{ margin: '0.35rem 0 0', fontSize: '0.82rem' }}>
-          Первая запись −10%: код MOVA10. Код с визитки или рекламы - сюда.
-        </p>
       </div>
 
       <div className="calc-total" aria-live="polite">

@@ -2,7 +2,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
-import PromoCode from '../../components/client/PromoCode';
 import PaymentStub from '../../components/client/PaymentStub';
 
 const order = Astro.url.searchParams.get('order') || '';
@@ -15,7 +14,7 @@ const ics = Astro.url.searchParams.get('ics') || '';
   <main id="main" class="section">
     <div class="container thanks">
       <p class="kicker">Готово</p>
-      <h1 class="display">Заявка принята{order ? ` #${order}` : ''}</h1>
+      <h1 class="display">Заявка принята</h1>
       <p class="muted">
         Мы получили данные. Если Telegram настроен — владельцу уже ушло уведомление. Ждите подтверждение слота.
       </p>
@@ -30,7 +29,7 @@ const ics = Astro.url.searchParams.get('ics') || '';
         </a>
       )}
 
-      <PaymentStub client:visible orderId={order} price={price} />
+      <PaymentStub client:visible price={price} />
 
       <div class="referral surface">
         <h2 class="display" style="font-size:1.4rem; margin:0 0 0.5rem;">Поделись с другом</h2>
@@ -41,7 +40,6 @@ const ics = Astro.url.searchParams.get('ics') || '';
         <p class="muted" id="ref-status" style="min-height:1.2em; margin:0.75rem 0 0;"></p>
       </div>
 
-      <PromoCode client:visible />
       <p style="margin-top:1.5rem;"><a href="/">← На главную</a></p>
     </div>
   </main>
