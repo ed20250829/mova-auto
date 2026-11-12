@@ -7,10 +7,8 @@ type Props = {
   error?: string;
 };
 
-const LABEL = (
-  <>
-    Согласен с <PrivacyPolicyLink>политикой обработки персональных данных</PrivacyPolicyLink>
-  </>
+const policyLink = (
+  <PrivacyPolicyLink>политикой обработки персональных данных</PrivacyPolicyLink>
 );
 
 /** Required ПДн consent + policy link/modal for forms that collect name/phone. Not for cookie banner. */
@@ -26,7 +24,9 @@ export default function PersonalDataConsent({ checked, onChange, variant, error 
             required
           />
           <span className="calc-opt-main">
-            <strong>{LABEL}</strong>
+            <strong>
+              Согласен с {policyLink}
+            </strong>
             <span className="muted">Имя и телефон нужны только для связи по заявке</span>
           </span>
         </label>
@@ -46,7 +46,9 @@ export default function PersonalDataConsent({ checked, onChange, variant, error 
           onChange={(e) => onChange(e.target.checked)}
           required
         />
-        <span>{LABEL}</span>
+        <span>
+          Согласен с {policyLink}
+        </span>
       </label>
       {error && (
         <p role="alert" style={{ color: 'var(--error)', margin: 0, fontSize: '0.9rem' }}>
