@@ -316,7 +316,7 @@ export default function Calculator({
             <strong>Яндекс-приложения</strong>
             <span className="muted">Алиса, Карты, Музыка · где позволяет система</span>
           </span>
-          <span className="calc-opt-price">уточним</span>
+          <span className="calc-opt-price">цену до визита</span>
         </label>
 
         <label className={`calc-opt ${visit ? 'is-on' : ''}`}>

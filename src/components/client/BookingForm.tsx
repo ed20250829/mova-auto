@@ -412,7 +412,7 @@ export default function BookingForm({ models, preselectId }: Props) {
           />
           <span className="calc-opt-main">
             <strong>Яндекс-приложения</strong>
-            <span className="muted">уточним при записи</span>
+            <span className="muted">цену скажем до визита</span>
           </span>
         </label>
         <label className={`calc-opt ${form.visit ? 'is-on' : ''}`}>
