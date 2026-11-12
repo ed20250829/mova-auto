@@ -6,6 +6,7 @@ export const SITE_PHONE_E164 = '+375447149978';
 export const SITE_PHONE_DISPLAY = '+375 44 714-99-78';
 export const SITE_EMAIL = 'hello@mova-auto.tech';
 export const SITE_TELEGRAM = 'https://t.me/mova_auto_bot';
+export const SITE_TIKTOK = 'https://www.tiktok.com/@mova_auto';
 /** NAP street line for schema / footer (Parkland 1). */
 export const SITE_STREET_ADDRESS = 'ул. Виталия Цвирко 78';
 export const SITE_ADDRESS_EXTRA = 'Parkland 1';
@@ -13,8 +14,8 @@ export const SITE_ADDRESS_LOCALITY = 'Минск';
 export const SITE_ADDRESS_COUNTRY = 'BY';
 export const SITE_ADDRESS_DISPLAY = 'Parkland 1, ул. Виталия Цвирко 78, Минск';
 
-/** Placeholders until Maps / social profiles exist — keep sameAs honest. */
-export const ORGANIZATION_SAME_AS = [SITE_TELEGRAM] as const;
+/** Public profiles for Organization / LocalBusiness sameAs. */
+export const ORGANIZATION_SAME_AS = [SITE_TELEGRAM, SITE_TIKTOK] as const;
 
 export function postalAddressJsonLd() {
   return {
