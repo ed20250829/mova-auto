@@ -28,9 +28,11 @@ const ld = jsonLd
     : [jsonLd]
   : [];
 
-/** Demo banner only when explicitly enabled or in local `astro dev`. Hidden on prod by default. */
+/** Demo banner: runtime hoster `.env` OR build-time PUBLIC_ OR local `astro dev`. */
 const showSampleBanner =
-  import.meta.env.PUBLIC_SHOW_SAMPLE_BANNER === '1' || import.meta.env.DEV;
+  process.env.PUBLIC_SHOW_SAMPLE_BANNER === '1' ||
+  import.meta.env.PUBLIC_SHOW_SAMPLE_BANNER === '1' ||
+  import.meta.env.DEV;
 ---
 
 <!doctype html>
