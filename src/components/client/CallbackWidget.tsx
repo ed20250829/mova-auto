@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { callbackSuccessCopy, isAfterHoursMinsk } from '../../lib/minsk-hours';
 import { isValidPhone } from '../../lib/phone';
 import PersonalDataConsent from './PersonalDataConsent';
-
+import { readUtm, track } from '../../lib/client-analytics';
 
 const SESSION_KEY = 'mova_callback_shown';
 const DISMISS_KEY = 'mova_callback_dismiss_until';
@@ -15,24 +15,6 @@ const PHONE_E164 = '+375447149978';
 const PHONE_DISPLAY = '+375 44 714-99-78';
 
 type Trigger = 'model_missing' | 'idle_calc' | 'exit_intent' | 'manual';
-
-function readUtm() {
-  if (typeof window === 'undefined') return {};
-  const p = new URLSearchParams(window.location.search);
-  return {
-    utmSource: p.get('utm_source') || undefined,
-    utmMedium: p.get('utm_medium') || undefined,
-    utmCampaign: p.get('utm_campaign') || undefined,
-  };
-}
-
-function track(name: string, meta?: Record<string, unknown>) {
-  void fetch('/api/events', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, meta, ...readUtm() }),
-  });
-}
 
 function isDismissed(): boolean {
   try {
@@ -246,7 +228,8 @@ export default function CallbackWidget() {
         setBusy(false);
         return;
       }
-      track('callback_submit', { trigger, afterHours: data.afterHours });
+      // Server /api/callback already writes callback_submit — Metrika only here.
+      track('callback_submit', { trigger, afterHours: data.afterHours }, { server: false });
       setDone(data.message || callbackSuccessCopy(Boolean(data.afterHours)));
       markDismissed();
       autoShownRef.current = true;

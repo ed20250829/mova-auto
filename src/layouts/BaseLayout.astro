@@ -33,6 +33,11 @@ const showSampleBanner =
   process.env.PUBLIC_SHOW_SAMPLE_BANNER === '1' ||
   import.meta.env.PUBLIC_SHOW_SAMPLE_BANNER === '1' ||
   import.meta.env.DEV;
+
+/** Yandex Metrika: only inject id when set; script loads after cookie accept. */
+const yandexMetrikaId = String(
+  process.env.PUBLIC_YANDEX_METRIKA_ID || import.meta.env.PUBLIC_YANDEX_METRIKA_ID || '',
+).trim();
 ---
 
 <!doctype html>
@@ -76,7 +81,7 @@ const showSampleBanner =
     <a class="sr-only" href="#main">К содержанию</a>
     {showSampleBanner && <SampleBanner client:load />}
     <slot />
-    <CookieBanner client:load />
+    <CookieBanner client:load metrikaId={yandexMetrikaId || undefined} />
     <CallbackWidget client:load />
   </body>
 </html>

@@ -9,6 +9,7 @@ import {
 import { isValidPhone } from '../../lib/phone';
 import BookingCalendar from './BookingCalendar';
 import PersonalDataConsent from './PersonalDataConsent';
+import { readUtm, track } from '../../lib/client-analytics';
 
 type Props = {
   models: CalcModel[];
@@ -35,24 +36,6 @@ function today() {
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
-}
-
-function readUtm() {
-  if (typeof window === 'undefined') return {};
-  const p = new URLSearchParams(window.location.search);
-  return {
-    utmSource: p.get('utm_source') || undefined,
-    utmMedium: p.get('utm_medium') || undefined,
-    utmCampaign: p.get('utm_campaign') || undefined,
-  };
-}
-
-function track(name: string, meta?: Record<string, unknown>) {
-  void fetch('/api/events', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, meta, ...readUtm() }),
-  });
 }
 
 export default function BookingForm({ models, preselectId }: Props) {
@@ -209,6 +192,8 @@ export default function BookingForm({ models, preselectId }: Props) {
       setForm((prev) => ({ ...prev, promoCode: data.code }));
       setPromoMeta({ kind: data.kind, value: data.value, message: data.message });
       setPromoStatus(data.message);
+      // Server /api/promo/validate already writes promo_apply — Metrika only here.
+      track('promo_apply', { code: data.code, source: 'booking' }, { server: false });
     } catch {
       setPromoMeta(null);
       setPromoStatus('Не удалось проверить код');

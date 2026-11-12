@@ -1,17 +1,28 @@
 import { useEffect, useState } from 'react';
+import { COOKIE_CONSENT_KEY, loadYandexMetrika } from '../../lib/client-analytics';
 
-const STORAGE_KEY = 'mova_cookie_consent';
+type Props = {
+  /** Digits-only Yandex Metrika counter. Empty/undefined → never loads. */
+  metrikaId?: string;
+};
 
-export default function CookieBanner() {
+export default function CookieBanner({ metrikaId }: Props) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     try {
-      if (!localStorage.getItem(STORAGE_KEY)) setVisible(true);
+      const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
+      if (!consent) {
+        setVisible(true);
+        return;
+      }
+      if (consent === 'accepted' && metrikaId) {
+        loadYandexMetrika(metrikaId);
+      }
     } catch {
       setVisible(true);
     }
-  }, []);
+  }, [metrikaId]);
 
   useEffect(() => {
     document.body.classList.toggle('has-cookie-banner', visible);
@@ -20,9 +31,12 @@ export default function CookieBanner() {
 
   function choose(value: 'accepted' | 'declined') {
     try {
-      localStorage.setItem(STORAGE_KEY, value);
+      localStorage.setItem(COOKIE_CONSENT_KEY, value);
     } catch {
       /* ignore */
+    }
+    if (value === 'accepted' && metrikaId) {
+      loadYandexMetrika(metrikaId);
     }
     setVisible(false);
   }

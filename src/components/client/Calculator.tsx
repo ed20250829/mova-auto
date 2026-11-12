@@ -6,6 +6,7 @@ import {
   computeOrderPrice,
   getAppPackPrice,
 } from '../../lib/pricing';
+import { readUtm, track } from '../../lib/client-analytics';
 
 export type CalcModel = {
   id: number;
@@ -27,25 +28,6 @@ type Props = {
   /** On model SEO pages: brand/model change navigates to matching `/auto/...` */
   syncRoute?: boolean;
 };
-
-function readUtm() {
-  if (typeof window === 'undefined') return {};
-  const p = new URLSearchParams(window.location.search);
-  return {
-    utmSource: p.get('utm_source') || undefined,
-    utmMedium: p.get('utm_medium') || undefined,
-    utmCampaign: p.get('utm_campaign') || undefined,
-  };
-}
-
-function track(name: string, meta?: Record<string, unknown>) {
-  const utm = readUtm();
-  void fetch('/api/events', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, meta, ...utm }),
-  });
-}
 
 function modelPath(m: CalcModel) {
   return `/auto/${m.brandSlug}/${m.modelSlug}`;
@@ -192,6 +174,8 @@ export default function Calculator({
         message: data.message,
       });
       setPromoInput(data.code);
+      // Server /api/promo/validate already writes promo_apply — Metrika only here.
+      track('promo_apply', { code: data.code, source: 'calculator' }, { server: false });
     } catch {
       setPromoError('Не удалось проверить код');
     } finally {
