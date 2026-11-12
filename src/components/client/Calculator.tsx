@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import ShareButton from './ShareButton';
-import { CALC_OPTIONS_STORAGE_KEY, PRICING_OPTIONS, computeOrderPrice } from '../../lib/pricing';
+import {
+  CALC_OPTIONS_STORAGE_KEY,
+  PRICING_OPTIONS,
+  computeOrderPrice,
+  getAppPackPrice,
+} from '../../lib/pricing';
 
 export type CalcModel = {
   id: number;
@@ -147,12 +152,15 @@ export default function Calculator({
     }
   }, [brand, brandModels, modelId]);
 
+  const appPackPrice = selected ? getAppPackPrice(selected.brand) : PRICING_OPTIONS.appPackMass;
+
   const quote = useMemo(() => {
     if (!selected) return null;
     return computeOrderPrice(selected.priceBase, {
       ota,
       visit,
       appPack,
+      brand: selected.brand,
       promoCode: appliedPromo?.code || null,
       promoPercent: appliedPromo?.kind === 'percent' ? appliedPromo.value : null,
       promoFixed: appliedPromo?.kind === 'fixed' ? appliedPromo.value : null,
@@ -316,7 +324,7 @@ export default function Calculator({
             <strong>Яндекс-приложения</strong>
             <span className="muted">Алиса, Карты, Музыка · где позволяет система</span>
           </span>
-          <span className="calc-opt-price">цену до визита</span>
+          <span className="calc-opt-price">+{appPackPrice} BYN</span>
         </label>
 
         <label className={`calc-opt ${visit ? 'is-on' : ''}`}>

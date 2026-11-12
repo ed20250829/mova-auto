@@ -6,6 +6,7 @@ import Calculator from '../../../components/client/Calculator';
 import BookingForm from '../../../components/client/BookingForm';
 import { getAllModels, getModelBySlug } from '../../../lib/models';
 import { complexityLabel, formatByn, formatMinutes } from '../../../lib/format';
+import { getAppPackPrice } from '../../../lib/pricing';
 
 const { brand, model } = Astro.params;
 const item = getModelBySlug(brand!, model!);
@@ -83,7 +84,7 @@ const jsonLd = {
             <h2>Что по слоям</h2>
             <ul>
               <li><strong>База:</strong> меню и настройки системы — где позволяет платформа.</li>
-              <li><strong>Приложения:</strong> Яндекс (Алиса, Карты, Музыка) ставим и настраиваем, где технически возможно — отдельно от базы.</li>
+              <li><strong>Приложения:</strong> Яндекс (Алиса, Карты, Музыка) — {getAppPackPrice(item.brand)}&nbsp;BYN, где технически возможно — отдельно от базы.</li>
               <li><strong>Страховка после обновления ПО:</strong> защита от сброса языка — отдельная опция{item.requiresOtaSubscription ? ', для этой модели рекомендуем' : ''}.</li>
             </ul>
           </div>

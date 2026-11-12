@@ -88,12 +88,42 @@ function syncModelCopyFromSeed() {
       .from(models)
       .where(and(eq(models.brandSlug, m.brandSlug), eq(models.modelSlug, m.modelSlug)))
       .get();
-    if (!row) continue;
+    if (!row) {
+      db.insert(models)
+        .values({
+          brand: m.brand,
+          brandSlug: m.brandSlug,
+          model: m.model,
+          modelSlug: m.modelSlug,
+          yearFrom: m.yearFrom,
+          yearTo: m.yearTo,
+          generation: m.generation,
+          screenType: m.screenType,
+          priceBase: m.priceBase,
+          timeMinutes: m.timeMinutes,
+          complexity: m.complexity,
+          knownIssues: JSON.stringify(m.knownIssues),
+          requiresOtaSubscription: m.requiresOtaSubscription,
+          notes: m.notes,
+          bodyStyle: 'crossover',
+          imagePath: null,
+          costBase: m.costBase,
+          active: true,
+        })
+        .run();
+      continue;
+    }
     db.update(models)
       .set({
+        priceBase: m.priceBase,
+        timeMinutes: m.timeMinutes,
+        complexity: m.complexity,
+        screenType: m.screenType,
+        generation: m.generation,
         knownIssues: JSON.stringify(m.knownIssues),
         notes: m.notes,
         requiresOtaSubscription: m.requiresOtaSubscription,
+        costBase: m.costBase,
       })
       .where(eq(models.id, row.id))
       .run();

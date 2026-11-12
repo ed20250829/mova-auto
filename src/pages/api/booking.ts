@@ -133,6 +133,7 @@ export const POST: APIRoute = async ({ request }) => {
     ota: Boolean(body.ota),
     visit: Boolean(body.visit),
     appPack: Boolean(body.appPack),
+    brand: model.brand,
     promo: promoRow,
     promoCode: promoRow ? promoRow.code : null,
   });

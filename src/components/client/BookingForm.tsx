@@ -4,6 +4,7 @@ import {
   CALC_OPTIONS_STORAGE_KEY,
   PRICING_OPTIONS,
   computeOrderPrice,
+  getAppPackPrice,
 } from '../../lib/pricing';
 import { isValidPhone } from '../../lib/phone';
 import BookingCalendar from './BookingCalendar';
@@ -156,12 +157,15 @@ export default function BookingForm({ models, preselectId }: Props) {
     [models, form.modelId],
   );
 
+  const appPackPrice = selected ? getAppPackPrice(selected.brand) : PRICING_OPTIONS.appPackMass;
+
   const quote = useMemo(() => {
     if (!selected) return null;
     return computeOrderPrice(selected.priceBase, {
       ota: form.ota,
       visit: form.visit,
       appPack: form.appPack,
+      brand: selected.brand,
       promoCode: promoMeta ? form.promoCode : null,
       promoPercent: promoMeta?.kind === 'percent' ? promoMeta.value : null,
       promoFixed: promoMeta?.kind === 'fixed' ? promoMeta.value : null,
@@ -419,7 +423,7 @@ export default function BookingForm({ models, preselectId }: Props) {
           />
           <span className="calc-opt-main">
             <strong>Яндекс-приложения</strong>
-            <span className="muted">цену до визита</span>
+            <span className="muted">+{appPackPrice}&nbsp;BYN</span>
           </span>
         </label>
         <label className={`calc-opt ${form.visit ? 'is-on' : ''}`}>

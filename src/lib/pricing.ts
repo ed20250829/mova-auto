@@ -4,8 +4,21 @@ import { applyPromoDiscount, normalizePromoCode } from './promo-shared';
 export const PRICING_OPTIONS = {
   otaInsurance: 150,
   onSiteVisit: 100,
+  /** Yandex apps pack — mass Geely/BYD/Changan/Leapmotor… */
+  appPackMass: 220,
+  /** Yandex apps pack — Li / Zeekr / Avatr and similar complex stacks */
+  appPackComplex: 450,
   promoMova10Percent: 10,
 } as const;
+
+/** Brands where apps install is the complex tier (Li/Zeekr/Avatr). */
+const COMPLEX_APP_BRANDS = new Set(['li auto', 'zeekr', 'avatr']);
+
+export function getAppPackPrice(brand: string): number {
+  return COMPLEX_APP_BRANDS.has(brand.trim().toLowerCase())
+    ? PRICING_OPTIONS.appPackComplex
+    : PRICING_OPTIONS.appPackMass;
+}
 
 /** Minimal promo shape for pricing (avoid importing DB schema into client). */
 export type PricingPromo = {
@@ -18,6 +31,8 @@ export type BookingOptionsInput = {
   ota?: boolean;
   visit?: boolean;
   appPack?: boolean;
+  /** Brand for app-pack tier (mass 220 / complex 450). */
+  brand?: string | null;
   /** When set with validated promo row — preferred path (server) */
   promo?: PricingPromo | null;
   /** Client-side preview after /api/promo/validate */
@@ -39,6 +54,7 @@ export function computeSubtotal(priceBase: number, opts: BookingOptionsInput) {
     options.push('visit');
   }
   if (opts.appPack) {
+    price += getAppPackPrice(opts.brand || '');
     options.push('app_pack');
   }
 
