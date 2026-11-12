@@ -281,6 +281,8 @@ async function askConfirm(chatId: string, draft: Record<string, unknown>) {
     `${draft.name}, ${contact}`,
     price != null ? `Цена: ${price} BYN` : null,
     '',
+    `Подтверждая, вы соглашаетесь с политикой ПДн: ${siteUrl()}/privacy`,
+    '',
     'Всё верно?',
   ]
     .filter(Boolean)

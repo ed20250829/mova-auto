@@ -7,6 +7,7 @@ import {
 } from '../../lib/pricing';
 import { isValidPhone } from '../../lib/phone';
 import BookingCalendar from './BookingCalendar';
+import PersonalDataConsent from './PersonalDataConsent';
 
 type Props = {
   models: CalcModel[];
@@ -250,6 +251,7 @@ export default function BookingForm({ models, preselectId }: Props) {
           ota: form.ota,
           visit: form.visit,
           appPack: form.appPack,
+          consent: true,
           ...readUtm(),
         }),
       });
@@ -495,30 +497,21 @@ export default function BookingForm({ models, preselectId }: Props) {
         </p>
       )}
 
-      <label className={`calc-opt ${consent ? 'is-on' : ''}`}>
-        <input
-          type="checkbox"
-          checked={consent}
-          onChange={(e) => {
-            setConsent(e.target.checked);
-            if (e.target.checked) {
-              setErrors((prev) => {
-                const next = { ...prev };
-                delete next.consent;
-                return next;
-              });
-            }
-          }}
-          required
-        />
-        <span className="calc-opt-main">
-          <strong>Согласен на обработку персональных данных</strong>
-          <span className="muted">Имя и телефон нужны только для связи по заявке</span>
-        </span>
-      </label>
-      {errors.consent && (
-        <span style={{ color: 'var(--error)', fontSize: '0.8rem' }}>{errors.consent}</span>
-      )}
+      <PersonalDataConsent
+        variant="booking"
+        checked={consent}
+        error={errors.consent}
+        onChange={(checked) => {
+          setConsent(checked);
+          if (checked) {
+            setErrors((prev) => {
+              const next = { ...prev };
+              delete next.consent;
+              return next;
+            });
+          }
+        }}
+      />
 
       {serverError && (
         <p role="alert" style={{ color: 'var(--error)', margin: 0 }}>

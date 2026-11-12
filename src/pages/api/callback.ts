@@ -24,6 +24,11 @@ export const POST: APIRoute = async ({ request }) => {
   const trigger = String(body.trigger || 'manual');
   const afterHours = isAfterHoursMinsk();
 
+  const consent = body.consent === true || body.consent === 'true' || body.consent === 1 || body.consent === '1';
+  if (!consent) {
+    return json({ error: 'Нужно согласие на обработку персональных данных' }, 400);
+  }
+
   if (name.length < 2 || !isValidPhone(phone)) {
     return json({ error: 'Проверьте имя и телефон' }, 400);
   }

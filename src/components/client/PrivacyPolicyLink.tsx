@@ -1,0 +1,103 @@
+import { useEffect, useId, useState, type ReactNode } from 'react';
+import {
+  PRIVACY_PATH,
+  PRIVACY_UPDATED,
+  privacyFooterNote,
+  privacyIntro,
+  privacySections,
+} from '../../lib/privacy-policy';
+
+type Props = {
+  className?: string;
+  children?: ReactNode;
+};
+
+export default function PrivacyPolicyLink({ className, children }: Props) {
+  const [open, setOpen] = useState(false);
+  const titleId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <>
+      <a
+        className={className || 'privacy-policy-link'}
+        href={PRIVACY_PATH}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen(true);
+        }}
+      >
+        {children || 'политикой обработки персональных данных'}
+      </a>
+
+      {open && (
+        <div
+          className="privacy-modal-root"
+          role="presentation"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="privacy-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="privacy-modal__head">
+              <h2 id={titleId}>Политика обработки персональных данных</h2>
+              <button
+                type="button"
+                className="privacy-modal__close"
+                aria-label="Закрыть"
+                onClick={() => setOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="privacy-modal__body">
+              <p className="muted">{privacyIntro}</p>
+              <p className="muted" style={{ fontSize: '0.85rem' }}>
+                Обновлено: {PRIVACY_UPDATED}
+              </p>
+              {privacySections.map((section) => (
+                <section key={section.id} className="privacy-modal__section">
+                  <h3>{section.title}</h3>
+                  {section.paragraphs.map((p, i) => (
+                    <p key={`${section.id}-${i}`} className="muted">
+                      {p}
+                    </p>
+                  ))}
+                </section>
+              ))}
+              <p className="muted" style={{ fontSize: '0.85rem' }}>
+                {privacyFooterNote}
+              </p>
+            </div>
+            <div className="privacy-modal__foot">
+              <a className="btn btn-ghost" href={PRIVACY_PATH}>
+                Открыть страницу
+              </a>
+              <button type="button" className="btn" onClick={() => setOpen(false)}>
+                Понятно
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

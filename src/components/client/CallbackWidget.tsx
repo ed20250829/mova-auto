@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { callbackSuccessCopy, isAfterHoursMinsk } from '../../lib/minsk-hours';
 import { isValidPhone } from '../../lib/phone';
+import PersonalDataConsent from './PersonalDataConsent';
 
 
 const SESSION_KEY = 'mova_callback_shown';
@@ -235,6 +236,7 @@ export default function CallbackWidget() {
           modelLabel: modelLabel.trim() || undefined,
           preferredSlot: slot || undefined,
           trigger,
+          consent: true,
           ...readUtm(),
         }),
       });
@@ -367,15 +369,11 @@ export default function CallbackWidget() {
                   ))}
                 </div>
 
-                <label className={`callback-consent ${consent ? 'is-on' : ''}`}>
-                  <input
-                    type="checkbox"
-                    checked={consent}
-                    onChange={(e) => setConsent(e.target.checked)}
-                    required
-                  />
-                  <span>Согласен на обработку персональных данных</span>
-                </label>
+                <PersonalDataConsent
+                  variant="callback"
+                  checked={consent}
+                  onChange={setConsent}
+                />
 
                 {error && (
                   <p role="alert" style={{ color: 'var(--error)', margin: 0, fontSize: '0.9rem' }}>

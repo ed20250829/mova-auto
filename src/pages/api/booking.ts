@@ -50,6 +50,12 @@ export const POST: APIRoute = async ({ request }) => {
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
+  const consent = body.consent === true || body.consent === 'true' || body.consent === 1 || body.consent === '1';
+
+  if (!consent) {
+    return json({ error: 'Нужно согласие на обработку персональных данных' }, 400);
+  }
+
   if (
     name.length < 2 ||
     !isValidPhone(phone) ||
