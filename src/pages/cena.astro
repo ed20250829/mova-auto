@@ -1,0 +1,190 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { getAllModels } from '../lib/models';
+import { formatByn } from '../lib/format';
+import { PRICING_OPTIONS } from '../lib/pricing';
+import { faqPageJsonLd, organizationJsonLd, SITE_URL } from '../lib/seo';
+
+const models = getAllModels();
+const minBase = Math.min(...models.map((m) => m.priceBase));
+const maxBase = Math.max(...models.map((m) => m.priceBase));
+
+const byBrand = new Map<string, typeof models>();
+for (const m of models) {
+  const arr = byBrand.get(m.brand) ?? [];
+  arr.push(m);
+  byBrand.set(m.brand, arr);
+}
+
+const title = 'Сколько стоит русификация авто в Минске | Мова';
+const description = `Русификация меню китайских авто в Минске: база от ${formatByn(minBase)} до ${formatByn(maxBase)}. Фикс в BYN по модели. Приложения, страховка ПО и выезд — отдельно.`;
+
+const faq = [
+  {
+    q: 'Сколько стоит русификация авто из Китая в Минске?',
+    a: `Базовая русификация меню — от ${formatByn(minBase)} в зависимости от модели. Точная фикс-цена в BYN видна в калькуляторе и на карточке модели.`,
+  },
+  {
+    q: 'Что не входит в базовую цену?',
+    a: `Пакет Яндекс-приложений (${PRICING_OPTIONS.appPackMass} / ${PRICING_OPTIONS.appPackComplex} BYN), страховка после обновления ПО (${PRICING_OPTIONS.otaInsurance} BYN), выезд по Минску (${PRICING_OPTIONS.onSiteVisit} BYN).`,
+  },
+  {
+    q: 'Цена на сайте финальная?',
+    a: 'Да для выбранной базы и отмеченных опций. Скрытых доплат на месте нет. Если система не пускает часть приложений — не обещаем их заранее.',
+  },
+] as const;
+
+const offer = {
+  '@context': 'https://schema.org',
+  '@type': 'Offer',
+  name: 'Русификация мультимедиа китайских авто',
+  priceCurrency: 'BYN',
+  price: String(minBase),
+  url: `${SITE_URL}/cena`,
+  availability: 'https://schema.org/InStock',
+  seller: { '@id': `${SITE_URL}/#organization` },
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  jsonLd={[organizationJsonLd(), offer, faqPageJsonLd(faq)]}
+>
+  <SiteHeader />
+  <main id="main" class="section">
+    <div class="container cena-page">
+      <p class="kicker">Цены · BYN</p>
+      <h1 class="display">Сколько стоит русификация</h1>
+      <p class="lead muted">
+        Фикс по модели до визита в Минске. База — меню и настройки. Опции считаются отдельно и сразу видны в калькуляторе.
+      </p>
+
+      <div class="range">
+        <p>
+          База: <strong>{formatByn(minBase)}</strong>
+          <span class="muted"> — </span>
+          <strong>{formatByn(maxBase)}</strong>
+        </p>
+        <ul class="opts muted">
+          <li>Яндекс-приложения: {PRICING_OPTIONS.appPackMass} / {PRICING_OPTIONS.appPackComplex} BYN</li>
+          <li>Страховка после обновления ПО: {PRICING_OPTIONS.otaInsurance} BYN</li>
+          <li>Выезд по Минску: {PRICING_OPTIONS.onSiteVisit} BYN</li>
+          <li>Гарантия на базу: 6 месяцев</li>
+        </ul>
+        <div class="cta-row">
+          <a class="btn" href="/#calculator">Открыть калькулятор</a>
+          <a class="btn btn-ghost" href="/sravnenie">Что входит</a>
+        </div>
+      </div>
+
+      <section aria-labelledby="brands-cena">
+        <h2 id="brands-cena" class="display section-title">По маркам</h2>
+        <div class="brand-grid">
+          {[...byBrand.entries()].map(([brand, list]) => {
+            const sample = list[0];
+            const from = Math.min(...list.map((m) => m.priceBase));
+            return (
+              <a class="brand-row" href={`/auto/${sample.brandSlug}`}>
+                <span>{brand}</span>
+                <span class="muted">от {from}&nbsp;BYN · {list.length} мод.</span>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+
+      <section class="faq-block" aria-labelledby="cena-faq">
+        <h2 id="cena-faq" class="display section-title">Вопросы о цене</h2>
+        <div class="faq-list">
+          {faq.map((item) => (
+            <details>
+              <summary>{item.q}</summary>
+              <p class="muted">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </div>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  h1.display {
+    font-size: clamp(2rem, 5vw, 3.1rem);
+    margin: 0.35rem 0 0;
+    max-width: 14ch;
+  }
+  .lead {
+    max-width: 54ch;
+    margin: 0.95rem 0 0;
+    line-height: 1.55;
+  }
+  .range {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-strong);
+    max-width: 560px;
+  }
+  .range strong {
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+  }
+  .opts {
+    margin: 0.9rem 0 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.35rem;
+  }
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.15rem;
+  }
+  .section-title {
+    font-size: clamp(1.45rem, 3.2vw, 2rem);
+    margin: 2.5rem 0 1rem;
+  }
+  .brand-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0;
+  }
+  .brand-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0.5rem 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .brand-row:hover {
+    color: var(--accent);
+  }
+  .faq-list {
+    display: grid;
+    gap: 0.55rem;
+    max-width: 720px;
+  }
+  details {
+    border-top: 1px solid var(--border);
+    padding: 0.85rem 0 0.35rem;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  details p {
+    margin: 0.55rem 0 0.35rem;
+    line-height: 1.5;
+  }
+  @media (max-width: 640px) {
+    h1.display {
+      max-width: none;
+    }
+  }
+</style>

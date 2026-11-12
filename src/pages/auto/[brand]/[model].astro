@@ -7,6 +7,12 @@ import BookingForm from '../../../components/client/BookingForm';
 import { getAllModels, getModelBySlug } from '../../../lib/models';
 import { complexityLabel, formatByn, formatMinutes } from '../../../lib/format';
 import { getAppPackPrice } from '../../../lib/pricing';
+import {
+  faqPageJsonLd,
+  modelFaq,
+  organizationJsonLd,
+  SITE_URL,
+} from '../../../lib/seo';
 
 const { brand, model } = Astro.params;
 const item = getModelBySlug(brand!, model!);
@@ -28,32 +34,32 @@ const calcModels = all.map((m) => ({
   notes: m.notes,
 }));
 
-const title = `${item.brand} ${item.model} - русификация в Минске | Мова`;
-const description = `Русификация ${item.brand} ${item.model} в Минске: ${formatByn(item.priceBase)}, ~${formatMinutes(item.timeMinutes)}. Фикс-цена в BYN, запись онлайн, гарантия 6 месяцев.`;
+const faq = modelFaq(item);
+const title = `${item.brand} ${item.model} - русификация в Минске от ${item.priceBase} BYN | Мова`;
+const description = `Русификация ${item.brand} ${item.model} в Минске: от ${formatByn(item.priceBase)}, ~${formatMinutes(item.timeMinutes)}. Фикс-цена в BYN, запись онлайн, гарантия 6 месяцев.`;
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Service',
-  name: `Русификация ${item.brand} ${item.model}`,
-  description: `Русификация мультимедиа ${item.brand} ${item.model} в Минске, Беларусь. Базовое меню и настройки на русском, где позволяет система.`,
-  provider: {
-    '@type': 'AutomotiveBusiness',
-    name: 'Мова',
-    url: 'https://mova-auto.tech',
-    address: { '@type': 'PostalAddress', addressLocality: 'Минск', addressCountry: 'BY' },
+const jsonLd = [
+  organizationJsonLd(),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: `Русификация ${item.brand} ${item.model}`,
+    description: `Русификация мультимедиа ${item.brand} ${item.model} в Минске, Беларусь. Базовое меню и настройки на русском, где позволяет система.`,
+    provider: { '@id': `${SITE_URL}/#organization` },
+    areaServed: [
+      { '@type': 'City', name: 'Минск' },
+      { '@type': 'Country', name: 'Беларусь' },
+    ],
+    offers: {
+      '@type': 'Offer',
+      price: item.priceBase,
+      priceCurrency: 'BYN',
+      availability: 'https://schema.org/InStock',
+      url: `${SITE_URL}/auto/${item.brandSlug}/${item.modelSlug}`,
+    },
   },
-  areaServed: [
-    { '@type': 'City', name: 'Минск' },
-    { '@type': 'Country', name: 'Беларусь' },
-  ],
-  offers: {
-    '@type': 'Offer',
-    price: item.priceBase,
-    priceCurrency: 'BYN',
-    availability: 'https://schema.org/InStock',
-    url: `https://mova-auto.tech/auto/${item.brandSlug}/${item.modelSlug}`,
-  },
-};
+  faqPageJsonLd(faq),
+];
 ---
 
 <BaseLayout title={title} description={description} jsonLd={jsonLd}>
@@ -63,7 +69,7 @@ const jsonLd = {
       <nav class="crumbs muted" aria-label="Хлебные крошки">
         <a href="/">Мова</a>
         <span aria-hidden="true"> · </span>
-        <a href="/#calculator">{item.brand}</a>
+        <a href={`/auto/${item.brandSlug}`}>{item.brand}</a>
         <span aria-hidden="true"> · </span>
         <span>{item.model}</span>
       </nav>
@@ -72,13 +78,13 @@ const jsonLd = {
           <p class="kicker">{item.screenType}</p>
           <h1 class="display">{item.brand} {item.model}</h1>
           <p class="muted">
-            {item.yearFrom}{item.yearTo ? `-${item.yearTo}` : '+'}
+            Русификация в Минске · {item.yearFrom}{item.yearTo ? `-${item.yearTo}` : '+'}
             {item.generation ? ` · ${item.generation}` : ''}
             · {complexityLabel(item.complexity)}
-            · Минск
           </p>
-          <p class="price display">{formatByn(item.priceBase)}</p>
-          <p class="muted">Время: ~{formatMinutes(item.timeMinutes)} · базовая русификация меню в Минске</p>
+          <p class="price display">от {formatByn(item.priceBase)}</p>
+          <p class="muted">Время: ~{formatMinutes(item.timeMinutes)} · базовая русификация меню</p>
+          <p class="guarantee muted">Гарантия 6 месяцев на выполненную русификацию меню. Страховка после обновления ПО — отдельно.</p>
 
           <div class="block layers">
             <h2>Что по слоям</h2>
@@ -86,6 +92,16 @@ const jsonLd = {
               <li><strong>База:</strong> меню и настройки системы — где позволяет платформа.</li>
               <li><strong>Приложения:</strong> Яндекс (Алиса, Карты, Музыка) — {getAppPackPrice(item.brand)}&nbsp;BYN, где технически возможно — отдельно от базы.</li>
               <li><strong>Страховка после обновления ПО:</strong> защита от сброса языка — отдельная опция{item.requiresOtaSubscription ? ', для этой модели рекомендуем' : ''}.</li>
+            </ul>
+          </div>
+
+          <div class="block checklist">
+            <h2>Чеклист по модели</h2>
+            <ul>
+              <li>Меню / настройки: да, где позволяет система</li>
+              <li>Пакет Яндекс-приложений: где технически возможно — отдельно</li>
+              <li>Приборка / HUD: уточняем при записи по фото экрана</li>
+              <li>SIM / мастер-аккаунт: не отдельный SKU — спросим по вашей версии</li>
             </ul>
           </div>
 
@@ -113,6 +129,18 @@ const jsonLd = {
             <a class="btn" href="#booking">Записаться на {item.model}</a>
             <a class="btn btn-ghost" href="/#calculator">Сравнить в калькуляторе</a>
           </div>
+
+          <section class="block faq-block" aria-labelledby="model-faq">
+            <h2 id="model-faq">Вопросы по {item.model}</h2>
+            <div class="faq-list">
+              {faq.map((f) => (
+                <details>
+                  <summary>{f.q}</summary>
+                  <p class="muted">{f.a}</p>
+                </details>
+              ))}
+            </div>
+          </section>
         </article>
         <aside class="model-calc">
           <Calculator
@@ -156,6 +184,12 @@ const jsonLd = {
     font-size: clamp(2rem, 4vw, 2.8rem);
     margin: 1rem 0 0.25rem;
   }
+  .guarantee {
+    margin: 0.55rem 0 0;
+    max-width: 46ch;
+    line-height: 1.45;
+    font-size: 0.92rem;
+  }
   .block {
     margin-top: 1.5rem;
   }
@@ -178,6 +212,22 @@ const jsonLd = {
     gap: 0.6rem;
     flex-wrap: wrap;
     margin-top: 1.25rem;
+  }
+  .faq-list {
+    display: grid;
+    gap: 0.45rem;
+  }
+  details {
+    border-top: 1px solid var(--border);
+    padding: 0.7rem 0 0.25rem;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  details p {
+    margin: 0.45rem 0 0.25rem;
+    line-height: 1.45;
   }
   .booking-block {
     margin-top: 2.5rem;

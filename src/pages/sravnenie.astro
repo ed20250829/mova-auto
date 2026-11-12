@@ -1,0 +1,223 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { faqPageJsonLd, organizationJsonLd, SITE_PHONE_DISPLAY } from '../lib/seo';
+
+const title = 'Русификация в Минске: что входит и чем Мова отличается от СТО';
+const description =
+  'Честное сравнение: цена, срок, гарантия и состав услуги. Мова — фикс BYN на меню в Минске. Без пугалок и лишних обещаний.';
+
+const rows = [
+  {
+    topic: 'Фокус услуги',
+    mova: 'Базовая русификация меню и настроек, где позволяет система',
+    sto: 'Часто шире: мультимедиа + смежные опции в одном пакете',
+  },
+  {
+    topic: 'Цена',
+    mova: 'Фикс в BYN по модели до визита — видно в калькуляторе',
+    sto: 'От «от N» до пакетов; состав иногда уточняют на месте',
+  },
+  {
+    topic: 'Срок',
+    mova: 'Обычно 40–60 мин; сложные модели — до 2–3 ч',
+    sto: 'Зависит от объёма: от часа до нескольких часов',
+  },
+  {
+    topic: 'Гарантия',
+    mova: '6 месяцев на выполненную русификацию меню',
+    sto: 'У рынка часто звучит 12 месяцев — сверяйте, на что именно',
+  },
+  {
+    topic: 'Приложения',
+    mova: 'Яндекс-пакет отдельно (220 / 450 BYN), где система пускает',
+    sto: 'Могут входить в пакет или идти отдельной строкой',
+  },
+  {
+    topic: 'После обновления ПО',
+    mova: 'Страховка по подписке — отдельная опция (150 BYN)',
+    sto: 'Разный подход: повтор, абонемент или «входит в гарантию»',
+  },
+  {
+    topic: 'SIM / мастер-аккаунт / приборка',
+    mova: 'Не отдельный SKU на сайте — уточняем по модели при записи',
+    sto: 'Часто продают как смежные услуги',
+  },
+  {
+    topic: 'Запись',
+    mova: 'Онлайн-слот на сайте или Telegram, Минск',
+    sto: 'Звонок / мессенджер / запись на СТО',
+  },
+];
+
+const faq = [
+  {
+    q: 'Чем Мова отличается от обычного СТО?',
+    a: 'Мы делаем узкую услугу: русский в меню мультимедиа с фикс-ценой в BYN и записью онлайн. Типичное СТО чаще собирает пакет из нескольких работ. Сравнивайте состав, срок и гарантию — не только цифру «от».',
+  },
+  {
+    q: 'Почему гарантия 6 месяцев, а не 12?',
+    a: 'Так и пишем: 6 месяцев на выполненную русификацию меню. Если нужна страховка языка после обновления ПО — это отдельная подписка, не «растянутая» гарантия в рекламе.',
+  },
+  {
+    q: 'Что входит в базовую цену Мовы?',
+    a: 'Меню и настройки на русском, где позволяет система. Пакет приложений, выезд и страховка после обновления ПО — отдельные строки в калькуляторе.',
+  },
+  {
+    q: 'Мова делает кодирование вместо русификации?',
+    a: 'Мы говорим о русификации меню мультимедиа. Если нужна другая услуга (кодирование блоков, приборка и т.п.) — это не наш основной продукт; подскажем честно, берём ли модель в работу.',
+  },
+] as const;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  jsonLd={[organizationJsonLd(), faqPageJsonLd(faq)]}
+>
+  <SiteHeader />
+  <main id="main" class="section">
+    <div class="container compare-page">
+      <p class="kicker">Сравнение</p>
+      <h1 class="display">Мова и типичное СТО</h1>
+      <p class="lead muted">
+        Честная таблица по цене, сроку и гарантии. Без страшилок и без обещаний «как у завода».
+        Цель — понять, что входит, а что считается отдельно.
+      </p>
+
+      <div class="table-wrap" role="region" aria-label="Сравнение Мова и типичного СТО">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Тема</th>
+              <th scope="col">Мова</th>
+              <th scope="col">Типичное СТО</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr>
+                <th scope="row">{row.topic}</th>
+                <td>{row.mova}</td>
+                <td class="muted">{row.sto}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <section class="note-block">
+        <h2 class="display section-title">Коротко</h2>
+        <p class="muted">
+          Мова — для тех, кому нужно понятное меню на русском в Минске с ценой до визита.
+          Если нужен широкий пакет «всё сразу» (SIM, мастер-аккаунт, приборка) — сравните состав у СТО и уточните у нас по вашей модели.
+          Адрес: Parkland 1, ул. Виталия Цвирко 78, Минск. Тел.: {SITE_PHONE_DISPLAY}.
+        </p>
+        <div class="cta-row">
+          <a class="btn" href="/#calculator">Узнать цену по модели</a>
+          <a class="btn btn-ghost" href="/#booking">Записаться</a>
+        </div>
+      </section>
+
+      <section class="faq-block" aria-labelledby="compare-faq">
+        <h2 id="compare-faq" class="display section-title">Вопросы</h2>
+        <div class="faq-list">
+          {faq.map((item) => (
+            <details>
+              <summary>{item.q}</summary>
+              <p class="muted">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </div>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  h1.display {
+    font-size: clamp(2rem, 5vw, 3.1rem);
+    margin: 0.35rem 0 0;
+    max-width: 18ch;
+  }
+  .lead {
+    max-width: 58ch;
+    margin: 0.95rem 0 0;
+    line-height: 1.55;
+  }
+  .table-wrap {
+    margin-top: 2rem;
+    overflow-x: auto;
+    border-top: 1px solid var(--border-strong);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 640px;
+  }
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.9rem 1rem 0.9rem 0;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.45;
+  }
+  thead th {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  tbody th {
+    font-weight: 700;
+    width: 22%;
+    letter-spacing: -0.01em;
+  }
+  td {
+    width: 39%;
+  }
+  .section-title {
+    font-size: clamp(1.45rem, 3.2vw, 2rem);
+    margin: 0 0 0.75rem;
+  }
+  .note-block,
+  .faq-block {
+    margin-top: 2.5rem;
+  }
+  .note-block p {
+    max-width: 62ch;
+    line-height: 1.55;
+  }
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.15rem;
+  }
+  .faq-list {
+    display: grid;
+    gap: 0.55rem;
+    max-width: 720px;
+  }
+  details {
+    border-top: 1px solid var(--border);
+    padding: 0.85rem 0 0.35rem;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  details p {
+    margin: 0.55rem 0 0.35rem;
+    line-height: 1.5;
+  }
+  @media (max-width: 640px) {
+    h1.display {
+      max-width: none;
+    }
+  }
+</style>

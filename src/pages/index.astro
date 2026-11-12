@@ -9,6 +9,12 @@ import SmoothScroll from '../components/client/SmoothScroll';
 import HeroMotion from '../components/client/HeroMotion';
 import { FAQ_ITEMS } from '../lib/faq-items';
 import { getAllModels } from '../lib/models';
+import {
+  faqPageJsonLd,
+  howToJsonLd,
+  localBusinessJsonLd,
+  organizationJsonLd,
+} from '../lib/seo';
 
 const models = getAllModels();
 const calcModels = models.map((m) => ({
@@ -24,71 +30,19 @@ const calcModels = models.map((m) => ({
   notes: m.notes,
 }));
 
-const localBusiness = {
-  '@context': 'https://schema.org',
-  '@type': 'AutomotiveBusiness',
-  name: 'Мова',
-  alternateName: 'Mova',
-  description:
-    'Русификация мультимедиа китайских авто в Минске, Беларусь. Фикс-цена в BYN, запись онлайн, страховка после обновления ПО.',
-  url: 'https://mova-auto.tech',
-  image: 'https://mova-auto.tech/og.png',
-  email: 'hello@mova-auto.tech',
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Минск',
-    addressCountry: 'BY',
-  },
-  geo: {
-    '@type': 'GeoCoordinates',
-    latitude: 53.9006,
-    longitude: 27.559,
-  },
-  areaServed: [
-    { '@type': 'City', name: 'Минск' },
-    { '@type': 'AdministrativeArea', name: 'Минская область' },
-    { '@type': 'Country', name: 'Беларусь' },
-  ],
-  openingHoursSpecification: {
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ],
-    opens: '08:00',
-    closes: '22:00',
-  },
-  priceRange: '450-1450 BYN',
-  currenciesAccepted: 'BYN',
-  paymentAccepted: 'Cash, Bank Transfer',
-  availableLanguage: ['ru', 'be'],
-};
-
-const faqPage = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: FAQ_ITEMS.map((item) => ({
-    '@type': 'Question',
-    name: item.q,
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: item.a,
-    },
-  })),
-};
-
-const brands = [...new Set(models.map((m) => m.brand))];
+const brands = [...new Map(models.map((m) => [m.brand, m.brandSlug])).entries()];
+const caseSlots = [
+  { label: 'Geely Monjaro', caption: 'Меню RU · Минск' },
+  { label: 'BYD Song Plus', caption: 'Меню RU · Минск' },
+  { label: 'Zeekr 001', caption: 'Меню RU · Минск' },
+  { label: 'Li Auto L7', caption: 'Меню RU · Минск' },
+];
 ---
 
 <BaseLayout
   title="Мова - русификация китайских авто в Минске"
-  description="Русификация меню китайских авто в Минске, Беларусь. Фикс-цена в BYN, запись онлайн за 60 секунд, гарантия 6 месяцев. Мова — язык твоего авто."
-  jsonLd={[localBusiness, faqPage]}
+  description="Русификация меню китайских авто в Минске, Parkland 1. Фикс-цена в BYN, запись онлайн, гарантия 6 месяцев. Мова — язык твоего авто."
+  jsonLd={[organizationJsonLd(), localBusinessJsonLd(), howToJsonLd(), faqPageJsonLd(FAQ_ITEMS)]}
 >
   <SmoothScroll client:load />
   <SiteHeader />
@@ -102,7 +56,7 @@ const brands = [...new Set(models.map((m) => m.brand))];
             Язык твоего авто
           </h1>
           <p class="lead muted" data-hero-reveal>
-            Русификация меню китайских авто в Минске. Фикс-цена в BYN. Запись онлайн.
+            Русификация меню китайских авто в Минске. Фикс-цена в BYN. Гарантия 6 месяцев. Запись онлайн.
           </p>
           <p class="hero-aside muted" data-hero-reveal>
             Яндекс-приложения (Алиса, Карты, Музыка) — где позволяет система
@@ -164,14 +118,11 @@ const brands = [...new Set(models.map((m) => m.brand))];
           <p class="muted">Цена и время по каждой - для Минска, в BYN. Откройте карточку модели или посчитайте в калькуляторе.</p>
         </div>
         <div class="brand-chips">
-          {brands.map((b) => {
-            const sample = models.find((m) => m.brand === b);
-            return (
-              <a class="chip" href={sample ? `/auto/${sample.brandSlug}/${sample.modelSlug}` : '#'}>
-                {b}
-              </a>
-            );
-          })}
+          {brands.map(([b, slug]) => (
+            <a class="chip" href={`/auto/${slug}`}>
+              {b}
+            </a>
+          ))}
         </div>
         <div class="model-links">
           {models.slice(0, 12).map((m) => (
@@ -200,7 +151,7 @@ const brands = [...new Set(models.map((m) => m.brand))];
               <li>Базовая русификация: меню и настройки, где позволяет система</li>
               <li>Пакет Яндекс-приложений (Алиса, Карты, Музыка) — 220 / 450 BYN, где технически возможно</li>
               <li>Страховка после обновления ПО — по подписке, отдельно</li>
-              <li>Фикс-цена базы до визита в Минске</li>
+              <li>Фикс-цена базы до визита · гарантия 6 месяцев на меню</li>
             </ul>
           </div>
           <div>
@@ -212,6 +163,37 @@ const brands = [...new Set(models.map((m) => m.brand))];
               <li>Скрытых доплат на месте</li>
             </ul>
           </div>
+        </div>
+        <p class="muted guarantee-note">
+          Гарантия 6 месяцев — на выполненную русификацию меню. Нужна защита языка после обновления ПО — отдельная подписка, не «растянутая» гарантия в рекламе.
+          <a href="/sravnenie">Сравнение с типичным СТО</a>
+          ·
+          <a href="/kak-prohodit">Как проходит</a>
+          ·
+          <a href="/cena">Цены</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="section-tight" id="cases">
+      <div class="container">
+        <p class="kicker">Работы</p>
+        <h2 class="display section-title">Место под кейсы</h2>
+        <p class="muted cases-lead">
+          Сюда пойдут фото до/после с реальных визитов. Пока — каркас без отзывов и без чужих картинок.
+        </p>
+        <div class="cases-grid">
+          {caseSlots.map((c) => (
+            <figure class="case-slot">
+              <div class="case-frame" aria-hidden="true">
+                <span>Фото</span>
+              </div>
+              <figcaption>
+                <strong>{c.label}</strong>
+                <span class="muted">{c.caption}</span>
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </div>
     </section>
@@ -390,6 +372,47 @@ const brands = [...new Set(models.map((m) => m.brand))];
     display: grid;
     gap: 0.4rem;
   }
+  .guarantee-note {
+    margin: 1.35rem 0 0;
+    max-width: 62ch;
+    line-height: 1.5;
+    font-size: 0.92rem;
+  }
+  .guarantee-note a {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+  .cases-lead {
+    max-width: 48ch;
+    margin: -0.5rem 0 1.25rem;
+  }
+  .cases-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+  .case-slot {
+    margin: 0;
+  }
+  .case-frame {
+    aspect-ratio: 4 / 3;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+    display: grid;
+    place-items: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .case-slot figcaption {
+    display: grid;
+    gap: 0.15rem;
+    margin-top: 0.55rem;
+    font-size: 0.9rem;
+  }
   .faq-grid {
     display: grid;
     grid-template-columns: 0.8fr 1.2fr;
@@ -409,6 +432,12 @@ const brands = [...new Set(models.map((m) => m.brand))];
     }
     .hero-calc {
       order: 2;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .cases-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 

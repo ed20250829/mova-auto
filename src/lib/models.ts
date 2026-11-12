@@ -72,6 +72,10 @@ export function getModelBySlug(brandSlug: string, modelSlug: string): PublicMode
   return row ? toPublicModel(row) : null;
 }
 
+export function getModelsByBrandSlug(brandSlug: string, activeOnly = true): PublicModel[] {
+  return getAllModels(activeOnly).filter((m) => m.brandSlug === brandSlug);
+}
+
 export function getBrands(): string[] {
   const list = getAllModels();
   return [...new Set(list.map((m) => m.brand))];

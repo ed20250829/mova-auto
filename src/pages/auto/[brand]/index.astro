@@ -1,0 +1,218 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFooter from '../../../components/SiteFooter.astro';
+import { getModelsByBrandSlug } from '../../../lib/models';
+import { formatByn, formatMinutes } from '../../../lib/format';
+import {
+  brandFaq,
+  brandIntro,
+  faqPageJsonLd,
+  organizationJsonLd,
+  SITE_URL,
+} from '../../../lib/seo';
+
+const { brand: brandParam } = Astro.params;
+const list = getModelsByBrandSlug(brandParam!);
+if (!list.length) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+const brand = list[0].brand;
+const brandSlug = list[0].brandSlug;
+const minPrice = Math.min(...list.map((m) => m.priceBase));
+const intro = brandIntro(brandSlug, brand);
+const faq = brandFaq(brand, list);
+
+const title = `Русификация ${brand} в Минске - цены в BYN | Мова`;
+const description = `Русификация ${brand} в Минске от ${formatByn(minPrice)}. Меню на русском, где позволяет система. Фикс в BYN, запись онлайн, гарантия 6 месяцев.`;
+
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: `Модели ${brand} — русификация в Минске`,
+  itemListElement: list.map((m, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: `${SITE_URL}/auto/${m.brandSlug}/${m.modelSlug}`,
+    name: `${m.brand} ${m.model}`,
+  })),
+};
+
+const service = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: `Русификация ${brand}`,
+  description: intro,
+  provider: { '@id': `${SITE_URL}/#organization` },
+  areaServed: [
+    { '@type': 'City', name: 'Минск' },
+    { '@type': 'Country', name: 'Беларусь' },
+  ],
+  offers: {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'BYN',
+    lowPrice: minPrice,
+    offerCount: list.length,
+    url: `${SITE_URL}/auto/${brandSlug}`,
+  },
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  jsonLd={[organizationJsonLd(), service, itemList, faqPageJsonLd(faq)]}
+>
+  <SiteHeader />
+  <main id="main" class="section">
+    <div class="container brand-page">
+      <nav class="crumbs muted" aria-label="Хлебные крошки">
+        <a href="/">Мова</a>
+        <span aria-hidden="true"> · </span>
+        <span>{brand}</span>
+      </nav>
+
+      <p class="kicker">Марка · Минск</p>
+      <h1 class="display">Русификация {brand}</h1>
+      <p class="lead muted">{intro}</p>
+      <p class="price-line">
+        От <strong>{formatByn(minPrice)}</strong>
+        <span class="muted"> · {list.length} моделей в прайсе · гарантия 6 месяцев</span>
+      </p>
+      <div class="cta-row">
+        <a class="btn" href="/#calculator">Считать в калькуляторе</a>
+        <a class="btn btn-ghost" href="/#booking">Записаться</a>
+        <a class="btn btn-ghost" href="/sravnenie">Что входит</a>
+      </div>
+
+      <section class="models-block" aria-labelledby="models-heading">
+        <h2 id="models-heading" class="display section-title">Модели {brand}</h2>
+        <div class="model-links">
+          {list.map((m) => (
+            <a class="model-link" href={`/auto/${m.brandSlug}/${m.modelSlug}`}>
+              <span class="model-link-main">
+                {m.model}
+                <span class="muted model-meta">
+                  {' '}
+                  · ~{formatMinutes(m.timeMinutes)}
+                </span>
+              </span>
+              <span class="model-link-price">{m.priceBase}&nbsp;BYN</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="faq-block" aria-labelledby="faq-heading">
+        <h2 id="faq-heading" class="display section-title">Вопросы по {brand}</h2>
+        <div class="faq-list">
+          {faq.map((item) => (
+            <details>
+              <summary>{item.q}</summary>
+              <p class="muted">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </div>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .crumbs {
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+  }
+  .crumbs a {
+    color: var(--text-muted);
+  }
+  h1.display {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    margin: 0.3rem 0;
+    max-width: 18ch;
+  }
+  .lead {
+    max-width: 62ch;
+    margin: 0.85rem 0 0;
+    line-height: 1.55;
+  }
+  .price-line {
+    margin: 1.1rem 0 0;
+    font-size: 1.15rem;
+  }
+  .price-line strong {
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+  }
+  .cta-row {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+  }
+  .section-title {
+    font-size: clamp(1.45rem, 3.2vw, 2rem);
+    margin: 0 0 1rem;
+  }
+  .models-block,
+  .faq-block {
+    margin-top: 2.5rem;
+  }
+  .model-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    column-gap: 1.5rem;
+    row-gap: 0;
+  }
+  .model-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.75rem 0.75rem 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    min-width: 0;
+  }
+  .model-link-main {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .model-meta {
+    font-size: 0.88rem;
+  }
+  .model-link-price {
+    color: var(--text);
+    font-weight: 700;
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .faq-list {
+    display: grid;
+    gap: 0.55rem;
+    max-width: 720px;
+  }
+  details {
+    border-top: 1px solid var(--border);
+    padding: 0.85rem 0 0.35rem;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  details p {
+    margin: 0.55rem 0 0.35rem;
+    line-height: 1.5;
+  }
+  @media (max-width: 640px) {
+    .model-links {
+      grid-template-columns: 1fr;
+    }
+    h1.display {
+      max-width: none;
+    }
+  }
+</style>

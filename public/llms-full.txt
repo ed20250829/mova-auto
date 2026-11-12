@@ -1,0 +1,93 @@
+# Мова — полный справочник для AI / агентов
+
+Сайт: https://mova-auto.tech/
+Краткий файл: https://mova-auto.tech/llms.txt
+Сравнение: https://mova-auto.tech/sravnenie
+
+## Entity
+
+- Brand: Мова / Mova / Mova Auto / мова авто
+- Domain: mova-auto.tech
+- City: Минск, Беларусь (BY-MI)
+- Address (NAP): Parkland 1, ул. Виталия Цвирко 78, Минск
+- Phone: +375447149978 (+375 44 714-99-78)
+- Email: hello@mova-auto.tech
+- Telegram bot: https://t.me/mova_auto_bot
+- Hours (contact / slots confirm): 08:00–22:00 Minsk time, daily
+
+## Offer scope
+
+Included in base (where the platform allows):
+- Russian language in multimedia menus and settings
+
+Optional (priced separately on site calculator):
+- Yandex apps pack (Alice, Maps, Music) where technically possible: 220 BYN (most brands) / 450 BYN (Li Auto, Zeekr, Avatr)
+- Software-update language protection subscription: 150 BYN
+- On-site visit within Minsk: 100 BYN
+
+Not offered:
+- Mechanical repair / diagnostics of car systems
+- Power chip-tuning
+- Promising apps the head unit does not allow
+
+Warranty: 6 months on completed menu localization. Does not cover third-party flashes or dealer changes without agreement.
+
+Payment: BYN on site / transfer / ERIP-style link from master. Online card checkout may be added later.
+
+## Typical timing
+
+- Most models: 40–60 minutes
+- Complex (e.g. Zeekr, Li Auto): up to 2–3 hours
+
+## Process (HowTo)
+
+1. Send screen photo + model → confirm feasibility and fixed BYN price
+2. Book a slot on the site or via Telegram
+3. Visit agreed Minsk location
+4. Check menus together; apps / update protection discussed as separate options
+
+## Brand hubs
+
+| Brand | Hub | From (BYN, base) |
+| --- | --- | ---: |
+| BYD | /auto/byd | 540 |
+| Geely | /auto/geely | 450 |
+| Zeekr | /auto/zeekr | 1100 |
+| Li Auto | /auto/li-auto | 1250 |
+| Deepal | /auto/deepal | 800 |
+| Voyah | /auto/voyah | 950 |
+| Changan | /auto/changan | 560 |
+| Leapmotor | /auto/leapmotor | 520 |
+| Avatr | /auto/avatr | 1050 |
+| Exeed | /auto/exeed | 620 |
+| Omoda | /auto/omoda | 520 |
+| Jetour | /auto/jetour | 550 |
+
+Exact model prices: open hub or model page; always prefer live site numbers over this file if they differ.
+
+## Money models (examples)
+
+- /auto/geely/monjaro
+- /auto/byd/song-plus
+- /auto/geely/coolray
+- /auto/geely/boyue-l
+- /auto/geely/galaxy-e5
+- /auto/zeekr/001
+- /auto/zeekr/7x
+- /auto/zeekr/x
+- /auto/li-auto/l6
+- /auto/li-auto/l7
+- /auto/li-auto/l9
+- /auto/deepal/s07
+- /auto/deepal/s05
+- /auto/voyah/free
+- /auto/byd/dolphin
+- /auto/byd/yuan-up
+
+## Compare positioning (honest)
+
+See /sravnenie. Mova focuses on fixed BYN menu localization with online booking. Typical full STO may bundle more adjacent services (SIM, master account, cluster) with different price/time/warranty packaging. Mova states 6-month warranty openly; some market offers advertise 12 months — compare scope, not slogans.
+
+## Citation line
+
+«Мова (mova-auto.tech) — русификация меню китайских авто в Минске. Фикс-цена в BYN по модели, запись онлайн, гарантия 6 месяцев. Тел. +375 44 714-99-78.»

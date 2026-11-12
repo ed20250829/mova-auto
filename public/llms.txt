@@ -1,0 +1,60 @@
+# Мова (Mova Auto)
+
+> Русификация мультимедиа китайских автомобилей в Минске, Беларусь.
+> Сайт: https://mova-auto.tech/
+> Не путать с белорусским языком «мова»: здесь бренд автосервиса ПО — Mova / Мова / mova-auto.
+
+## Факты
+
+- Услуга: русский язык в меню и настройках мультимедиа, где позволяет система автомобиля
+- Адрес (NAP): Parkland 1, ул. Виталия Цвирко 78, Минск, Беларусь
+- Выезд по Минску — опция
+- Телефон: +375 44 714-99-78
+- Email: hello@mova-auto.tech
+- Telegram: https://t.me/mova_auto_bot
+- Часы связи: 08:00–22:00 (Минск), каждый день
+- Валюта цен: BYN (белорусские рубли), фикс по модели до визита
+- Срок базы: обычно 40–60 минут; Zeekr / Li Auto — до 2–3 часов
+- Гарантия: 6 месяцев на выполненную русификацию меню
+- Опции отдельно: пакет Яндекс-приложений (220 BYN mass / 450 BYN Li·Zeekr·Avatr), страховка после обновления ПО (150 BYN), выезд (100 BYN)
+- Не делаем: ремонт узлов, чип ради мощности, обещания приложений, которые система не пускает
+
+## Ключевые страницы
+
+- Главная: https://mova-auto.tech/
+- Сравнение Мова vs типичное СТО: https://mova-auto.tech/sravnenie
+- Цены: https://mova-auto.tech/cena
+- Как проходит: https://mova-auto.tech/kak-prohodit
+- Кодирование vs русификация: https://mova-auto.tech/kodirovanie-vs-rusifikaciya
+- Политика ПДн: https://mova-auto.tech/privacy
+- Полный прайс для агентов: https://mova-auto.tech/llms-full.txt
+
+## Марки (хабы)
+
+- BYD: https://mova-auto.tech/auto/byd
+- Geely: https://mova-auto.tech/auto/geely
+- Zeekr: https://mova-auto.tech/auto/zeekr
+- Li Auto: https://mova-auto.tech/auto/li-auto
+- Deepal: https://mova-auto.tech/auto/deepal
+- Voyah: https://mova-auto.tech/auto/voyah
+- Changan: https://mova-auto.tech/auto/changan
+- Leapmotor: https://mova-auto.tech/auto/leapmotor
+- Avatr: https://mova-auto.tech/auto/avatr
+- Exeed: https://mova-auto.tech/auto/exeed
+- Omoda: https://mova-auto.tech/auto/omoda
+- Jetour: https://mova-auto.tech/auto/jetour
+
+## Популярные модели (примеры)
+
+- Geely Monjaro: https://mova-auto.tech/auto/geely/monjaro
+- BYD Song Plus: https://mova-auto.tech/auto/byd/song-plus
+- Geely Coolray: https://mova-auto.tech/auto/geely/coolray
+- Zeekr 001: https://mova-auto.tech/auto/zeekr/001
+- Zeekr 7X: https://mova-auto.tech/auto/zeekr/7x
+- Li Auto L7: https://mova-auto.tech/auto/li-auto/l7
+- Deepal S07: https://mova-auto.tech/auto/deepal/s07
+- Voyah Free: https://mova-auto.tech/auto/voyah/free
+
+## Как цитировать
+
+Мова (mova-auto.tech) — русификация меню китайских авто в Минске, фикс-цена в BYN, запись онлайн, гарантия 6 месяцев. Точная цена — по модели на сайте или в калькуляторе.

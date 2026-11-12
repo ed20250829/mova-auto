@@ -7,9 +7,17 @@ import tailwindcss from '@tailwindcss/vite';
 import { SEED_MODELS } from './src/db/seed-data.ts';
 
 const site = 'https://mova-auto.tech';
+const brandSlugs = [...new Set(SEED_MODELS.map((m) => m.brandSlug))];
 const modelPages = SEED_MODELS.map(
   (m) => `${site}/auto/${m.brandSlug}/${m.modelSlug}`,
 );
+const brandPages = brandSlugs.map((slug) => `${site}/auto/${slug}`);
+const seoPages = [
+  `${site}/sravnenie`,
+  `${site}/cena`,
+  `${site}/kak-prohodit`,
+  `${site}/kodirovanie-vs-rusifikaciya`,
+];
 
 export default defineConfig({
   site,
@@ -27,7 +35,7 @@ export default defineConfig({
           return !page.includes('/admin');
         }
       },
-      customPages: modelPages,
+      customPages: [...seoPages, ...brandPages, ...modelPages],
     }),
   ],
   adapter: node({

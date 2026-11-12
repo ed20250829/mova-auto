@@ -1,4 +1,6 @@
 ---
+import { SITE_ADDRESS_DISPLAY } from '../lib/seo';
+
 const year = new Date().getFullYear();
 const bot = import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_bot';
 ---
@@ -28,7 +30,9 @@ const bot = import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_b
       <p style="font-weight:700; margin:0 0 0.5rem;">Разделы</p>
       <ul>
         <li><a href="/#calculator">Калькулятор</a></li>
-        <li><a href="/#segments">Кому подходит</a></li>
+        <li><a href="/cena">Цены</a></li>
+        <li><a href="/sravnenie">Сравнение</a></li>
+        <li><a href="/kak-prohodit">Как проходит</a></li>
         <li><a href="/#faq">FAQ</a></li>
         <li><a href="/#booking">Запись</a></li>
         <li><a href="/privacy">Политика ПДн</a></li>
@@ -39,7 +43,7 @@ const bot = import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_b
     <div>
       <p style="font-weight:700; margin:0 0 0.5rem;">Контакт</p>
       <ul>
-        <li>Минск, Беларусь</li>
+        <li>{SITE_ADDRESS_DISPLAY}</li>
         <li>На связи 08:00-22:00 (Минск)</li>
         <li><a href="tel:+375447149978">+375 44 714-99-78</a></li>
         <li><a href={bot} target="_blank" rel="noreferrer">Telegram-бот</a></li>
