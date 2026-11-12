@@ -2,12 +2,19 @@
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import PartnersPanel from '../../components/admin/PartnersPanel';
 import { db } from '../../db';
-import { partners, orders } from '../../db/schema';
+import { partners, orders, leads } from '../../db/schema';
 import { ensureDb } from '../../lib/models';
 
 ensureDb();
 const rows = db.select().from(partners).all();
 const allOrders = db.select().from(orders).all();
+const partnerLeads = db
+  .select()
+  .from(leads)
+  .all()
+  .filter((l) => l.dropStep === 'partner')
+  .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  .slice(0, 40);
 const month = new Date().toISOString().slice(0, 7);
 const enriched = rows.map((p) => {
   const linked = allOrders.filter((o) => o.partnerId === p.id && o.createdAt.startsWith(month));
@@ -19,5 +26,44 @@ const enriched = rows.map((p) => {
 ---
 
 <AdminLayout title="Партнёры">
+  <p style="margin:0 0 1rem; color:#8a8580; font-size:0.9rem;">
+    Заявки с сайта /partneram видны ниже и в
+    <a href="/admin/leads" style="color:#c8c3bc;">лидах</a>
+    (шаг partner). Карточки партнёров — учёт опта после договора.
+  </p>
+  {
+    partnerLeads.length > 0 && (
+      <div style="margin-bottom:1.25rem; overflow-x:auto;">
+        <h2 style="margin:0 0 0.55rem; font-size:1rem;">Заявки с /partneram · {partnerLeads.length}</h2>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Когда</th>
+              <th>Компания</th>
+              <th>Контакт</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              partnerLeads.map((l) => (
+                <tr>
+                  <td>{l.id}</td>
+                  <td>{l.createdAt.slice(0, 16).replace('T', ' ')}</td>
+                  <td>{l.modelLabel || '—'}</td>
+                  <td>
+                    <div>{l.name || '—'}</div>
+                    <div style="color:#8a8580">{l.phone || ''}</div>
+                  </td>
+                  <td>{l.status || (l.contacted ? 'contacted' : 'new')}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    )
+  }
   <PartnersPanel client:load partners={enriched} />
 </AdminLayout>

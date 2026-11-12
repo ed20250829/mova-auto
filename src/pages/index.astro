@@ -104,7 +104,7 @@ const caseSlots = [
             <h3>Автосалон</h3>
             <p class="muted">Официальные продажи в Беларуси. Нужны договор и закрывающие документы.</p>
             <p>Договор. Закрывающие. Фикс за машину. Понятная отчётность по каждой машине.</p>
-            <a class="btn" href="/segments/dealers">Запрос для салона</a>
+            <a class="btn btn-ghost" href="/partneram">Автосалонам</a>
           </article>
         </div>
       </div>
@@ -212,6 +212,10 @@ const caseSlots = [
     <section class="section" id="booking">
       <div class="container booking-wrap">
         <BookingForm client:visible models={calcModels} />
+        <p class="booking-partner-link muted">
+          Автосалону —
+          <a href="/partneram">условия для партнёров</a>
+        </p>
       </div>
     </section>
   </main>
@@ -421,6 +425,19 @@ const caseSlots = [
   }
   .booking-wrap {
     max-width: 920px;
+  }
+  .booking-partner-link {
+    margin: 0.85rem 0 0;
+    font-size: 0.86rem;
+    text-align: center;
+  }
+  .booking-partner-link a {
+    color: var(--text-muted);
+    text-underline-offset: 0.18em;
+  }
+  .booking-partner-link a:hover {
+    color: var(--text);
+    text-decoration: underline;
   }
 
   @media (max-width: 1023px) {

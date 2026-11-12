@@ -3,7 +3,7 @@ import PrivacyPolicyLink from './PrivacyPolicyLink';
 type Props = {
   checked: boolean;
   onChange: (checked: boolean) => void;
-  variant: 'booking' | 'callback';
+  variant: 'booking' | 'callback' | 'partner';
   error?: string;
 };
 
@@ -28,6 +28,30 @@ export default function PersonalDataConsent({ checked, onChange, variant, error 
               Согласен с {policyLink}
             </strong>
             <span className="muted">Имя и телефон нужны только для связи по заявке</span>
+          </span>
+        </label>
+        {error && (
+          <span style={{ color: 'var(--error)', fontSize: '0.8rem' }}>{error}</span>
+        )}
+      </>
+    );
+  }
+
+  if (variant === 'partner') {
+    return (
+      <>
+        <label className={`calc-opt ${checked ? 'is-on' : ''}`}>
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={(e) => onChange(e.target.checked)}
+            required
+          />
+          <span className="calc-opt-main">
+            <strong>
+              Согласен с {policyLink}
+            </strong>
+            <span className="muted">Контакт нужен только для обсуждения партнёрства</span>
           </span>
         </label>
         {error && (

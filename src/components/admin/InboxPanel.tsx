@@ -97,10 +97,14 @@ export default function InboxPanel({ today, newOrders, openLeads, otaDue, compac
         >
           {openLeads.slice(0, compact ? 5 : 12).map((l) => (
             <li key={l.id}>
-              <strong>#{l.id}</strong> {l.name || 'Без имени'}
+              <strong>#{l.id}</strong>{' '}
+              {l.dropStep === 'partner'
+                ? `Салон: ${l.modelLabel || l.name || '—'}`
+                : l.name || 'Без имени'}
               <div style={{ color: '#8a8580', fontSize: '0.82rem' }}>
+                {l.dropStep === 'partner' && l.name ? `${l.name} · ` : ''}
                 {l.phone || l.telegram || '—'}
-                {l.modelLabel ? ` · ${l.modelLabel}` : ''}
+                {l.dropStep !== 'partner' && l.modelLabel ? ` · ${l.modelLabel}` : ''}
                 {l.dropStep ? ` · ${l.dropStep}` : ''}
               </div>
             </li>

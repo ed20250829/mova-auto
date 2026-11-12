@@ -313,6 +313,28 @@ export async function notifyOwnerCallback(payload: {
   return sendMessage(chatId, lines.join('\n'));
 }
 
+export async function notifyOwnerPartnerLead(payload: {
+  company: string;
+  contactName: string;
+  phone: string;
+  comment?: string;
+  afterHours: boolean;
+}): Promise<TgResult> {
+  const chatId = ownerChatId();
+  if (!chatId) return { ok: true, skipped: true };
+
+  const lines = [
+    `🤝 Партнёр (автосалон) — Мова${payload.afterHours ? ' · после часов' : ''}`,
+    `Компания: ${payload.company}`,
+    `Контакт: ${payload.contactName}`,
+    `Телефон: ${payload.phone}`,
+    payload.comment ? `Комментарий: ${payload.comment}` : null,
+    `Админ: ${siteUrl()}/admin/leads`,
+  ].filter(Boolean);
+
+  return sendMessage(chatId, lines.join('\n'));
+}
+
 export function upsertTelegramUser(input: {
   chatId: string;
   username?: string | null;

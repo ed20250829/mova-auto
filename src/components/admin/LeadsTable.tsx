@@ -65,8 +65,8 @@ export default function LeadsTable({ leads: initial }: { leads: Lead[] }) {
               <th>ID</th>
               <th>Когда</th>
               <th>Контакт</th>
-              <th>Модель</th>
-              <th>Шаг отвала</th>
+              <th>Модель / компания</th>
+              <th>Шаг</th>
               <th>Статус</th>
               <th>UTM</th>
               <th>Действие</th>
@@ -83,8 +83,17 @@ export default function LeadsTable({ leads: initial }: { leads: Lead[] }) {
                     <div>{l.name || '—'}</div>
                     <div style={{ color: '#8a8580' }}>{l.phone || l.telegram || '—'}</div>
                   </td>
-                  <td>{l.modelLabel || '—'}</td>
-                  <td>{l.dropStep || '—'}</td>
+                  <td>
+                    {l.dropStep === 'partner' ? (
+                      <>
+                        <div>{l.modelLabel || '—'}</div>
+                        <div style={{ color: '#8a8580', fontSize: '0.78rem' }}>автосалон</div>
+                      </>
+                    ) : (
+                      l.modelLabel || '—'
+                    )}
+                  </td>
+                  <td>{l.dropStep === 'partner' ? 'partner' : l.dropStep || '—'}</td>
                   <td>
                     <select
                       className="admin-select"

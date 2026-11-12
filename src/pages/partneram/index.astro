@@ -1,0 +1,415 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import PartnerLeadForm from '../../components/client/PartnerLeadForm';
+import { faqPageJsonLd, organizationJsonLd, SITE_PHONE_DISPLAY, SITE_URL } from '../../lib/seo';
+
+const title = 'Автосалонам Минска — партнёрство с Мовой | Русификация';
+const description =
+  'Партнёрство для автосалонов Минска: русификация мультимедиа китайских авто с фикс-ценой в BYN, приоритетные слоты и договор. Мова — подрядчик по ПО, не общий ремонт.';
+
+const faq = [
+  {
+    q: 'Сколько стоит русификация для машин салона?',
+    a: 'Фикс за машину в BYN по модели из прайса. От объёма от N авто в месяц — индивидуальная сетка. Точные цифры согласуем после короткого созвона.',
+  },
+  {
+    q: 'Можно ли white-label под бренд салона?',
+    a: 'Да: клиент салона получает слот и работу, материалы и QR можно оформить с вашим логотипом. На договоре услуга остаётся настройкой ПО мультимедиа.',
+  },
+  {
+    q: 'Что не входит в партнёрство?',
+    a: 'Общий ремонт авто, диагностика узлов, тюнинг и чип. Только русификация меню и согласованные опции (приложения, страховка после обновления ПО).',
+  },
+  {
+    q: 'Как быстро отвечаете на заявку салона?',
+    a: `В рабочее время 08:00–22:00 (Минск) — в тот же день. После 22:00 перезвоним с утра. Телефон: ${SITE_PHONE_DISPLAY}.`,
+  },
+] as const;
+
+const serviceLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Партнёрская русификация мультимедиа для автосалонов',
+  serviceType: 'Русификация ПО мультимедиа',
+  provider: { '@id': `${SITE_URL}/#organization` },
+  areaServed: [
+    { '@type': 'City', name: 'Минск' },
+    { '@type': 'Country', name: 'Беларусь' },
+  ],
+  url: `${SITE_URL}/partneram`,
+  description,
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  jsonLd={[organizationJsonLd(), serviceLd, faqPageJsonLd(faq)]}
+>
+  <SiteHeader />
+  <main id="main">
+    <section class="section partner-hero">
+      <div class="container partner-hero-inner">
+        <p class="brand display" data-partner-reveal>Мова</p>
+        <p class="kicker" data-partner-reveal>Автосалонам · Минск</p>
+        <h1 class="display" data-partner-reveal>Русское меню для машин, которые продаёте</h1>
+        <p class="lead muted" data-partner-reveal>
+          Клиент забирает китайца из салона и через неделю звонит: «почему всё по-китайски».
+          Мы закрываем этот хвост — фикс в BYN, слот под вашу выдачу, договор и закрывающие.
+        </p>
+        <p class="partner-aside muted" data-partner-reveal>
+          По документам — настройка ПО мультимедиа. Не ремонт автомобиля.
+        </p>
+        <div class="partner-hero-cta" data-partner-reveal>
+          <a class="btn" href="#partner-form">Обсудить условия</a>
+          <a class="btn btn-ghost" href="/partneram/oferta">Кратко об оферте</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-tight" aria-labelledby="why-partner">
+      <div class="container partner-block">
+        <p class="kicker">Зачем салону</p>
+        <h2 id="why-partner" class="display section-title">Меньше возвратов из-за языка экрана</h2>
+        <ul class="partner-points muted">
+          <li>Выдача с русским меню — меньше претензий в первые дни владения</li>
+          <li>Один подрядчик по ПО вместо «найдите мастера сами»</li>
+          <li>Понятная цена для менеджера продаж: фикс по модели, без торга на месте</li>
+          <li>Приоритетные слоты под клиентов салона — вечером и в выходные по Минску</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="package">
+      <div class="container partner-block">
+        <p class="kicker">Пакет</p>
+        <h2 id="package" class="display section-title">Один формат: referral + white-label install</h2>
+        <p class="muted partner-lead">
+          Салон направляет клиента (или машину) к Мове. Работа идёт как white-label install для проданных авто:
+          клиент видит спокойный процесс, салон держит контроль качества выдачи.
+        </p>
+        <div class="partner-grid">
+          <article>
+            <h3>Цена</h3>
+            <p class="muted">
+              Фикс за машину в BYN по модели из прайса. От N авто в месяц — индивидуальная сетка
+              (оптовый порог согласуем). Опционально: страховка после обновления ПО для клиента салона.
+            </p>
+          </article>
+          <article>
+            <h3>SLA</h3>
+            <p class="muted">
+              Ответ на заявку салона в тот же рабочий день (08:00–22:00, Минск).
+              Приоритетные слоты под выдачу и предпродажную подготовку.
+            </p>
+          </article>
+          <article>
+            <h3>Материалы</h3>
+            <p class="muted">
+              QR и листовка для зоны выдачи, опциональный промокод в духе MOVA10 под канал салона,
+              co-branding по согласованию.
+            </p>
+          </article>
+          <article>
+            <h3>Входит / не входит</h3>
+            <p class="muted">
+              Входит: базовая русификация меню и согласованные опции. Не входит: общий ремонт,
+              диагностика узлов, тюнинг, чип.
+            </p>
+          </article>
+        </div>
+        <p class="muted partner-note">
+          Цифры % и точный оптовый порог N — после созвона: зависят от марок в продаже и стабильности потока.
+          Публично держим рамку «индивидуальные условия от N авто/мес».
+        </p>
+      </div>
+    </section>
+
+    <section class="section-tight" aria-labelledby="how-flow">
+      <div class="container partner-block">
+        <p class="kicker">Как работает</p>
+        <h2 id="how-flow" class="display section-title">Короткий цикл для менеджера продаж</h2>
+        <ol class="partner-steps">
+          <li>
+            <span class="step-n" aria-hidden="true">01</span>
+            <div>
+              <h3>Договор и контакт</h3>
+              <p class="muted">Фиксируем условия, ответственного и канал заявок (телефон, Telegram, форма).</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-n" aria-hidden="true">02</span>
+            <div>
+              <h3>Клиент салона → слот</h3>
+              <p class="muted">Менеджер передаёт контакт или QR. Клиент получает приоритетный слот в Минске.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-n" aria-hidden="true">03</span>
+            <div>
+              <h3>Работа и отчёт</h3>
+              <p class="muted">Русификация меню. По запросу — отметка по VIN и заявке для вашего учёта.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-n" aria-hidden="true">04</span>
+            <div>
+              <h3>Закрывающие</h3>
+              <p class="muted">Документы под услугу настройки ПО. Детали — в <a href="/partneram/oferta">краткой оферте</a>.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="legal-teaser">
+      <div class="container partner-block partner-legal">
+        <p class="kicker">Документы</p>
+        <h2 id="legal-teaser" class="display section-title">Короткие рамки до договора</h2>
+        <ul class="muted">
+          <li>Предмет: настройка программного обеспечения мультимедийной системы</li>
+          <li>Гарантия на выполненную русификацию меню — 6 месяцев (как у розницы)</li>
+          <li>Оплата и отчётность — по согласованному графику в договоре</li>
+          <li>Полный текст — обсудим и подпишем отдельно</li>
+        </ul>
+        <p class="muted">
+          <a href="/partneram/oferta">Читать краткую оферту</a>
+          · не заменяет индивидуальный договор
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="partner-lead" aria-labelledby="partner-form-heading">
+      <div class="container partner-form-wrap">
+        <div class="partner-form-intro">
+          <p class="kicker">Контакт</p>
+          <h2 id="partner-form-heading" class="display section-title">Оставить заявку салона</h2>
+          <p class="muted">
+            Напишите название, контакт и телефон. В комментарии — объём в месяц и марки в продаже.
+            Ответим и предложим договор.
+          </p>
+        </div>
+        <PartnerLeadForm client:visible />
+      </div>
+    </section>
+
+    <section class="section-tight" aria-labelledby="partner-faq">
+      <div class="container partner-block">
+        <p class="kicker">FAQ</p>
+        <h2 id="partner-faq" class="display section-title">Частые вопросы салонов</h2>
+        <div class="faq-list">
+          {faq.map((item) => (
+            <details>
+              <summary>{item.q}</summary>
+              <p class="muted">{item.a}</p>
+            </details>
+          ))}
+        </div>
+        <p class="partner-back muted">
+          Частному клиенту —
+          <a href="/#booking">запись на слот</a>
+          ·
+          <a href="/cena">цены</a>
+        </p>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .partner-hero {
+    padding-top: clamp(1.5rem, 4vw, 2.75rem);
+    padding-bottom: clamp(2rem, 5vw, 3.25rem);
+  }
+  .partner-hero-inner {
+    max-width: 42rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+  .brand {
+    font-size: clamp(2.8rem, 8vw, 4.6rem);
+    margin: 0;
+    color: var(--accent);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+  h1.display {
+    font-size: clamp(1.85rem, 4.2vw, 2.75rem);
+    margin: 0;
+    max-width: 16ch;
+    letter-spacing: -0.03em;
+  }
+  .lead {
+    margin: 0.15rem 0 0;
+    font-size: 1.05rem;
+    max-width: 46ch;
+  }
+  .partner-aside {
+    margin: 0;
+    font-size: 0.9rem;
+    max-width: 42ch;
+  }
+  .partner-hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 0.55rem;
+  }
+  .partner-block {
+    max-width: 52rem;
+    display: grid;
+    gap: 0.85rem;
+  }
+  .partner-lead {
+    margin: 0;
+    max-width: 54ch;
+  }
+  .partner-points {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.45rem;
+    max-width: 52ch;
+  }
+  .partner-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.25rem;
+  }
+  .partner-grid article {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0;
+    background: none;
+    border: none;
+  }
+  .partner-grid h3 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+  .partner-grid p {
+    margin: 0;
+  }
+  .partner-note {
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+    max-width: 54ch;
+  }
+  .partner-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .partner-steps li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.85rem;
+    align-items: start;
+  }
+  .partner-steps h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1.05rem;
+  }
+  .partner-steps p {
+    margin: 0;
+  }
+  .step-n {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    padding-top: 0.15rem;
+  }
+  .partner-legal ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .partner-form-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(1.25rem, 3vw, 2.25rem);
+    align-items: start;
+  }
+  .partner-form-intro {
+    display: grid;
+    gap: 0.45rem;
+  }
+  .partner-form-intro .section-title {
+    margin: 0;
+  }
+  .partner-form-intro p:last-child {
+    margin: 0;
+    max-width: 36ch;
+  }
+  :global(.partner-form),
+  :global(.partner-form-done) {
+    padding: 1.25rem;
+    display: grid;
+    gap: 0.85rem;
+  }
+  :global(.partner-form-grid) {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  :global(.partner-field) {
+    display: grid;
+    gap: 0.3rem;
+  }
+  :global(.partner-field-wide) {
+    grid-column: 1 / -1;
+  }
+  :global(.partner-field textarea.admin-input) {
+    resize: vertical;
+    min-height: 5.5rem;
+  }
+  .faq-list {
+    display: grid;
+    gap: 0.55rem;
+  }
+  .faq-list details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.95rem;
+    background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
+  }
+  .faq-list summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .faq-list p {
+    margin: 0.55rem 0 0;
+  }
+  .partner-back {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+  }
+  @media (max-width: 860px) {
+    .partner-grid,
+    .partner-form-wrap {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const nodes = document.querySelectorAll('[data-partner-reveal]');
+  nodes.forEach((el, i) => {
+    const node = el;
+    node.style.opacity = '0';
+    node.style.transform = 'translateY(10px)';
+    node.style.transition = `opacity 520ms var(--ease-out) ${i * 70}ms, transform 520ms var(--ease-out) ${i * 70}ms`;
+    requestAnimationFrame(() => {
+      node.style.opacity = '1';
+      node.style.transform = 'translateY(0)';
+    });
+  });
+</script>

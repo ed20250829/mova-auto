@@ -96,7 +96,7 @@ export const leads = sqliteTable('leads', {
   phone: text('phone'),
   telegram: text('telegram'),
   modelLabel: text('model_label'),
-  dropStep: text('drop_step'), // calc | form | contact
+  dropStep: text('drop_step'), // calc | form | contact | callback | partner
   utmSource: text('utm_source'),
   utmMedium: text('utm_medium'),
   utmCampaign: text('utm_campaign'),

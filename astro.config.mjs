@@ -17,6 +17,8 @@ const seoPages = [
   `${site}/cena`,
   `${site}/kak-prohodit`,
   `${site}/kodirovanie-vs-rusifikaciya`,
+  `${site}/partneram`,
+  `${site}/partneram/oferta`,
 ];
 
 export default defineConfig({

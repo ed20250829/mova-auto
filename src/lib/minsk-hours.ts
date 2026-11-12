@@ -31,3 +31,10 @@ export function callbackSuccessCopy(afterHours: boolean) {
   }
   return 'Свяжемся в ближайшее время.';
 }
+
+export function partnerSuccessCopy(afterHours: boolean) {
+  if (afterHours) {
+    return 'Приняли заявку салона. Перезвоним в рабочее время — с 08:00 до 22:00 (Минск).';
+  }
+  return 'Приняли заявку салона. Свяжемся в ближайшее время и обсудим договор.';
+}
