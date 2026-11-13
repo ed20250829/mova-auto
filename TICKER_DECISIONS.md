@@ -1,6 +1,6 @@
 # Ticker decisions — Мова
 
-SHA at ship: `cf4bc985c78e07835d0f847e4fb6bbe93a5a675c` (`main`). Roles shipped: **1 (social proof) + 3 (brand manifesto)**.
+SHA at ship: `06719e1a072a3c8511de7274d70287d655d91ab9` (`main`; feature `cf4bc98`). Roles shipped: **1 (social proof) + 3 (brand manifesto)**.
 
 ## Funnel roles (chosen)
 
