@@ -1,6 +1,6 @@
 # Ticker decisions — Мова
 
-SHA at ship: see git `main` tip after merge. Roles shipped: **1 (social proof) + 3 (brand manifesto)**.
+SHA at ship: `cf4bc985c78e07835d0f847e4fb6bbe93a5a675c` (`main`). Roles shipped: **1 (social proof) + 3 (brand manifesto)**.
 
 ## Funnel roles (chosen)
 
