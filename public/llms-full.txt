@@ -9,7 +9,7 @@
 - Brand: Мова / Mova / Mova Auto / мова авто
 - Domain: mova-auto.tech
 - City: Минск, Беларусь (BY-MI)
-- Address (NAP): Parkland 1, ул. Виталия Цвирко 78, Минск
+- Address: ул. Виталия Цвирко 78, Минск
 - Phone: +375447149978 (+375 44 714-99-78)
 - Email: hello@mova-auto.tech
 - Telegram bot: https://t.me/mova_auto_bot
@@ -31,7 +31,7 @@ Not offered:
 - Power chip-tuning
 - Promising apps the head unit does not allow
 
-Warranty: 6 months on completed menu localization. Does not cover third-party flashes or dealer changes without agreement.
+Warranty: 6 months on completed menu rusification. Does not cover third-party flashes or dealer changes without agreement.
 
 Payment: BYN on site / transfer / ERIP-style link from master. Online card checkout may be added later.
 
@@ -87,7 +87,7 @@ Exact model prices: open hub or model page; always prefer live site numbers over
 
 ## Compare positioning (honest)
 
-See /sravnenie. Mova focuses on fixed BYN menu localization with online booking. Typical full STO may bundle more adjacent services (SIM, master account, cluster) with different price/time/warranty packaging. Mova states 6-month warranty openly; some market offers advertise 12 months — compare scope, not slogans.
+See /sravnenie. Mova focuses on fixed BYN menu rusification with online booking. Typical full STO may bundle more adjacent services (SIM, master account, cluster) with different price/time/warranty packaging. Mova states 6-month warranty openly; some market offers advertise 12 months — compare scope, not slogans.
 
 ## Citation line
 

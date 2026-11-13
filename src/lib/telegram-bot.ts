@@ -127,7 +127,7 @@ const FAQ: { re: RegExp; answer: string }[] = [
   {
     re: /яндекс|приложен|алиса|карты|музык/i,
     answer:
-      `Пакет Яндекс-приложений (Алиса, Карты, Музыка) — отдельно от меню: ${PRICING_OPTIONS.appPackMass} BYN mass, ${PRICING_OPTIONS.appPackComplex} BYN для Li / Zeekr / Avatr. Где система позволяет. Цена сразу в калькуляторе на сайте.`,
+      `Пакет Яндекс-приложений (Алиса, Карты, Музыка) — отдельно от меню: ${PRICING_OPTIONS.appPackMass} BYN на большинстве моделей, ${PRICING_OPTIONS.appPackComplex} BYN для Li / Zeekr / Avatr. Где система позволяет. Цена сразу в калькуляторе на сайте.`,
   },
   {
     re: /слетит|ota|обновлен|прошивк/i,
