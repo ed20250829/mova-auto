@@ -6,13 +6,20 @@ import { formatByn } from '../../lib/format';
 import DashboardCharts from '../../components/admin/DashboardCharts';
 import InboxPanel from '../../components/admin/InboxPanel';
 import SiteBannerToggle from '../../components/admin/SiteBannerToggle';
+import GarageToday from '../../components/admin/GarageToday';
 import { ensureDb } from '../../lib/models';
 import { getShowSampleBanner } from '../../lib/site-settings';
+import { getMinskParts } from '../../lib/minsk-hours';
+import { db } from '../../db';
+import { orders } from '../../db/schema';
+import { desc } from 'drizzle-orm';
 
 ensureDb();
 const s = getDashboardStats();
 const inbox = getTodayInbox();
 const showSampleBanner = getShowSampleBanner();
+const today = getMinskParts().date;
+const recentOrders = db.select().from(orders).orderBy(desc(orders.id)).all();
 const revDelta =
   s.prevMonth.revenue > 0
     ? Math.round(((s.month.revenue - s.prevMonth.revenue) / s.prevMonth.revenue) * 100)
@@ -22,6 +29,7 @@ const revDelta =
 ---
 
 <AdminLayout title="Дашборд">
+  <GarageToday client:load orders={recentOrders} today={today} />
   <SiteBannerToggle client:load initialOn={showSampleBanner} />
 
   <section class="admin-kpi">

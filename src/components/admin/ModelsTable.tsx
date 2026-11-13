@@ -90,7 +90,7 @@ export default function ModelsTable({ models: initial }: { models: Model[] }) {
               <th>Цена</th>
               <th>Минуты</th>
               <th>Сложность</th>
-              <th>Issues</th>
+              <th>Нюансы</th>
               <th></th>
             </tr>
           </thead>

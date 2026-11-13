@@ -1,12 +1,15 @@
 import type { APIRoute } from 'astro';
 import { eq } from 'drizzle-orm';
 import { db } from '../../../db';
-import { orders } from '../../../db/schema';
-import { ensureDb } from '../../../lib/models';
+import { leads, orders } from '../../../db/schema';
+import { ensureDb, getRawModel } from '../../../lib/models';
 import { ensureOtaSubscriptionForOrder } from '../../../lib/ota';
+import { isValidPhone } from '../../../lib/phone';
+import { getFreeSlots, isActiveSlot, normalizeSlotTime } from '../../../lib/slots';
 import {
   inlineKeyboard,
   notifyClientStatus,
+  notifyOwnerBooking,
   notifyPartnerReady,
   resolveClientChatId,
   siteAddress,
@@ -14,6 +17,106 @@ import {
   urlBtn,
 } from '../../../lib/telegram';
 import { csvEscape } from '../../../lib/format';
+
+export const POST: APIRoute = async ({ request }) => {
+  ensureDb();
+  const body = await request.json().catch(() => ({}));
+  const name = String(body.clientName || body.name || '').trim();
+  const phone = String(body.clientPhone || body.phone || '').trim();
+  const telegram = String(body.clientTelegram || body.telegram || '').trim() || null;
+  const modelId = body.modelId != null ? Number(body.modelId) : null;
+  const modelLabel = String(body.modelLabel || '').trim();
+  const date = String(body.scheduledDate || body.date || '').trim();
+  const slotRaw = String(body.scheduledSlot || body.slot || '').trim();
+  const slot = normalizeSlotTime(slotRaw);
+  const price = body.price != null ? Number(body.price) : null;
+  const comment = String(body.comment || '').trim() || null;
+  const partnerId = body.partnerId ? Number(body.partnerId) : null;
+  const leadId = body.leadId != null ? Number(body.leadId) : null;
+  const status = String(body.status || 'confirmed');
+
+  if (name.length < 2 || !isValidPhone(phone)) {
+    return json({ error: 'Имя и телефон обязательны' }, 400);
+  }
+  if (!date || !slot) {
+    return json({ error: 'Дата и слот обязательны' }, 400);
+  }
+  if (!isActiveSlot(slot)) {
+    return json({ error: 'Слот не активен' }, 400);
+  }
+  if (!getFreeSlots(date).includes(slot)) {
+    return json({ error: 'Слот уже занят' }, 400);
+  }
+
+  let resolvedLabel = modelLabel;
+  let cost = body.cost != null ? Number(body.cost) : 80;
+  let resolvedPrice = price;
+  let resolvedModelId: number | null = modelId;
+
+  if (modelId) {
+    const model = getRawModel(modelId);
+    if (!model) return json({ error: 'Модель не найдена' }, 404);
+    resolvedLabel = `${model.brand} ${model.model}`;
+    cost = body.cost != null ? Number(body.cost) : model.costBase;
+    if (resolvedPrice == null) resolvedPrice = model.priceBase;
+    resolvedModelId = model.id;
+  }
+
+  if (!resolvedLabel) return json({ error: 'Укажите модель' }, 400);
+  if (resolvedPrice == null || Number.isNaN(resolvedPrice)) {
+    return json({ error: 'Укажите цену' }, 400);
+  }
+
+  const chatId = resolveClientChatId({ telegram, phone });
+  const result = db
+    .insert(orders)
+    .values({
+      clientName: name,
+      clientPhone: phone,
+      clientTelegram: telegram,
+      clientTelegramChatId: chatId,
+      modelId: resolvedModelId,
+      modelLabel: resolvedLabel,
+      price: resolvedPrice,
+      cost,
+      status,
+      source: String(body.source || 'admin'),
+      partnerId,
+      scheduledDate: date,
+      scheduledSlot: slot,
+      comment,
+      options: '[]',
+    })
+    .run();
+
+  const id = Number(result.lastInsertRowid);
+  const row = db.select().from(orders).where(eq(orders.id, id)).get();
+  if (row) ensureOtaSubscriptionForOrder(row);
+
+  if (leadId) {
+    db.update(leads)
+      .set({ status: 'booked', contacted: true })
+      .where(eq(leads.id, leadId))
+      .run();
+  }
+
+  if (row && body.notifyOwner !== false) {
+    await notifyOwnerBooking({
+      name: row.clientName,
+      phone: row.clientPhone,
+      telegram: row.clientTelegram || undefined,
+      modelLabel: row.modelLabel,
+      price: row.price,
+      date: row.scheduledDate || date,
+      slot: row.scheduledSlot || slot,
+      comment: row.comment || undefined,
+      source: 'admin',
+      orderId: row.id,
+    }).catch(() => undefined);
+  }
+
+  return json({ ok: true, order: row }, 201);
+};
 
 export const PATCH: APIRoute = async ({ request }) => {
   ensureDb();
@@ -29,6 +132,28 @@ export const PATCH: APIRoute = async ({ request }) => {
   if (body.partnerId !== undefined) patch.partnerId = body.partnerId ? Number(body.partnerId) : null;
   if (body.price !== undefined) patch.price = Number(body.price);
   if (body.cost !== undefined) patch.cost = Number(body.cost);
+  if (body.comment !== undefined) patch.comment = body.comment ? String(body.comment) : null;
+
+  const nextDate =
+    body.scheduledDate !== undefined ? String(body.scheduledDate || '') || null : before.scheduledDate;
+  const nextSlotRaw =
+    body.scheduledSlot !== undefined ? String(body.scheduledSlot || '') : before.scheduledSlot;
+  const nextSlot = nextSlotRaw ? normalizeSlotTime(nextSlotRaw) : null;
+
+  if (body.scheduledDate !== undefined || body.scheduledSlot !== undefined) {
+    if (!nextDate || !nextSlot) {
+      return json({ error: 'Дата и слот обязательны вместе' }, 400);
+    }
+    if (!isActiveSlot(nextSlot)) {
+      return json({ error: 'Слот не активен' }, 400);
+    }
+    const free = getFreeSlots(nextDate, id);
+    if (!free.includes(nextSlot)) {
+      return json({ error: 'Слот уже занят' }, 400);
+    }
+    patch.scheduledDate = nextDate;
+    patch.scheduledSlot = nextSlot;
+  }
 
   if (body.markPaid) {
     patch.paymentStatus = 'paid';

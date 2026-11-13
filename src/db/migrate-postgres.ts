@@ -183,6 +183,16 @@ CREATE TABLE IF NOT EXISTS booking_slots (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS slot_closures (
+  id SERIAL PRIMARY KEY,
+  date TEXT NOT NULL,
+  slot_time TEXT,
+  note TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS slot_closures_date_idx ON slot_closures(date);
+
 CREATE TABLE IF NOT EXISTS portfolio_cases (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,

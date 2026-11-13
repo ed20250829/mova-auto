@@ -194,6 +194,14 @@ export function initSchema() {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS slot_closures (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL,
+      slot_time TEXT,
+      note TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS portfolio_cases (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
@@ -222,6 +230,9 @@ export function initSchema() {
 
     CREATE INDEX IF NOT EXISTS telegram_users_username_idx
       ON telegram_users(username);
+
+    CREATE INDEX IF NOT EXISTS slot_closures_date_idx
+      ON slot_closures(date);
   `);
 
   seedBookingSlots();

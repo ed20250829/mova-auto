@@ -181,6 +181,19 @@ export const bookingSlots = sqliteTable('booking_slots', {
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 });
 
+/**
+ * Date-level availability overrides. Templates in booking_slots stay global;
+ * a row here wins for that calendar day (site + bot).
+ * slotTime null = whole day closed; otherwise that time only.
+ */
+export const slotClosures = sqliteTable('slot_closures', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  date: text('date').notNull(),
+  slotTime: text('slot_time'),
+  note: text('note'),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+});
+
 /** Published portfolio cases shown on the home page works section. */
 export const portfolioCases = sqliteTable('portfolio_cases', {
   id: integer('id').primaryKey({ autoIncrement: true }),
@@ -211,5 +224,6 @@ export type Event = typeof events.$inferSelect;
 export type TelegramUser = typeof telegramUsers.$inferSelect;
 export type TelegramBridge = typeof telegramBridges.$inferSelect;
 export type BookingSlot = typeof bookingSlots.$inferSelect;
+export type SlotClosure = typeof slotClosures.$inferSelect;
 export type PortfolioCase = typeof portfolioCases.$inferSelect;
 export type SiteSetting = typeof siteSettings.$inferSelect;

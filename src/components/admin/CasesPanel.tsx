@@ -17,6 +17,10 @@ export default function CasesPanel({ cases: initial }: { cases: CaseRow[] }) {
   const [published, setPublished] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editPhoto, setEditPhoto] = useState<File | null>(null);
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -63,23 +67,52 @@ export default function CasesPanel({ cases: initial }: { cases: CaseRow[] }) {
     setRows((prev) => prev.filter((r) => r.id !== row.id));
   }
 
+  function startEdit(row: CaseRow) {
+    setEditId(row.id);
+    setEditTitle(row.title);
+    setEditDescription(row.description || '');
+    setEditPhoto(null);
+    setError('');
+  }
+
+  async function saveEdit() {
+    if (!editId) return;
+    setBusy(true);
+    setError('');
+    const form = new FormData();
+    form.set('id', String(editId));
+    form.set('title', editTitle);
+    form.set('description', editDescription);
+    if (editPhoto) form.set('photo', editPhoto);
+    const res = await fetch('/api/admin/cases', { method: 'PATCH', body: form });
+    setBusy(false);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error || 'Не удалось сохранить');
+      return;
+    }
+    const data = await res.json();
+    setRows((prev) => prev.map((r) => (r.id === editId ? data.case : r)));
+    setEditId(null);
+    setEditPhoto(null);
+  }
+
   return (
-    <div style={{ display: 'grid', gap: '1.25rem' }}>
+    <div style={{ display: 'grid', gap: '1rem' }}>
       <form
         onSubmit={create}
         style={{
           display: 'grid',
-          gap: '0.65rem',
+          gap: '0.55rem',
           background: '#14171a',
-          padding: '0.9rem',
+          padding: '0.85rem',
           borderRadius: 12,
           border: '1px solid #22262a',
           maxWidth: 640,
         }}
       >
-        <p style={{ margin: 0, color: '#8a8580', fontSize: '0.9rem' }}>
-          На сайте в блоке «Работы» показываются только опубликованные кейсы с фото. Без них секция
-          скрыта.
+        <p style={{ margin: 0, color: '#8a8580', fontSize: '0.85rem' }}>
+          На сайте в блоке «Работы» — только опубликованные кейсы с фото.
         </p>
         <input
           className="admin-input"
@@ -105,9 +138,9 @@ export default function CasesPanel({ cases: initial }: { cases: CaseRow[] }) {
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
           Опубликовать сразу
         </label>
-        {error && <p style={{ margin: 0, color: '#ff5c5c' }}>{error}</p>}
+        {error && !editId && <p style={{ margin: 0, color: '#ff5c5c' }}>{error}</p>}
         <button className="admin-btn" type="submit" disabled={busy}>
-          {busy ? 'Сохраняю…' : 'Добавить кейс'}
+          {busy && !editId ? 'Сохраняю…' : 'Добавить кейс'}
         </button>
       </form>
 
@@ -130,30 +163,96 @@ export default function CasesPanel({ cases: initial }: { cases: CaseRow[] }) {
                 </td>
               </tr>
             )}
-            {rows.map((c) => (
-              <tr key={c.id}>
-                <td>
-                  <img
-                    src={c.imagePath}
-                    alt=""
-                    width={72}
-                    height={54}
-                    style={{ objectFit: 'cover', borderRadius: 6, background: '#0e0f10' }}
-                  />
-                </td>
-                <td>{c.title}</td>
-                <td style={{ color: '#8a8580' }}>{c.description || '—'}</td>
-                <td>{c.published ? 'На сайте' : 'Черновик'}</td>
-                <td style={{ whiteSpace: 'nowrap' }}>
-                  <button className="admin-btn ghost" type="button" onClick={() => togglePublish(c)}>
-                    {c.published ? 'Снять' : 'Опубликовать'}
-                  </button>{' '}
-                  <button className="admin-btn ghost" type="button" onClick={() => remove(c)}>
-                    Удалить
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {rows.map((c) => {
+              const editing = editId === c.id;
+              return (
+                <tr key={c.id}>
+                  <td>
+                    <img
+                      src={c.imagePath}
+                      alt=""
+                      width={72}
+                      height={54}
+                      style={{ objectFit: 'cover', borderRadius: 6, background: '#0e0f10' }}
+                    />
+                    {editing && (
+                      <input
+                        className="admin-input"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        style={{ marginTop: '0.35rem' }}
+                        onChange={(e) => setEditPhoto(e.target.files?.[0] || null)}
+                      />
+                    )}
+                  </td>
+                  <td>
+                    {editing ? (
+                      <input
+                        className="admin-input"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                      />
+                    ) : (
+                      c.title
+                    )}
+                  </td>
+                  <td style={{ color: editing ? undefined : '#8a8580' }}>
+                    {editing ? (
+                      <input
+                        className="admin-input"
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                      />
+                    ) : (
+                      c.description || '—'
+                    )}
+                  </td>
+                  <td>{c.published ? 'На сайте' : 'Черновик'}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    {editing ? (
+                      <>
+                        <button
+                          className="admin-btn"
+                          type="button"
+                          disabled={busy}
+                          onClick={() => void saveEdit()}
+                        >
+                          OK
+                        </button>{' '}
+                        <button
+                          className="admin-btn ghost"
+                          type="button"
+                          onClick={() => setEditId(null)}
+                        >
+                          ×
+                        </button>
+                        {error && editId && (
+                          <div style={{ color: '#ff5c5c', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                            {error}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <button className="admin-btn ghost" type="button" onClick={() => startEdit(c)}>
+                          Править
+                        </button>{' '}
+                        <button
+                          className="admin-btn ghost"
+                          type="button"
+                          onClick={() => void togglePublish(c)}
+                        >
+                          {c.published ? 'Снять' : 'Опубликовать'}
+                        </button>{' '}
+                        <button className="admin-btn ghost" type="button" onClick={() => void remove(c)}>
+                          Удалить
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -2,14 +2,27 @@
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import OrdersTable from '../../components/admin/OrdersTable';
 import { db } from '../../db';
-import { orders } from '../../db/schema';
+import { models, orders, partners } from '../../db/schema';
 import { ensureDb } from '../../lib/models';
 import { desc } from 'drizzle-orm';
 
 ensureDb();
 const rows = db.select().from(orders).orderBy(desc(orders.id)).all();
+const modelRows = db.select().from(models).all();
+const partnerRows = db.select().from(partners).all();
 ---
 
 <AdminLayout title="Заказы">
-  <OrdersTable client:load orders={rows} />
+  <OrdersTable
+    client:load
+    orders={rows}
+    models={modelRows.map((m) => ({
+      id: m.id,
+      brand: m.brand,
+      model: m.model,
+      priceBase: m.priceBase,
+      active: m.active,
+    }))}
+    partners={partnerRows.map((p) => ({ id: p.id, name: p.name, active: p.active }))}
+  />
 </AdminLayout>

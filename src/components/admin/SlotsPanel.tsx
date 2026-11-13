@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import type { BookingSlot } from '../../db/schema';
+import AvailabilityCalendar from './AvailabilityCalendar';
 
 export default function SlotsPanel({ slots: initial }: { slots: BookingSlot[] }) {
   const [slots, setSlots] = useState(initial);
   const [time, setTime] = useState('11:00');
   const [error, setError] = useState('');
   const [busyId, setBusyId] = useState<number | null>(null);
+  const templateSlots = slots.filter((s) => s.active).map((s) => s.time);
 
   async function refresh() {
     const data = await fetch('/api/admin/slots').then((r) => r.json());
@@ -75,8 +77,11 @@ export default function SlotsPanel({ slots: initial }: { slots: BookingSlot[] })
 
   return (
     <div style={{ display: 'grid', gap: '1rem' }}>
+      <AvailabilityCalendar templateSlots={templateSlots} />
+
       <p style={{ color: '#8a8580', margin: 0 }}>
-        Эти слоты показываются в форме записи на сайте и в Telegram-боте. Выключенный слот клиентам не виден.
+        Шаблон времён для сайта и Telegram-бота. Выключенный слот скрыт везде. Дата в календаре выше
+        перекрывает шаблон.
       </p>
 
       <form
@@ -86,7 +91,7 @@ export default function SlotsPanel({ slots: initial }: { slots: BookingSlot[] })
           gap: '0.5rem',
           flexWrap: 'wrap',
           background: '#14171a',
-          padding: '0.9rem',
+          padding: '0.85rem',
           borderRadius: 12,
           border: '1px solid #22262a',
           alignItems: 'center',
@@ -117,6 +122,13 @@ export default function SlotsPanel({ slots: initial }: { slots: BookingSlot[] })
             </tr>
           </thead>
           <tbody>
+            {slots.length === 0 && (
+              <tr>
+                <td colSpan={4} style={{ color: '#8a8580' }}>
+                  Нет шаблонных слотов — добавьте время выше.
+                </td>
+              </tr>
+            )}
             {slots.map((s, i) => (
               <tr key={s.id}>
                 <td style={{ fontWeight: 700, fontSize: '1.05rem' }}>{s.time}</td>
