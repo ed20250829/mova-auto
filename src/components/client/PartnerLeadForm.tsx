@@ -104,20 +104,20 @@ export default function PartnerLeadForm() {
     >
       <div>
         <p className="kicker" style={{ margin: 0 }}>
-          Заявка салона
+          Заявка партнёра
         </p>
         <h2 id="partner-form-title" className="display" style={{ margin: '0.35rem 0 0', fontSize: '1.45rem' }}>
           Обсудить условия
         </h2>
         <p className="muted" style={{ margin: '0.4rem 0 0' }}>
-          Ответим в рабочее время 08:00–22:00 (Минск)
-          {afterHours ? '. Сейчас после часов — перезвоним с утра' : ''}
+          Ответим в рабочие часы 08:00-22:00 (Минск)
+          {afterHours ? '. Сейчас после часов - перезвоним с утра' : ''}
         </p>
       </div>
 
       <div className="partner-form-grid">
         <label className="partner-field">
-          <span>Салон или компания</span>
+          <span>Салон, компания или импорт</span>
           <input
             className="admin-input"
             name="company"
@@ -169,7 +169,7 @@ export default function PartnerLeadForm() {
             className="admin-input"
             name="comment"
             rows={3}
-            placeholder="Объём в месяц, марки в продаже, нужен ли white-label…"
+            placeholder="Сколько авто в месяц, какие марки, нужен ли отчёт…"
             value={form.comment}
             onChange={(e) => setForm({ ...form, comment: e.target.value })}
           />

@@ -2,30 +2,453 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
+import PartnerLeadForm from '../../components/client/PartnerLeadForm';
+import { faqPageJsonLd, organizationJsonLd, SITE_PHONE_DISPLAY, SITE_URL } from '../../lib/seo';
+
+const title = 'Импортёрам Минска - опт на русификацию | Мова';
+const description =
+  'Для импортёров и перекупов в Минске: сетка от 5 авто в месяц, цена по модели в BYN, приоритетные слоты, отчёт за месяц. Настройка ПО мультимедиа, не ремонт.';
+
+const faq = [
+  {
+    q: 'С какого объёма считается опт?',
+    a: 'От 5 машин в месяц. На 8-12 авто в месяц обычно выходим на стабильную сетку под ваши марки. Точные цифры - на созвоне.',
+  },
+  {
+    q: 'Чем это отличается от записи частника?',
+    a: 'Отдельный канал заявок, приоритет слотов под ваш поток, одна цена по модели без торга каждый раз, отчёт за месяц для учёта.',
+  },
+  {
+    q: 'Что с документами?',
+    a: 'Предмет - настройка ПО мультимедиа. Закрывающие под эту услугу. Ремонт авто, диагностика узлов, тюнинг и чип - не наша зона.',
+  },
+  {
+    q: 'Как быстро отвечаете?',
+    a: `В рабочие часы 08:00-22:00 (Минск) - в тот же день. После 22:00 перезвоним с утра. Телефон: ${SITE_PHONE_DISPLAY}.`,
+  },
+] as const;
+
+const serviceLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Оптовая русификация мультимедиа для импортёров',
+  serviceType: 'Русификация ПО мультимедиа',
+  provider: { '@id': `${SITE_URL}/#organization` },
+  areaServed: [
+    { '@type': 'City', name: 'Минск' },
+    { '@type': 'Country', name: 'Беларусь' },
+  ],
+  url: `${SITE_URL}/segments/importers`,
+  description,
+};
 ---
 
 <BaseLayout
-  title="Для импортёров Минска - Мова"
-  description="Оптовые цены на русификацию китайских авто в Минске. Приоритетные слоты, уведомления о готовности, отчёт за месяц."
+  title={title}
+  description={description}
+  jsonLd={[organizationJsonLd(), serviceLd, faqPageJsonLd(faq)]}
 >
   <SiteHeader />
-  <main id="main" class="section">
-    <div class="container" style="max-width:820px; display:grid; gap:1rem;">
-      <p class="kicker">Импортёры и перекупы · Минск</p>
-      <h1 class="display" style="font-size:clamp(2rem,5vw,3rem); margin:0;">Поток машин без возвратов из-за китайского меню</h1>
-      <p class="muted">
-        Фикс за модель в BYN. Приоритет вечером и в выходные по Минску.
-        Статус готовности в Telegram. Отчёт по месяцу для вашего учёта.
-      </p>
-      <ul class="muted">
-        <li>Оптовая сетка от 5 машин в месяц</li>
-        <li>Один контакт - один менеджер слотов</li>
-        <li>Партнёрский бот: машина готова</li>
-        <li>OTA-страховка отдельно, если клиенту важна защита после обновлений</li>
-      </ul>
-      <a class="btn" href="/#booking">Оставить заявку как партнёр</a>
-      <p class="muted" style="font-size:0.9rem;">В комментарии напишите импортёр и объём в месяц. Город - если не Минск.</p>
-    </div>
+  <main id="main">
+    <section class="section partner-hero">
+      <div class="container partner-hero-inner">
+        <p class="brand display" data-partner-reveal>
+          <svg class="brand-mark" viewBox="0 0 64 64" width="40" height="40" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="14" fill="#0E0F10"></rect>
+            <path
+              fill="#FF5722"
+              d="M12 48V16h7.2l8.4 20.4L36 16h7.2v32h-6.4V27.6L29.6 48h-5.2L17.2 27.6V48H12z"
+            ></path>
+            <rect x="46" y="25" width="9" height="4" rx="1.2" fill="#F4F1EC"></rect>
+            <rect x="46" y="35" width="9" height="4" rx="1.2" fill="#F4F1EC"></rect>
+          </svg>
+          <span>Мова</span>
+        </p>
+        <p class="kicker" data-partner-reveal>Импортёры и перекупы · Минск</p>
+        <h1 class="display" data-partner-reveal>
+          Поток машин без возвратов из-за меню
+        </h1>
+        <p class="lead muted" data-partner-reveal>
+          Продали 8-12 авто в месяц - и половина покупателей пишет: экран непонятный.
+          Берём этот участок: цена по модели в BYN, слот под ваш оборот, статус готовности, отчёт за месяц.
+        </p>
+        <p class="partner-aside muted" data-partner-reveal>
+          По документам - настройка ПО мультимедиа. Не ремонт автомобиля.
+        </p>
+        <div class="partner-hero-cta" data-partner-reveal>
+          <a class="btn" href="#partner-form">Обсудить опт</a>
+          <a class="btn btn-ghost" href="/partneram">Автосалонам</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-tight" aria-labelledby="why-import">
+      <div class="container partner-block">
+        <p class="kicker">Зачем импортёру</p>
+        <h2 id="why-import" class="display section-title">Меньше возвратов - больше спокойных сделок</h2>
+        <ul class="partner-points muted">
+          <li>Одна цена по модели: менеджер не торгуется на каждой машине</li>
+          <li>Приоритет вечером и в выходные - под ваш темп выдачи в Минске</li>
+          <li>Статус готовности в Telegram - не ловите мастера в чатах</li>
+          <li>Отчёт за месяц: сколько машин, какие модели - для вашего учёта</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="opt-grid">
+      <div class="container partner-block">
+        <p class="kicker">Условия</p>
+        <h2 id="opt-grid" class="display section-title">Сетка от 5 авто в месяц</h2>
+        <p class="muted partner-lead">
+          От 5 машин в месяц уже считаем опт. На стабильные 8-12 авто в месяц обычно выходим на фиксированную
+          сетку под ваши марки. Процент и порог - на созвоне, без выдуманных цифр на сайте.
+        </p>
+        <div class="partner-grid">
+          <article>
+            <h3>Цена</h3>
+            <p class="muted">
+              За машину - по модели из прайса, в BYN. Опт снижает розницу на объёме.
+              Страховка после обновления ПО - отдельно, если покупателю это важно.
+            </p>
+          </article>
+          <article>
+            <h3>Слот</h3>
+            <p class="muted">
+              Один контакт - один канал слотов. Приоритет под ваш поток: вечер и выходные по Минску.
+            </p>
+          </article>
+          <article>
+            <h3>Статус</h3>
+            <p class="muted">
+              Сообщение о готовности в Telegram. Не нужно звонить «ну как там машина».
+            </p>
+          </article>
+          <article>
+            <h3>Что не делаем</h3>
+            <p class="muted">
+              Ремонт, диагностика узлов, тюнинг, чип. Только меню и согласованные опции.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-tight" aria-labelledby="how-import">
+      <div class="container partner-block">
+        <p class="kicker">Как работает</p>
+        <h2 id="how-import" class="display section-title">Короткий цикл под ваш оборот</h2>
+        <ol class="partner-steps">
+          <li>
+            <span class="step-n" aria-hidden="true">01</span>
+            <div>
+              <h3>Созвон и объём</h3>
+              <p class="muted">Марки, сколько авто в месяц, нужен ли отчёт. Согласуем сетку и канал заявок.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-n" aria-hidden="true">02</span>
+            <div>
+              <h3>Машина - в слот</h3>
+              <p class="muted">Передаёте контакт или VIN. Ставим приоритетный слот под вашу выдачу.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-n" aria-hidden="true">03</span>
+            <div>
+              <h3>Готово</h3>
+              <p class="muted">Русское меню. Статус в Telegram. По запросу - отметка для учёта.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-n" aria-hidden="true">04</span>
+            <div>
+              <h3>Месяц закрыт</h3>
+              <p class="muted">Сводка по машинам. Закрывающие под настройку ПО - по договорённости.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" id="partner-lead" aria-labelledby="partner-form-heading">
+      <div class="container partner-form-wrap">
+        <div class="partner-form-intro">
+          <p class="kicker">Контакт</p>
+          <h2 id="partner-form-heading" class="display section-title">Заявка импортёра</h2>
+          <p class="muted">
+            Компания, контакт, телефон. В комментарии - объём в месяц и марки.
+            Это партнёрская заявка, не розничная запись.
+          </p>
+        </div>
+        <PartnerLeadForm client:visible />
+      </div>
+    </section>
+
+    <section class="section-tight" aria-labelledby="import-faq">
+      <div class="container partner-block">
+        <p class="kicker">FAQ</p>
+        <h2 id="import-faq" class="display section-title">Частые вопросы импортёров</h2>
+        <div class="faq-list">
+          {faq.map((item) => (
+            <details>
+              <summary>{item.q}</summary>
+              <p class="muted">{item.a}</p>
+            </details>
+          ))}
+        </div>
+        <p class="partner-back muted">
+          Автосалону -
+          <a href="/partneram">условия и договор</a>
+          · частному клиенту -
+          <a href="/#booking">запись на слот</a>
+        </p>
+      </div>
+    </section>
   </main>
   <SiteFooter />
 </BaseLayout>
+
+<style>
+  .partner-hero {
+    padding-top: clamp(1.5rem, 4vw, 2.75rem);
+    padding-bottom: clamp(2rem, 5vw, 3.25rem);
+  }
+  .partner-hero-inner {
+    max-width: 42rem;
+    display: grid;
+    gap: 0.8rem;
+    min-width: 0;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: clamp(2.35rem, 7vw, 4.2rem);
+    margin: 0;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.05em;
+    max-width: 100%;
+  }
+  .brand-mark {
+    display: block;
+    width: clamp(2rem, 5vw, 2.6rem);
+    height: clamp(2rem, 5vw, 2.6rem);
+    border-radius: 0.55rem;
+    flex-shrink: 0;
+  }
+  h1.display {
+    font-size: clamp(1.85rem, 4.2vw, 2.75rem);
+    margin: 0;
+    max-width: 18ch;
+    letter-spacing: -0.03em;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+  .lead {
+    margin: 0.2rem 0 0;
+    font-size: 1.08rem;
+    line-height: 1.55;
+    max-width: 52ch;
+    text-wrap: pretty;
+  }
+  .partner-aside {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    max-width: 44ch;
+    text-wrap: pretty;
+  }
+  .partner-hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 0.35rem;
+    max-width: 100%;
+  }
+  .partner-hero-cta .btn {
+    max-width: 100%;
+  }
+  .partner-block {
+    display: grid;
+    gap: 0.9rem;
+  }
+  .partner-block .section-title {
+    margin: 0.35rem 0 0;
+    max-width: 22ch;
+    font-size: clamp(1.65rem, 3.4vw, 2.35rem);
+    text-wrap: balance;
+  }
+  .partner-lead {
+    margin: 0;
+    max-width: 54ch;
+    text-wrap: pretty;
+  }
+  .partner-points {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.45rem;
+    max-width: 54ch;
+    text-wrap: pretty;
+  }
+  .partner-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 3vw, 2.25rem);
+    row-gap: 1.15rem;
+    margin-top: 0.35rem;
+  }
+  .partner-grid article {
+    display: grid;
+    gap: 0.4rem;
+    align-content: start;
+    min-width: 0;
+    padding: 0.85rem 0 0;
+    border-top: 1px solid var(--border-strong);
+    background: none;
+    border-inline: none;
+    border-bottom: none;
+  }
+  .partner-grid h3 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+  .partner-grid p {
+    margin: 0;
+    max-width: 46ch;
+    text-wrap: pretty;
+  }
+  .partner-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .partner-steps li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.85rem;
+    align-items: start;
+  }
+  .partner-steps h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1.05rem;
+  }
+  .partner-steps p {
+    margin: 0;
+  }
+  .step-n {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    padding-top: 0.15rem;
+  }
+  .partner-form-wrap {
+    display: grid;
+    grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 3.5vw, 2.5rem);
+    row-gap: 1.25rem;
+    align-items: start;
+  }
+  .partner-form-intro {
+    display: grid;
+    gap: 0.45rem;
+    position: sticky;
+    top: calc(var(--header-offset) + 0.5rem);
+  }
+  .partner-form-intro .section-title {
+    margin: 0;
+    max-width: 14ch;
+  }
+  .partner-form-intro p:last-child {
+    margin: 0;
+    max-width: 38ch;
+    text-wrap: pretty;
+  }
+  :global(.partner-form),
+  :global(.partner-form-done) {
+    padding: 1.25rem;
+    display: grid;
+    gap: 0.85rem;
+  }
+  :global(.partner-form-grid) {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  :global(.partner-field) {
+    display: grid;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+  :global(.partner-field-wide) {
+    grid-column: 1 / -1;
+  }
+  :global(.partner-field textarea.admin-input) {
+    resize: vertical;
+    min-height: 5.5rem;
+  }
+  .faq-list {
+    display: grid;
+    gap: 0.55rem;
+  }
+  .faq-list details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.95rem;
+    background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
+  }
+  .faq-list summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .faq-list p {
+    margin: 0.55rem 0 0;
+  }
+  .partner-back {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+  }
+  @media (max-width: 860px) {
+    .partner-grid,
+    .partner-form-wrap,
+    :global(.partner-form-grid) {
+      grid-template-columns: 1fr;
+    }
+    .partner-form-intro {
+      position: static;
+    }
+  }
+  @media (max-width: 480px) {
+    .partner-hero-cta {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .partner-hero-cta .btn {
+      width: 100%;
+      justify-content: center;
+    }
+    h1.display {
+      max-width: none;
+      font-size: clamp(1.65rem, 7.2vw, 2rem);
+    }
+  }
+</style>
+
+<script>
+  const nodes = document.querySelectorAll('[data-partner-reveal]');
+  nodes.forEach((el, i) => {
+    const node = el;
+    node.style.opacity = '0';
+    node.style.transform = 'translateY(10px)';
+    node.style.transition = `opacity 520ms var(--ease-out) ${i * 70}ms, transform 520ms var(--ease-out) ${i * 70}ms`;
+    requestAnimationFrame(() => {
+      node.style.opacity = '1';
+      node.style.transform = 'translateY(0)';
+    });
+  });
+</script>
