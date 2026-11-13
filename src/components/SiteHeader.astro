@@ -1,8 +1,20 @@
 ---
+import Ticker from './Ticker.astro';
+import { getManifestoItems } from '../lib/ticker';
+
 const bot = import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_bot';
+const manifesto = getManifestoItems();
 ---
 
 <header class="site-header">
+  <Ticker
+    items={manifesto}
+    variant="nav"
+    speed={52}
+    pauseOnHover={true}
+    direction="left"
+    ariaLabel="Манифест Мова"
+  />
   <div class="container header-inner">
     <a class="logo" href="/" aria-label="Мова - на главную">
       <svg class="logo-mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true" focusable="false">
@@ -85,6 +97,11 @@ const bot = import.meta.env.PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/mova_auto_b
     background: color-mix(in srgb, #0e0f10 88%, transparent);
     border-bottom: 1px solid var(--border);
     padding-top: env(safe-area-inset-top, 0px);
+  }
+  .site-header :global(.mova-ticker--nav) {
+    position: relative;
+    top: auto;
+    z-index: 1;
   }
   .header-inner {
     display: flex;

@@ -2,6 +2,7 @@
 
 :root {
   --bg: #0e0f10;
+  --ink: #0e0f10;
   --bg-elevated: #16181a;
   --surface: #1c1f22;
   --surface-2: #24282c;
@@ -25,7 +26,9 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --font-display: "General Sans", "Satoshi", "Segoe UI", sans-serif;
   --font-body: "Satoshi", "Segoe UI", sans-serif;
-  --header-offset: 80px;
+  --font-mono: "JetBrains Mono", "SF Mono", "ui-monospace", "Menlo", monospace;
+  --ticker-h: 36px;
+  --header-offset: calc(80px + var(--ticker-h));
   --grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
 }
 
@@ -434,9 +437,15 @@ select.calc-select {
   scroll-margin-top: var(--header-offset);
 }
 
+@media (max-width: 767px) {
+  :root {
+    --ticker-h: 32px;
+  }
+}
+
 @media (max-width: 900px) {
   :root {
-    --header-offset: 72px;
+    --header-offset: calc(72px + var(--ticker-h));
   }
 }
 

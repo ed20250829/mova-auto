@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import Ticker from '../components/Ticker.astro';
 import Calculator from '../components/client/Calculator';
 import BookingForm from '../components/client/BookingForm';
 import Faq from '../components/client/Faq';
@@ -16,6 +17,7 @@ import {
   organizationJsonLd,
 } from '../lib/seo';
 import { getPublishedCases } from '../lib/cases';
+import { getSocialItems } from '../lib/ticker';
 
 const models = getAllModels();
 const calcModels = models.map((m) => ({
@@ -33,6 +35,7 @@ const calcModels = models.map((m) => ({
 
 const brands = [...new Map(models.map((m) => [m.brand, m.brandSlug])).entries()];
 const publishedCases = getPublishedCases();
+const socialTicker = getSocialItems();
 ---
 
 <BaseLayout
@@ -208,6 +211,15 @@ const publishedCases = getPublishedCases();
         <Faq client:visible />
       </div>
     </section>
+
+    <Ticker
+      items={socialTicker}
+      variant="social"
+      speed={48}
+      pauseOnHover={true}
+      live={true}
+      ariaLabel="Свежие работы и слоты Мова"
+    />
 
     <section class="section" id="booking">
       <div class="container booking-wrap">
