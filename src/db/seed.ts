@@ -7,10 +7,10 @@ import { SEED_MODELS } from './seed-data';
 import { ensureDefaultPromoCodes } from '../lib/promo';
 
 const SEED_CASES = [
-  { title: 'Geely Monjaro', description: 'Меню RU · Минск', imagePath: '/cases/geely-cabin.jpg', sortOrder: 0 },
-  { title: 'BYD Song Plus', description: 'Меню RU · Минск', imagePath: '/cases/byd-cabin.jpg', sortOrder: 1 },
-  { title: 'Zeekr 001', description: 'Меню RU · Минск', imagePath: '/cases/zeekr-cabin.jpg', sortOrder: 2 },
-  { title: 'Li Auto L7', description: 'Меню RU · Минск', imagePath: '/cases/li-cabin.jpg', sortOrder: 3 },
+  { title: 'Geely Monjaro', description: 'Меню и настройки на русском', imagePath: '/cases/geely-cabin.jpg', sortOrder: 0 },
+  { title: 'BYD Song Plus', description: 'DiLink · базовое меню RU', imagePath: '/cases/byd-cabin.jpg', sortOrder: 1 },
+  { title: 'Zeekr 001', description: 'Меню RU · визит 2–3 часа', imagePath: '/cases/zeekr-cabin.jpg', sortOrder: 2 },
+  { title: 'Li Auto L7', description: 'Меню RU · Li OS', imagePath: '/cases/li-cabin.jpg', sortOrder: 3 },
 ] as const;
 
 export function seedDatabase(force = false) {
@@ -163,18 +163,34 @@ function ensureDomainExpense() {
   }
 }
 
-/** Seed published home portfolio cases when empty (Pexels RF cabin stills under /public/cases). */
+/** Seed / sync home portfolio cases (RF cabin stills under /public/cases). */
 function ensurePortfolioCases(force = false) {
   if (force) {
     sqlite.exec('DELETE FROM portfolio_cases');
   }
-  const [{ value: caseCount }] = db.select({ value: count() }).from(portfolioCases).all();
-  if (caseCount > 0) return;
 
   for (const c of SEED_CASES) {
     const disk = resolve(`./public${c.imagePath}`);
     if (!existsSync(disk)) {
       console.warn(`[seed] missing case image ${c.imagePath} — skip row`);
+      continue;
+    }
+    const existing = db
+      .select()
+      .from(portfolioCases)
+      .where(eq(portfolioCases.title, c.title))
+      .get();
+    if (existing) {
+      db.update(portfolioCases)
+        .set({
+          description: c.description,
+          imagePath: c.imagePath,
+          published: true,
+          sortOrder: c.sortOrder,
+          updatedAt: new Date().toISOString(),
+        })
+        .where(eq(portfolioCases.id, existing.id))
+        .run();
       continue;
     }
     db.insert(portfolioCases)

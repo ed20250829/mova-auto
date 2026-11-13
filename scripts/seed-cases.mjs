@@ -24,24 +24,24 @@ sqlite.exec(`
 `);
 
 const cases = [
-  { title: 'Geely Monjaro', description: 'Меню RU · Минск', imagePath: '/cases/geely-cabin.jpg', sortOrder: 0 },
-  { title: 'BYD Song Plus', description: 'Меню RU · Минск', imagePath: '/cases/byd-cabin.jpg', sortOrder: 1 },
-  { title: 'Zeekr 001', description: 'Меню RU · Минск', imagePath: '/cases/zeekr-cabin.jpg', sortOrder: 2 },
-  { title: 'Li Auto L7', description: 'Меню RU · Минск', imagePath: '/cases/li-cabin.jpg', sortOrder: 3 },
+  { title: 'Geely Monjaro', description: 'Меню и настройки на русском', imagePath: '/cases/geely-cabin.jpg', sortOrder: 0 },
+  { title: 'BYD Song Plus', description: 'DiLink · базовое меню RU', imagePath: '/cases/byd-cabin.jpg', sortOrder: 1 },
+  { title: 'Zeekr 001', description: 'Меню RU · визит 2–3 часа', imagePath: '/cases/zeekr-cabin.jpg', sortOrder: 2 },
+  { title: 'Li Auto L7', description: 'Меню RU · Li OS', imagePath: '/cases/li-cabin.jpg', sortOrder: 3 },
 ];
 
 if (force) sqlite.exec('DELETE FROM portfolio_cases');
-
-const count = sqlite.prepare('SELECT COUNT(*) AS c FROM portfolio_cases').get().c;
-if (count > 0) {
-  console.log(`portfolio_cases already has ${count} rows`);
-  process.exit(0);
-}
 
 const insert = sqlite.prepare(
   `INSERT INTO portfolio_cases (title, description, image_path, published, sort_order)
    VALUES (?, ?, ?, 1, ?)`,
 );
+const update = sqlite.prepare(
+  `UPDATE portfolio_cases
+   SET description = ?, image_path = ?, published = 1, sort_order = ?, updated_at = datetime('now')
+   WHERE title = ?`,
+);
+const byTitle = sqlite.prepare(`SELECT id FROM portfolio_cases WHERE title = ?`);
 
 for (const c of cases) {
   const disk = resolve(`./public${c.imagePath}`);
@@ -49,8 +49,14 @@ for (const c of cases) {
     console.warn('missing', c.imagePath);
     continue;
   }
-  insert.run(c.title, c.description, c.imagePath, c.sortOrder);
-  console.log('seeded', c.title, c.imagePath);
+  const row = byTitle.get(c.title);
+  if (row) {
+    update.run(c.description, c.imagePath, c.sortOrder, c.title);
+    console.log('updated', c.title, c.imagePath);
+  } else {
+    insert.run(c.title, c.description, c.imagePath, c.sortOrder);
+    console.log('seeded', c.title, c.imagePath);
+  }
 }
 
-console.log(sqlite.prepare('SELECT id, title, image_path, published FROM portfolio_cases').all());
+console.log(sqlite.prepare('SELECT id, title, description, image_path, published FROM portfolio_cases').all());
