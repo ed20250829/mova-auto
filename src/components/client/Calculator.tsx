@@ -367,14 +367,26 @@ export default function Calculator({
           <p className="calc-total-label">
             Итого · {selected.brand} {selected.model} · ~{selected.timeMinutes} мин
           </p>
-          <p className="display calc-total-price">{tickPrice}&nbsp;BYN</p>
+          {quote.discount > 0 ? (
+            <p className="display calc-total-price calc-total-price--promo">
+              <span className="calc-price-was">
+                <span className="calc-price-was-label">было</span> {quote.subtotal}&nbsp;BYN
+              </span>
+              <span className="calc-price-now">
+                <span className="calc-price-now-label">сейчас</span> {tickPrice}&nbsp;BYN
+              </span>
+            </p>
+          ) : (
+            <p className="display calc-total-price">{tickPrice}&nbsp;BYN</p>
+          )}
           <p className="calc-total-layers muted">
             база
             {ota ? ' · страховка обновлений' : ''}
             {appPack ? ' · Яндекс-приложения' : ''}
             {visit ? ' · выезд' : ''}
-            {appliedPromo ? ` · −${appliedPromo.kind === 'percent' ? `${appliedPromo.value}%` : `${appliedPromo.value} BYN`}` : ''}
-            {quote.discount > 0 ? ` · было ${quote.subtotal} BYN` : ''}
+            {appliedPromo
+              ? ` · −${appliedPromo.kind === 'percent' ? `${appliedPromo.value}%` : `${appliedPromo.value} BYN`}`
+              : ''}
           </p>
         </div>
         <div className="calc-total-actions">

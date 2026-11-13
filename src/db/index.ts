@@ -205,6 +205,12 @@ export function initSchema() {
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS site_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL DEFAULT '',
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE UNIQUE INDEX IF NOT EXISTS models_brand_model_uidx
       ON models(brand_slug, model_slug);
 
@@ -233,7 +239,16 @@ export function initSchema() {
   ensureColumn('leads', 'status', "TEXT NOT NULL DEFAULT 'new'");
   ensureColumn('subscriptions', 'last_remind_at', 'TEXT');
   ensureColumn('subscriptions', 'last_remind_days', 'INTEGER');
+  seedSiteSettings();
   backfillLeadStatuses();
+}
+
+function seedSiteSettings() {
+  sqlite
+    .prepare(
+      `INSERT OR IGNORE INTO site_settings (key, value) VALUES ('show_sample_banner', '0')`,
+    )
+    .run();
 }
 
 function backfillLeadStatuses() {

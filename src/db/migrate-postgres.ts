@@ -196,6 +196,16 @@ CREATE TABLE IF NOT EXISTS portfolio_cases (
 
 CREATE INDEX IF NOT EXISTS portfolio_cases_published_idx
   ON portfolio_cases(published, sort_order);
+
+CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL DEFAULT '',
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+INSERT INTO site_settings (key, value)
+VALUES ('show_sample_banner', '0')
+ON CONFLICT (key) DO NOTHING;
 `;
 
 async function main() {

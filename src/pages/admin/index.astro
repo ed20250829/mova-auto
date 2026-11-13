@@ -5,9 +5,14 @@ import { getTodayInbox } from '../../lib/admin-inbox';
 import { formatByn } from '../../lib/format';
 import DashboardCharts from '../../components/admin/DashboardCharts';
 import InboxPanel from '../../components/admin/InboxPanel';
+import SiteBannerToggle from '../../components/admin/SiteBannerToggle';
+import { ensureDb } from '../../lib/models';
+import { getShowSampleBanner } from '../../lib/site-settings';
 
+ensureDb();
 const s = getDashboardStats();
 const inbox = getTodayInbox();
+const showSampleBanner = getShowSampleBanner();
 const revDelta =
   s.prevMonth.revenue > 0
     ? Math.round(((s.month.revenue - s.prevMonth.revenue) / s.prevMonth.revenue) * 100)
@@ -17,6 +22,8 @@ const revDelta =
 ---
 
 <AdminLayout title="Дашборд">
+  <SiteBannerToggle client:load initialOn={showSampleBanner} />
+
   <section class="admin-kpi">
     <article>
       <span>Заявки сегодня</span>

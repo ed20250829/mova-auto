@@ -3,6 +3,8 @@ import '../styles/global.css';
 import SampleBanner from '../components/client/SampleBanner';
 import CookieBanner from '../components/client/CookieBanner';
 import CallbackWidget from '../components/client/CallbackWidget';
+import { ensureDb } from '../lib/models';
+import { getShowSampleBanner } from '../lib/site-settings';
 
 interface Props {
   title?: string;
@@ -28,11 +30,17 @@ const ld = jsonLd
     : [jsonLd]
   : [];
 
-/** Demo banner: runtime hoster `.env` OR build-time PUBLIC_ OR local `astro dev`. */
-const showSampleBanner =
-  process.env.PUBLIC_SHOW_SAMPLE_BANNER === '1' ||
-  import.meta.env.PUBLIC_SHOW_SAMPLE_BANNER === '1' ||
-  import.meta.env.DEV;
+/**
+ * Sample banner: admin DB flag only (default off).
+ * Admin OFF always wins over PUBLIC_SHOW_SAMPLE_BANNER and astro-dev always-on.
+ */
+let showSampleBanner = false;
+try {
+  ensureDb();
+  showSampleBanner = getShowSampleBanner();
+} catch {
+  showSampleBanner = false;
+}
 
 /** Yandex Metrika: only inject id when set; script loads after cookie accept. */
 const yandexMetrikaId = String(

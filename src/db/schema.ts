@@ -193,6 +193,13 @@ export const portfolioCases = sqliteTable('portfolio_cases', {
   updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
 });
 
+/** Key/value site flags (admin kill-switches, etc.). */
+export const siteSettings = sqliteTable('site_settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull().default(''),
+  updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
+});
+
 export type Model = typeof models.$inferSelect;
 export type PromoCode = typeof promoCodes.$inferSelect;
 export type Order = typeof orders.$inferSelect;
@@ -205,3 +212,4 @@ export type TelegramUser = typeof telegramUsers.$inferSelect;
 export type TelegramBridge = typeof telegramBridges.$inferSelect;
 export type BookingSlot = typeof bookingSlots.$inferSelect;
 export type PortfolioCase = typeof portfolioCases.$inferSelect;
+export type SiteSetting = typeof siteSettings.$inferSelect;

@@ -474,13 +474,25 @@ export default function BookingForm({ models, preselectId }: Props) {
         <p className="muted" style={{ margin: 0 }}>
           {quote.discount > 0 ? (
             <>
-              Без скидки {quote.subtotal}&nbsp;BYN · скидка −{quote.discount}&nbsp;BYN ·{' '}
+              <span className="calc-price-was">
+                <span className="calc-price-was-label">было</span> {quote.subtotal}&nbsp;BYN
+              </span>
+              {' · '}
+              <span className="calc-price-now">
+                <span className="calc-price-now-label">сейчас</span>{' '}
+                <strong className="price-inline" style={{ color: 'var(--text)' }}>
+                  {quote.price}&nbsp;BYN
+                </strong>
+              </span>
             </>
-          ) : null}
-          Итого к заявке:{' '}
-          <strong className="price-inline" style={{ color: 'var(--text)' }}>
-            {quote.price}&nbsp;BYN
-          </strong>{' '}
+          ) : (
+            <>
+              Итого к заявке:{' '}
+              <strong className="price-inline" style={{ color: 'var(--text)' }}>
+                {quote.price}&nbsp;BYN
+              </strong>
+            </>
+          )}{' '}
           · ~{selected.timeMinutes} мин
           {quote.options.length > 0 ? ` · ${quote.options.join(', ')}` : ''}
         </p>

@@ -51,6 +51,7 @@ export const PATCH: APIRoute = async ({ request }) => {
   if (body.maxUses !== undefined) {
     patch.maxUses = body.maxUses === '' || body.maxUses == null ? null : Number(body.maxUses);
   }
+  if (body.validFrom !== undefined) patch.validFrom = body.validFrom || null;
   if (body.validTo !== undefined) patch.validTo = body.validTo || null;
   if (body.firstOrderOnly !== undefined) patch.firstOrderOnly = Boolean(body.firstOrderOnly);
 
